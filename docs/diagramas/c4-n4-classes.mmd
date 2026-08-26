@@ -1,0 +1,112 @@
+---
+title: "C4 Nível 4 - Diagrama de Classes (UML) - dominio da sessão de mentoria"
+---
+classDiagram
+    direction LR
+
+    class Usuario {
+        <<entity>>
+        -UUID id
+        -String nome
+        -String email
+        -String curso
+        -int periodo
+        -boolean ehMentor
+        -boolean ehMentorado
+        +podeMentorar(matéria) boolean
+        +ehOMesmoQue(outro) boolean
+    }
+
+    class AreaMentoria {
+        <<entity>>
+        -UUID id
+        -String curso
+        -String matéria
+    }
+
+    class Disponibilidade {
+        <<entity>>
+        -UUID id
+        -int diaSemana
+        -String horaInicio
+        -String horaFim
+        +contem(dataHora) boolean
+    }
+
+    class Sessao {
+        <<entity>>
+        -UUID id
+        -DateTime dataHora
+        -String assunto
+        -StatusSessao status
+        +aceitar(ator) void
+        +recusar(ator) void
+        +concluir(ator) void
+        +cancelar(ator) void
+        +podeSerAvaliada() boolean
+    }
+
+    class Avaliacao {
+        <<entity>>
+        -UUID id
+        -int nota
+        -String comentario
+        -DateTime criadaEm
+    }
+
+    class Notificacao {
+        <<entity>>
+        -UUID id
+        -TipoNotificacao tipo
+        -String mensagem
+        -boolean lida
+    }
+
+    class StatusSessao {
+        <<enumeration>>
+        SOLICITADA
+        ACEITA
+        RECUSADA
+        CONCLUIDA
+        CANCELADA
+    }
+
+    class TipoNotificacao {
+        <<enumeration>>
+        SOLICITACAO_CRIADA
+        SOLICITACAO_ACEITA
+        SOLICITACAO_RECUSADA
+        SESSAO_CONCLUIDA
+        SESSAO_CANCELADA
+    }
+
+    class ServicoDeSessao {
+        <<service>>
+        +solicitar(mentorado, mentor, dataHora, assunto) Sessao
+        +transicionar(sessão, acao, ator) Sessao
+    }
+
+    class ServicoDeReputacao {
+        <<service>>
+        +calcular(mentor) Reputacao
+    }
+
+    class Reputacao {
+        <<value object>>
+        -Double media
+        -int total
+        +semAvaliações() boolean
+    }
+
+    Usuario "1" --> "0..*" AreaMentoria : oferece
+    Usuario "1" --> "0..*" Disponibilidade : publica
+    Usuario "1" --> "0..*" Sessao : como mentor
+    Usuario "1" --> "0..*" Sessao : como mentorado
+    Usuario "1" --> "0..*" Notificacao : recebe
+    Sessao "1" --> "0..1" Avaliacao : recebe
+    Sessao ..> StatusSessao : usa
+    Notificacao ..> TipoNotificacao : usa
+    ServicoDeSessao ..> Sessao : orquestra
+    ServicoDeSessao ..> Disponibilidade : verifica
+    ServicoDeReputacao ..> Avaliacao : agrega
+    ServicoDeReputacao ..> Reputacao : produz

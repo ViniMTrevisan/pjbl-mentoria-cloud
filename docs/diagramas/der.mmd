@@ -1,0 +1,67 @@
+---
+title: "Diagrama de Entidades e Relacionamentos (DER)"
+---
+erDiagram
+    USUARIO ||--o{ AREA_MENTORIA : "oferece"
+    USUARIO ||--o{ DISPONIBILIDADE : "publica"
+    USUARIO ||--o{ SESSAO : "atende como mentor"
+    USUARIO ||--o{ SESSAO : "solicita como mentorado"
+    USUARIO ||--o{ NOTIFICACAO : "recebe"
+    SESSAO  ||--o| AVALIACAO : "recebe"
+    SESSAO  |o--o{ NOTIFICACAO : "origina"
+
+    USUARIO {
+        uuid id PK
+        varchar nome
+        varchar email UK
+        varchar senha_hash
+        varchar curso
+        int periodo
+        text bio
+        boolean eh_mentor
+        boolean eh_mentorado
+        timestamptz criado_em
+    }
+
+    AREA_MENTORIA {
+        uuid id PK
+        uuid mentor_id FK
+        varchar curso
+        varchar matéria
+    }
+
+    DISPONIBILIDADE {
+        uuid id PK
+        uuid mentor_id FK
+        int dia_semana
+        varchar hora_início
+        varchar hora_fim
+    }
+
+    SESSAO {
+        uuid id PK
+        uuid mentor_id FK
+        uuid mentorado_id FK
+        timestamptz data_hora
+        varchar assunto
+        status_sessão status
+        timestamptz criada_em
+    }
+
+    AVALIACAO {
+        uuid id PK
+        uuid sessão_id FK,UK "único: uma avaliação por sessão"
+        int nota
+        text comentario
+        timestamptz criada_em
+    }
+
+    NOTIFICACAO {
+        uuid id PK
+        uuid usuário_id FK
+        tipo_notificação tipo
+        text mensagem
+        uuid sessão_id FK
+        boolean lida
+        timestamptz criada_em
+    }

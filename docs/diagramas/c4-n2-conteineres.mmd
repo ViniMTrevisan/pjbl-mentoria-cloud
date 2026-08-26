@@ -1,0 +1,38 @@
+---
+title: "Diagrama de Contêineres (C4 - Nível 2) - Veterano."
+---
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef contêiner fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef banco fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+    classDef limite fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+
+    Calouro["<b>Calouro (mentorado)</b><br/>[Person]<br/><br/>Busca mentores e<br/>solicita sessões."]:::pessoa
+    Veterano["<b>Veterano (mentor)</b><br/>[Person]<br/><br/>Publica disponibilidade e<br/>responde solicitações."]:::pessoa
+
+    subgraph Sistema["Veterano. [Software System]"]
+        direction TB
+        SPA["<b>Aplicação Web (SPA)</b><br/>[Container: React 19, Vite, TypeScript]<br/><br/>Telas de busca, perfil do mentor<br/>e sessões. Hospedada no<br/>Azure Static Web Apps."]:::contêiner
+        API["<b>API de Mentoria</b><br/>[Container: Azure Functions v4, Node 22]<br/><br/>Endpoints HTTP, regras de negócio<br/>e autorização por recurso."]:::contêiner
+        Fila[("<b>Fila de Notificações</b><br/>[Container: Azure Storage Queue]<br/><br/>Desacopla o envio de e-mail<br/>da requisição HTTP.")]:::banco
+        Worker["<b>Processador de Notificações</b><br/>[Container: Azure Functions, Queue Trigger]<br/><br/>Consome a fila e dispara<br/>os e-mails."]:::contêiner
+        DB[("<b>Banco de Dados</b><br/>[Container: Azure Database for PostgreSQL]<br/><br/>Usuários, áreas, disponibilidades,<br/>sessões, avaliações e notificações.")]:::banco
+        KV["<b>Cofre de Segredos</b><br/>[Container: Azure Key Vault]<br/><br/>Connection strings e chaves,<br/>lidas via Managed Identity."]:::contêiner
+    end
+
+    Entra["<b>Microsoft Entra External ID</b><br/>[Software System]<br/><br/>Provedor de identidade."]:::externo
+    Email["<b>Azure Communication Services Email</b><br/>[Software System]<br/><br/>Entrega dos e-mails."]:::externo
+
+    Calouro -->|"Usa<br/><i>[HTTPS]</i>"| SPA
+    Veterano -->|"Usa<br/><i>[HTTPS]</i>"| SPA
+    SPA -->|"Le e escreve dados<br/><i>[JSON/HTTPS]</i>"| API
+    SPA -->|"Autentica o usuário<br/><i>[OIDC / PKCE]</i>"| Entra
+    API -->|"Valida o token<br/><i>[JWKS]</i>"| Entra
+    API -->|"Consulta e grava<br/><i>[TLS 5432]</i>"| DB
+    API -->|"Le segredos<br/><i>[Managed Identity]</i>"| KV
+    API -->|"Enfileira a notificação<br/><i>[HTTPS]</i>"| Fila
+    Fila -->|"Dispara<br/><i>[Queue Trigger]</i>"| Worker
+    Worker -->|"Solicita o envio<br/><i>[HTTPS]</i>"| Email
+
+    class Sistema limite

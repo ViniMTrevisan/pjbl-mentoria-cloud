@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Documentação de Arquitetura — Veterano.</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+  @page :first { margin: 0; }
+  @page paisagem { size: A4 landscape; margin: 14mm; }
+
+  :root {
+    --tinta: #16233a;
+    --apoio: #5c6b8a;
+    --grade: #d6dde9;
+    --marca: #d9f24a;
+    --papel: #f6f8fb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--tinta);
+    font-size: 10pt;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ---------- capa ---------- */
+  .capa {
+    height: 297mm;
+    padding: 32mm 22mm;
+    background: var(--papel);
+    border-bottom: 3px solid var(--tinta);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .capa-topo { border-top: 4px solid var(--tinta); padding-top: 8mm; }
+  .capa h1 { font-size: 32pt; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 6mm; }
+  .capa h1 em { font-style: normal; background: linear-gradient(transparent 58%, var(--marca) 58%); }
+  .capa .sub { font-size: 13pt; color: var(--apoio); margin: 0 0 12mm; max-width: 130mm; }
+  .capa .meta { font-size: 10pt; }
+  .capa .meta dt { font-size: 7.5pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--apoio); margin-top: 5mm; }
+  .capa .meta dd { margin: 1mm 0 0; }
+  .capa .rodape { font-size: 8.5pt; color: var(--apoio); border-top: 1px solid var(--grade); padding-top: 4mm; }
+
+  .grupo { list-style: none; padding: 0; margin: 2mm 0 0; }
+  .grupo li { padding: 1.5mm 0; border-bottom: 1px solid var(--grade); font-size: 11pt; }
+
+  /* ---------- estrutura ---------- */
+  h2 {
+    font-size: 15pt;
+    letter-spacing: -0.02em;
+    margin: 10mm 0 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 2px solid var(--tinta);
+    page-break-after: avoid;
+    page-break-before: always;
+  }
+  h2:first-of-type { page-break-before: avoid; }
+  h3 { font-size: 11.5pt; margin: 6mm 0 2mm; page-break-after: avoid; }
+  h4 { font-size: 10pt; margin: 4mm 0 1mm; color: var(--apoio); page-break-after: avoid; }
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1mm; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 8.5pt; background: var(--papel); padding: 0.5mm 1mm; border-radius: 2px; }
+
+  .intro { color: var(--apoio); font-size: 9pt; border-left: 3px solid var(--marca); padding-left: 4mm; margin-bottom: 4mm; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 8.5pt; page-break-inside: avoid; }
+  th, td { border: 1px solid var(--grade); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: var(--papel); font-weight: 600; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: var(--apoio); }
+  td.must { white-space: nowrap; }
+
+  figure { margin: 5mm 0 6mm; page-break-inside: avoid; text-align: center; }
+  figure svg { max-width: 100%; height: auto; }
+  figcaption { font-size: 8pt; color: var(--apoio); margin-top: 2mm; text-align: left; border-top: 1px solid var(--grade); padding-top: 1.5mm; }
+  figure.paisagem { page: paisagem; page-break-before: always; page-break-after: always; margin: 0; }
+
+  .selo { display: inline-block; font-size: 7pt; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.6mm 1.6mm; border: 1px solid var(--grade); border-radius: 2px; white-space: nowrap; }
+  .selo.feito { background: var(--marca); border-color: #b9d02f; font-weight: 700; }
+  .selo.planejado { color: var(--apoio); }
+
+  /* ---------- canvas ---------- */
+  .canvas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2mm; page-break-inside: avoid; }
+  .canvas .bloco { border: 1px solid var(--tinta); padding: 3mm; font-size: 8pt; }
+  .canvas .bloco h5 { margin: 0 0 1.5mm; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tinta); background: var(--marca); display: inline-block; padding: 0.6mm 1.5mm; }
+  .canvas .bloco ul { padding-left: 4mm; margin: 0; }
+  .canvas .bloco li { margin-bottom: 0.8mm; }
+  .canvas .larga2 { grid-column: span 2; }
+  .canvas .larga3 { grid-column: span 3; }
+
+  .adr { border: 1px solid var(--grade); border-left: 3px solid var(--marca); padding: 3mm 4mm; margin-bottom: 4mm; page-break-inside: avoid; }
+  .adr h4 { color: var(--tinta); font-size: 10pt; margin: 0 0 1.5mm; }
+  .adr dl { margin: 0; font-size: 8.5pt; }
+  .adr dt { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.1em; color: var(--apoio); margin-top: 2mm; }
+  .adr dd { margin: 0.5mm 0 0; }
+
+  .sumario { page-break-after: always; }
+  .sumario ol { list-style: none; padding: 0; counter-reset: sec; }
+  .sumario li { counter-increment: sec; padding: 1.5mm 0; border-bottom: 1px solid var(--grade); font-size: 10pt; }
+  .sumario li::before { content: counter(sec) ". "; color: var(--apoio); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="capa-topo">
+    <p style="font-size:8pt;letter-spacing:0.18em;text-transform:uppercase;color:var(--apoio);margin:0 0 14mm">
+      Pontifícia Universidade Católica do Paraná &middot; Arquitetura e Soluções em Cloud
+    </p>
+    <h1>Documentação de<br>Arquitetura<em>.</em></h1>
+    <p class="sub"><strong>Veterano.</strong> — Plataforma de mentoria entre veteranos e calouros. Documentação parcial no padrão arc42, com C4 Model (níveis 1 a 4), UML, DER e Software Architecture Canvas.</p>
+  </div>
+
+  <div class="meta">
+    <dl>
+      <dt>Grupo</dt>
+      <dd>
+        <ul class="grupo">
+          <li>Bento Barp</li>
+          <li>Guilherme Reis</li>
+          <li>Guilherme Selenko</li>
+          <li>Vinicius Trevisan</li>
+        </ul>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="rodape">
+    Repositório: github.com/ViniMTrevisan/pjbl-mentoria-cloud<br>
+    Aplicação publicada: white-rock-03ee36c10.7.azurestaticapps.net &middot; API: func-pjbl-mentoria.azurewebsites.net<br>
+    Versão 1.0 &middot; agosto de 2026 &middot; documento parcial
+  </div>
+</section>
+
+<section class="sumario">
+  <h2 style="page-break-before:avoid;margin-top:0">Sumário</h2>
+  <ol>
+    <li>Introdução e Objetivos</li>
+    <li>Restrições da Arquitetura</li>
+    <li>Escopo e Contexto do Sistema — <em>C4 Nível 1</em></li>
+    <li>Estratégia de Solução — <em>Software Architecture Canvas</em></li>
+    <li>Visão de Blocos de Construção — <em>C4 Níveis 2, 3 e 4</em></li>
+    <li>Visão de Runtime — <em>UML Sequência e Máquina de Estados</em></li>
+    <li>Visão de Implantação — <em>UML Deployment</em></li>
+    <li>Conceitos Transversais — <em>DER</em></li>
+    <li>Decisões de Arquitetura</li>
+    <li>Requisitos de Qualidade</li>
+    <li>Riscos e Dívidas Técnicas</li>
+    <li>Glossário</li>
+  </ol>
+  <p style="font-size:8.5pt;color:var(--apoio);margin-top:6mm">
+    <strong>Nota sobre o caráter parcial deste documento.</strong> A entrega cobre as doze seções do
+    template arc42, mas o sistema descrito está implementado apenas em parte. Ao longo do texto,
+    <span class="selo feito">implementado</span> marca o que já está publicado em Azure e
+    <span class="selo planejado">planejado</span> marca o que está desenhado mas ainda não construído.
+    A seção 5 e a seção 7 trazem o inventário completo desse recorte.
+  </p>
+</section>
+
+<h2>1. Introdução e Objetivos</h2>
+
+<p><strong>Veterano.</strong> é uma plataforma web que conecta calouros que precisam de ajuda em uma
+matéria a veteranos dispostos a dar mentoria. Hoje esse encontro acontece de forma informal — grupos
+de WhatsApp, indicação pessoal, sorte — e depende de o calouro conhecer alguém. O sistema resolve o
+fluxo completo de ponta a ponta: <strong>cadastro → descoberta → agendamento → avaliação</strong>.</p>
+
+<h3>1.1 Visão geral dos requisitos</h3>
+
+<table>
+  <thead><tr><th style="width:12%">ID</th><th>Requisito funcional</th><th style="width:14%">Situação</th></tr></thead>
+  <tbody>
+    <tr><td class="must">RF1</td><td>Cadastro e login do usuário.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF2</td><td>Definir o perfil como mentor, mentorado ou ambos.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF3</td><td>Mentor cadastra as matérias/áreas em que pode ajudar.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF4</td><td>Mentor define sua disponibilidade de horários.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF5</td><td>Mentorado busca mentores por curso, matéria ou área.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td class="must">RF6</td><td>Mentorado solicita uma sessão de mentoria.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF7</td><td>Mentor aceita ou recusa a solicitação.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF8</td><td>Notificar o usuário a cada mudança de status da solicitação.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF9</td><td>Visualizar sessões futuras e histórico.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td class="must">RF10</td><td>Mentorado avalia o mentor após a sessão concluída.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td class="must">RF11</td><td>Calcular e exibir a reputação do mentor.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td class="must">RF12</td><td>Marcar a sessão como concluída ou cancelada.</td><td><span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+<p>Ficam <strong>fora de escopo</strong> de forma deliberada, para manter o projeto viável no semestre:
+chat em tempo real, videochamada integrada, pagamento das mentorias, app mobile nativo e integração
+com o sistema acadêmico da instituição.</p>
+
+<h3>1.2 Metas de qualidade</h3>
+
+<table>
+  <thead><tr><th style="width:6%">#</th><th style="width:22%">Atributo</th><th>Meta concreta</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Usabilidade</td><td>O calouro conclui a busca por mentor no celular, sem zoom e sem instruções. A interface é toda em pt-BR, com datas em <code>dd/MM/yyyy</code> e fuso <code>America/Sao_Paulo</code>.</td></tr>
+    <tr><td>2</td><td>Segurança</td><td>Um usuário só lê e altera sessões em que é mentor ou mentorado. A autorização é verificada por recurso no servidor, nunca só na interface.</td></tr>
+    <tr><td>3</td><td>Confiabilidade</td><td>Uma falha no envio de e-mail não derruba a requisição. A notificação in-app é a fonte de verdade; o e-mail é <em>best effort</em>.</td></tr>
+    <tr><td>4</td><td>Custo</td><td>O custo mensal cabe no crédito da assinatura Azure for Students, com serviços serverless que escalam a zero quando ninguém usa.</td></tr>
+    <tr><td>5</td><td>Manutenibilidade</td><td>Toda regra de negócio vive no servidor e é testável sem interface. O front-end não recalcula reputação nem revalida transição de estado.</td></tr>
+  </tbody>
+</table>
+
+<h3>1.3 Stakeholders</h3>
+
+<table>
+  <thead><tr><th style="width:24%">Papel</th><th style="width:30%">Quem é</th><th>O que espera da arquitetura</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro (mentorado)</td><td>Aluno de 1º a 3º período</td><td>Achar rápido alguém que já passou pela matéria e agendar sem burocracia, pelo celular.</td></tr>
+    <tr><td>Veterano (mentor)</td><td>Aluno a partir do 4º período</td><td>Controlar sua disponibilidade, não ser incomodado fora dela e construir reputação visível.</td></tr>
+    <tr><td>Coordenação do curso</td><td>Professores e coordenadores</td><td>Moderar cadastros e enxergar métricas de uso sem acessar o banco diretamente.</td></tr>
+    <tr><td>Equipe de desenvolvimento</td><td>Bento, Guilherme R., Guilherme S., Vinicius</td><td>Poder trabalhar em paralelo em front-end e API, com contratos estáveis entre eles.</td></tr>
+    <tr><td>Professor da disciplina</td><td>Avaliador do PJBL</td><td>Rastrear cada decisão de arquitetura até um requisito e ver os princípios de cloud aplicados.</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Restrições da Arquitetura</h2>
+
+<h3>2.1 Restrições técnicas</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Restrição</th><th>Origem e consequência</th></tr></thead>
+  <tbody>
+    <tr><td>Hospedagem obrigatória em Microsoft Azure</td><td>Exigência da disciplina. Elimina alternativas como Vercel, Netlify ou AWS, e orienta toda a seleção de serviços da seção 4.</td></tr>
+    <tr><td>Front-end no Azure Static Web Apps</td><td>Exigência da atividade. Implica um artefato puramente estático: o front-end não pode ter renderização no servidor, o que descarta o Next.js com SSR previsto no PRD original.</td></tr>
+    <tr><td>Back-end em Azure Functions</td><td>Exigência da atividade. A API precisa ser stateless e tolerar <em>cold start</em>; nenhum estado pode viver na memória do processo entre requisições.</td></tr>
+    <tr><td>Assinatura Azure for Students</td><td>Crédito limitado e sem cartão. Restringe a SKUs gratuitas ou de consumo e limita as regiões disponíveis (ver seção 7).</td></tr>
+    <tr><td>Regiões permitidas por policy</td><td>A policy <em>Allowed resource deployment regions</em> da assinatura libera apenas <code>centralus</code>, <code>mexicocentral</code>, <code>southafricanorth</code>, <code>canadacentral</code> e <code>chilecentral</code>. <code>brazilsouth</code> está bloqueada, apesar de ser a região mais próxima do usuário final.</td></tr>
+    <tr><td>Uso de IA generativa</td><td>Exigência da atividade. O código gerado precisa ser rastreável ao prompt que o originou (arquivo <code>Prompt.md</code>) e revisado por uma pessoa antes de publicar.</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 Restrições organizacionais e convenções</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Restrição</th><th>Consequência</th></tr></thead>
+  <tbody>
+    <tr><td>Equipe de quatro alunos, um semestre</td><td>O escopo foi cortado no MVP. Complexidade só entra na arquitetura quando paga um requisito explícito.</td></tr>
+    <tr><td>Sem orçamento para licenças</td><td>Todo o ferramental é gratuito ou open source: Vite, React, Node, PostgreSQL, GitHub.</td></tr>
+    <tr><td>Interface e documentação em pt-BR</td><td>Nomes de domínio no código em português (<code>Sessao</code>, <code>Disponibilidade</code>), reduzindo a tradução mental entre o requisito e o código.</td></tr>
+    <tr><td>Repositório público no GitHub</td><td>Nenhum segredo pode ser versionado. Credenciais ficam em variáveis de ambiente e, na evolução, no Azure Key Vault.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Escopo e Contexto do Sistema</h2>
+
+<p class="intro">Esta seção delimita a fronteira do sistema: quem interage com o Veterano. e quais
+sistemas externos ele precisa. O diagrama abaixo é o <strong>Nível 1 do C4 Model</strong> — o
+diagrama de contexto.</p>
+
+<h3>3.1 Contexto de negócio</h3>
+
+{{DIAGRAMA:c4-n1-contexto}}
+
+<table>
+  <thead><tr><th style="width:26%">Parceiro de comunicação</th><th style="width:30%">Entrada</th><th>Saída</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro (mentorado)</td><td>Filtros de busca, solicitação de sessão, nota e comentário da avaliação.</td><td>Lista de mentores com reputação, situação das solicitações, notificações.</td></tr>
+    <tr><td>Veterano (mentor)</td><td>Áreas de mentoria, blocos de disponibilidade, decisão de aceitar ou recusar.</td><td>Solicitações recebidas, agenda de sessões, reputação acumulada.</td></tr>
+    <tr><td>Coordenação</td><td>Ações de moderação sobre cadastros.</td><td>Métricas gerais de uso da plataforma.</td></tr>
+    <tr><td>Microsoft Entra External ID</td><td>Credenciais do usuário no fluxo de login.</td><td>Token de identidade (JWT) validado pela API.</td></tr>
+    <tr><td>Serviço de e-mail</td><td>Destinatário, assunto e corpo da notificação.</td><td>Confirmação de aceite do envio; a entrega em si é assíncrona.</td></tr>
+  </tbody>
+</table>
+
+<h3>3.2 Contexto técnico</h3>
+
+<table>
+  <thead><tr><th style="width:20%">Canal</th><th style="width:20%">Protocolo</th><th>Observação</th></tr></thead>
+  <tbody>
+    <tr><td>Navegador → Static Web Apps</td><td>HTTPS/TLS 1.2+</td><td>Entrega do bundle estático pela rede de borda do serviço. Certificado gerenciado pela Azure.</td></tr>
+    <tr><td>Navegador → Azure Functions</td><td>HTTPS, JSON</td><td>Chamada direta do browser à API. O CORS da Function App libera apenas a origem do Static Web App e <code>http://localhost:5173</code> para desenvolvimento.</td></tr>
+    <tr><td>SPA → Entra External ID</td><td>OpenID Connect, PKCE</td><td>O <em>authorization code flow</em> com PKCE é o adequado para cliente público sem segredo. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Functions → PostgreSQL</td><td>TCP 5432 sobre TLS</td><td>Conexão autenticada por credencial vinda do Key Vault. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Functions → Storage Queue</td><td>HTTPS</td><td>Enfileiramento das notificações por e-mail. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Functions → Application Insights</td><td>HTTPS</td><td>Telemetria de requisições, dependências e exceções. <span class="selo feito">implementado</span></td></tr>
+  </tbody>
+</table>
+
+<h2>4. Estratégia de Solução</h2>
+
+<p class="intro">Um resumo das decisões estruturais que moldam a solução, e a justificativa de cada
+uma. As decisões estão detalhadas como ADRs na seção 9.</p>
+
+<table>
+  <thead><tr><th style="width:24%">Decisão</th><th style="width:34%">Escolha</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td>Estilo arquitetural</td><td>SPA estática + API serverless (arquitetura <em>Jamstack</em> com back-end funcional)</td><td>O tráfego é intermitente e concentrado em época de prova. Serverless escala a zero fora desses picos e cabe no crédito de estudante.</td></tr>
+    <tr><td>Decomposição</td><td>Um contêiner por responsabilidade: SPA, API HTTP, processador de notificações, banco</td><td>Separa o que responde ao usuário (síncrono, sensível a latência) do que só precisa acontecer (envio de e-mail, assíncrono).</td></tr>
+    <tr><td>Persistência</td><td>PostgreSQL relacional, sem cache de reputação</td><td>O domínio é fortemente relacional e o volume é pequeno. Agregar as notas na leitura evita o problema de invalidação de cache sem custo perceptível.</td></tr>
+    <tr><td>Identidade</td><td>Provedor externo (Entra External ID), não autenticação própria</td><td>Guardar senha é risco que não paga benefício. Delegar tira o hash de senha, a recuperação e o bloqueio de conta do escopo da equipe.</td></tr>
+    <tr><td>Consistência do domínio</td><td>Máquina de estados explícita na Sessão, aplicada no servidor</td><td>É o núcleo do produto. Toda regra de quem pode fazer o quê fica em um único lugar testável.</td></tr>
+    <tr><td>Comunicação com o usuário</td><td>Notificação in-app como fonte de verdade; e-mail <em>best effort</em></td><td>A entrega de e-mail depende de terceiros. Se falhar, o usuário ainda vê a notificação ao abrir o sistema.</td></tr>
+  </tbody>
+</table>
+
+<h3>4.1 Software Architecture Canvas</h3>
+
+<div class="canvas">
+  <div class="bloco larga2">
+    <h5>Contexto e problema</h5>
+    <ul>
+      <li>Calouros não têm canal estruturado para tirar dúvidas de matéria nem orientação de trajetória.</li>
+      <li>Veteranos dispostos a ajudar não têm onde se oferecer, controlar disponibilidade ou acumular reputação.</li>
+      <li>O encontro hoje depende de rede pessoal e sorte, e é invisível para a coordenação.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Objetivos de negócio</h5>
+    <ul>
+      <li>Reduzir a evasão nos primeiros períodos.</li>
+      <li>Dar visibilidade ao veterano que ajuda.</li>
+      <li>Tornar a mentoria mensurável para a coordenação.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Usuários e stakeholders</h5>
+    <ul>
+      <li>Calouro (mentorado) — usuário primário.</li>
+      <li>Veterano (mentor) — oferta.</li>
+      <li>Coordenação — moderação e métricas.</li>
+      <li>Equipe de 4 alunos, um semestre.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Requisitos-chave</h5>
+    <ul>
+      <li>RF5 descoberta com filtros.</li>
+      <li>RF6/RF7 solicitação e resposta.</li>
+      <li>RF9/RF12 agenda e ciclo de vida.</li>
+      <li>RF10/RF11 avaliação e reputação.</li>
+      <li>RF8 notificação a cada transição.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Atributos de qualidade</h5>
+    <ul>
+      <li>Usabilidade no celular.</li>
+      <li>Autorização por recurso.</li>
+      <li>Degradação suave do e-mail.</li>
+      <li>Custo dentro do crédito.</li>
+      <li>Regra testável fora da UI.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Restrições</h5>
+    <ul>
+      <li>Azure obrigatório.</li>
+      <li>Static Web Apps + Functions.</li>
+      <li>Assinatura de estudante.</li>
+      <li><code>brazilsouth</code> bloqueada por policy.</li>
+      <li>Repositório público — zero segredos.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Princípios</h5>
+    <ul>
+      <li>Regra de negócio no servidor.</li>
+      <li>Serviços gerenciados antes de infraestrutura própria.</li>
+      <li>Escalar a zero por padrão.</li>
+      <li>Complexidade só com requisito que a pague.</li>
+      <li>Estado terminal não volta atrás.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Decisões estruturais</h5>
+    <ul>
+      <li>SPA estática, sem SSR.</li>
+      <li>API HTTP stateless em Functions.</li>
+      <li>PostgreSQL relacional gerenciado.</li>
+      <li>Fila entre a API e o e-mail.</li>
+      <li>Identidade delegada ao Entra.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Componentes</h5>
+    <ul>
+      <li>SPA React (3 telas).</li>
+      <li>API de Mentoria (HTTP triggers).</li>
+      <li>Núcleo de domínio (sessão, reputação).</li>
+      <li>Processador de notificações.</li>
+      <li>Repositórios de dados.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Tecnologias</h5>
+    <ul>
+      <li>React 19, Vite, TypeScript.</li>
+      <li>Azure Functions v4, Node 22.</li>
+      <li>Azure Static Web Apps (Free).</li>
+      <li>PostgreSQL Flexible Server.</li>
+      <li>Zod, Application Insights.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Riscos</h5>
+    <ul>
+      <li>Latência de <code>centralus</code> ao Brasil.</li>
+      <li><em>Cold start</em> na primeira chamada.</li>
+      <li>Crédito de estudante esgotar.</li>
+      <li>Mock ainda no lugar do banco.</li>
+      <li>Autenticação não implementada.</li>
+    </ul>
+  </div>
+
+  <div class="bloco larga3">
+    <h5>Métricas de sucesso</h5>
+    <ul>
+      <li><strong>Produto:</strong> o roteiro completo do MVP (cadastrar → publicar disponibilidade → buscar → solicitar → aceitar → concluir → avaliar → ver reputação) executa de ponta a ponta na aplicação publicada.</li>
+      <li><strong>Arquitetura:</strong> busca de mentores responde em até 2 s no P95; falha de e-mail não gera erro HTTP; nenhum acesso a sessão de terceiro passa pela autorização.</li>
+      <li><strong>Operação:</strong> custo mensal dentro do crédito Azure for Students; toda exceção não tratada visível no Application Insights.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>5. Visão de Blocos de Construção</h2>
+
+<p class="intro">A decomposição estática do sistema, refinada em três níveis. O Nível 1 corresponde ao
+<strong>C4 Nível 2 (contêineres)</strong>; o Nível 2, ao <strong>C4 Nível 3 (componentes)</strong>; e
+o Nível 3, ao <strong>C4 Nível 4 (código)</strong>, detalhado em diagramas UML de classes e de
+componentes.</p>
+
+<h3>5.1 Nível 1 — visão caixa-branca do sistema (C4 Nível 2: Contêineres)</h3>
+
+{{DIAGRAMA:c4-n2-conteineres}}
+
+<table>
+  <thead><tr><th style="width:22%">Contêiner</th><th style="width:20%">Tecnologia</th><th>Responsabilidade</th><th style="width:13%">Situação</th></tr></thead>
+  <tbody>
+    <tr><td>Aplicação Web (SPA)</td><td>React 19, Vite, TypeScript</td><td>Renderiza as telas, coleta a entrada do usuário e formata datas e textos em pt-BR. Não contém regra de negócio.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td>API de Mentoria</td><td>Azure Functions v4, Node 22</td><td>Expõe os endpoints HTTP, valida o payload, aplica a autorização por recurso e as regras de domínio.</td><td><span class="selo feito">implementado</span><br>(somente leitura, dados mock)</td></tr>
+    <tr><td>Processador de Notificações</td><td>Azure Functions, Queue Trigger</td><td>Consome a fila e chama o serviço de e-mail. Isolado para que uma falha de entrega não afete a API.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Fila de Notificações</td><td>Azure Storage Queue</td><td>Desacopla o envio de e-mail do ciclo da requisição HTTP.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Banco de Dados</td><td>Azure Database for PostgreSQL Flexible Server</td><td>Guarda todo o estado do sistema. Hoje substituído por um módulo de dados mock em memória.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Cofre de Segredos</td><td>Azure Key Vault</td><td>Guarda connection strings e chaves, lidas pela API via Managed Identity.</td><td><span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+<h3>5.2 Nível 2 — dentro da API de Mentoria (C4 Nível 3: Componentes)</h3>
+
+{{DIAGRAMA:c4-n3-componentes-api}}
+
+<table>
+  <thead><tr><th style="width:24%">Componente</th><th>Responsabilidade</th><th style="width:14%">RF</th></tr></thead>
+  <tbody>
+    <tr><td>AuthMiddleware</td><td>Valida a assinatura do JWT contra o JWKS do Entra e injeta o usuário autenticado no contexto. Toda rota exceto cadastro e login passa por aqui.</td><td>RF1</td></tr>
+    <tr><td>MentoresFunction</td><td>Descoberta de mentores e perfil público. Filtra por curso, matéria e palavra-chave e ordena por reputação decrescente.</td><td>RF5, RF11</td></tr>
+    <tr><td>SessoesFunction</td><td>Cria a solicitação, lista as sessões do usuário e recebe as ações de transição de estado.</td><td>RF6, RF7, RF9, RF12</td></tr>
+    <tr><td>AvaliacoesFunction</td><td>Registra a avaliação, aceitando apenas do mentorado e apenas uma vez por sessão concluída.</td><td>RF10</td></tr>
+    <tr><td>PerfilFunction</td><td>Perfil e papéis do usuário, áreas de mentoria e blocos de disponibilidade.</td><td>RF2, RF3, RF4</td></tr>
+    <tr><td>ServiçoDeSessão</td><td>Guarda a máquina de estados e a autorização por recurso. Nenhuma transição acontece fora dele.</td><td>RF6, RF7, RF12</td></tr>
+    <tr><td>ServiçoDeReputação</td><td>Agrega as notas na leitura e devolve média com uma casa decimal e total, ou a ausência explícita de avaliações.</td><td>RF11</td></tr>
+    <tr><td>ServiçoDeNotificação</td><td>Grava a notificação in-app e enfileira o e-mail a cada transição de estado.</td><td>RF8</td></tr>
+    <tr><td>Validadores Zod</td><td>Validam o corpo da requisição no servidor antes de qualquer escrita. Os mesmos schemas alimentam o formulário no front-end.</td><td>todos</td></tr>
+    <tr><td>Repositórios</td><td>Encapsulam o acesso ao PostgreSQL. É o único ponto do sistema que conhece SQL.</td><td>todos</td></tr>
+  </tbody>
+</table>
+
+<h3>5.3 Nível 3 — código (C4 Nível 4)</h3>
+
+<h4>5.3.1 Diagrama de classes (UML)</h4>
+
+{{DIAGRAMA:c4-n4-classes}}
+
+<p>O modelo segue a regra do PRD de <strong>não separar mentor e mentorado em entidades distintas</strong>:
+há uma única classe <code>Usuario</code>, com os papéis representados pelos atributos <code>ehMentor</code> e
+<code>ehMentorado</code>, e a <code>Sessao</code> se liga a ela por dois relacionamentos de papéis diferentes.
+A <code>Reputacao</code> é um <em>value object</em> calculado na leitura, sem coluna persistida —
+o que elimina a necessidade de invalidação quando uma avaliação nova chega.</p>
+
+<h4>5.3.2 Diagrama de componentes (UML)</h4>
+
+{{DIAGRAMA:c4-n4-componentes}}
+
+<p>O diagrama usa a notação UML de componentes com interfaces providas e requeridas. A dependência
+aponta sempre para dentro: os <em>triggers</em> HTTP dependem do núcleo de domínio, e o núcleo depende
+de <code>IRepositorio</code> e <code>IFilaNotificacao</code> como abstrações — não das implementações
+concretas do PostgreSQL ou da Storage Queue. É essa inversão que permite trocar o mock atual pelo
+banco real sem tocar nas regras de negócio.</p>
+
+<h2>6. Visão de Runtime</h2>
+
+<p class="intro">Como os blocos de construção colaboram em tempo de execução. O cenário escolhido é o
+caminho crítico do produto — solicitar e responder uma sessão — porque é onde vivem a autorização,
+a máquina de estados e a notificação.</p>
+
+<h3>6.1 Cenário: solicitar e aceitar uma sessão (RF6 e RF7)</h3>
+
+<p>Três aspectos do cenário merecem destaque, e aparecem no diagrama a seguir:</p>
+<ul>
+  <li><strong>A validação acontece duas vezes, em camadas diferentes.</strong> O <code>ValidadorZod</code>
+      rejeita o payload malformado (400); o <code>ServicoDeSessao</code> rejeita o payload bem formado mas
+      inválido no domínio — horário fora da disponibilidade ou no passado (422).</li>
+  <li><strong>A autorização é do ator, não da rota.</strong> Só o mentor daquela sessão específica pode
+      aceitar. Um mentorado tentando aceitar a própria solicitação recebe 403, mesmo estando autenticado.</li>
+  <li><strong>O e-mail sai do caminho síncrono.</strong> A API enfileira e responde. Se a fila ou o serviço
+      de e-mail estiver fora do ar, a sessão já foi criada e a notificação in-app já existe.</li>
+</ul>
+
+{{DIAGRAMA:c4-n4-sequencia}}
+
+<h3>6.2 Ciclo de vida da Sessão</h3>
+
+<p>As regras de transição estão resumidas abaixo e representadas na máquina de estados da figura seguinte.</p>
+
+<table>
+  <thead><tr><th style="width:16%">Ação</th><th style="width:22%">Quem pode</th><th style="width:22%">A partir de</th><th>Regra</th></tr></thead>
+  <tbody>
+    <tr><td>Solicitar</td><td>Mentorado</td><td>—</td><td>O horário precisa estar dentro da disponibilidade declarada do mentor e no futuro. Não é permitido solicitar sessão consigo mesmo.</td></tr>
+    <tr><td>Aceitar</td><td>Apenas o mentor da sessão</td><td>SOLICITADA</td><td>Move para ACEITA e notifica o mentorado.</td></tr>
+    <tr><td>Recusar</td><td>Apenas o mentor da sessão</td><td>SOLICITADA</td><td>Estado terminal.</td></tr>
+    <tr><td>Cancelar</td><td>Mentor ou mentorado</td><td>SOLICITADA ou ACEITA</td><td>Estado terminal, disponível para os dois lados.</td></tr>
+    <tr><td>Concluir</td><td>Mentor ou mentorado</td><td>ACEITA</td><td>Libera a avaliação.</td></tr>
+    <tr><td>Avaliar</td><td>Apenas o mentorado</td><td>CONCLUIDA</td><td>Uma única vez por sessão, com nota de 1 a 5 e comentário opcional.</td></tr>
+  </tbody>
+</table>
+
+{{DIAGRAMA:estados-sessao}}
+
+<h2>7. Visão de Implantação</h2>
+
+<p class="intro">A infraestrutura de execução e o mapeamento dos blocos de construção sobre ela.</p>
+
+<h3>7.1 Recursos provisionados</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Recurso</th><th style="width:24%">Nome</th><th style="width:16%">SKU / plano</th><th>Papel</th></tr></thead>
+  <tbody>
+    <tr><td>Resource Group</td><td><code>rg-pjbl-mentoria</code></td><td>—</td><td>Agrupa todo o ciclo de vida do projeto. Apagar o grupo apaga a solução inteira.</td></tr>
+    <tr><td>Static Web App</td><td><code>swa-pjbl-mentoria-7205</code></td><td>Free</td><td>Serve o bundle do Vite pela rede de borda, com HTTPS e certificado gerenciados.</td></tr>
+    <tr><td>Function App</td><td><code>func-pjbl-mentoria</code></td><td>Flex Consumption, Node 22</td><td>Executa a API HTTP. Escala a zero quando não há requisição.</td></tr>
+    <tr><td>Storage Account</td><td><code>stpjblmentoria7205</code></td><td>Standard_LRS</td><td>Guarda o pacote de deploy da Function App e, na evolução, a fila de notificações.</td></tr>
+    <tr><td>Application Insights</td><td><code>func-pjbl-mentoria</code></td><td>—</td><td>Telemetria de requisições, dependências e exceções.</td></tr>
+    <tr><td>PostgreSQL Flexible Server</td><td>—</td><td>Burstable B1ms</td><td>Persistência. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Key Vault</td><td>—</td><td>Standard</td><td>Segredos acessados por Managed Identity. <span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+{{DIAGRAMA:implantacao}}
+
+<h3>7.2 Escolha de região</h3>
+
+<p>Todos os recursos estão em <strong><code>centralus</code></strong>. Essa não foi a primeira escolha:
+<code>brazilsouth</code> seria a região mais próxima do usuário final, mas a policy
+<em>Allowed resource deployment regions</em> da assinatura Azure for Students a bloqueia. Entre as
+cinco regiões liberadas, <code>centralus</code> é a única que também suporta Azure Static Web Apps,
+o que permitiu manter o front-end e a API na mesma região e evitar tráfego entre regiões. O custo
+dessa restrição é uma latência maior para o usuário no Brasil, registrada como risco na seção 11.</p>
+
+<h3>7.3 Pipeline de publicação</h3>
+
+<table>
+  <thead><tr><th style="width:20%">Artefato</th><th style="width:26%">Origem</th><th>Como é publicado</th></tr></thead>
+  <tbody>
+    <tr><td>Bundle do front-end</td><td><code>frontend/dist</code> (build do Vite)</td><td><code>swa deploy</code> com <em>deployment token</em> do Static Web App. A URL da API entra no build pela variável <code>VITE_API_BASE_URL</code>.</td></tr>
+    <tr><td>Pacote da API</td><td><code>api.zip</code></td><td><code>az functionapp deployment source config-zip</code>, com <em>sync triggers</em> automático ao final.</td></tr>
+    <tr><td>Infraestrutura</td><td><code>infra.sh</code></td><td>Script idempotente em Azure CLI: cria resource group, storage, Function App e Static Web App.</td></tr>
+  </tbody>
+</table>
+
+<h2>8. Conceitos Transversais</h2>
+
+<h3>8.1 Modelo de domínio e persistência — Diagrama de Entidades e Relacionamentos</h3>
+
+{{DIAGRAMA:der}}
+
+<table>
+  <thead><tr><th style="width:24%">Decisão de modelagem</th><th>Justificativa</th></tr></thead>
+  <tbody>
+    <tr><td>Uma única tabela <code>USUARIO</code> para mentor e mentorado</td><td>Um mesmo aluno pode ser as duas coisas ao mesmo tempo. Duas tabelas exigiriam duplicar o cadastro e sincronizar dois registros da mesma pessoa.</td></tr>
+    <tr><td>Dois relacionamentos distintos entre <code>USUARIO</code> e <code>SESSAO</code></td><td><code>mentor_id</code> e <code>mentorado_id</code> apontam para a mesma tabela com papéis diferentes. A restrição de que os dois não podem ser iguais é aplicada no domínio.</td></tr>
+    <tr><td><code>AVALIACAO</code> com <code>sessao_id</code> único</td><td>Impõe no banco a regra de uma avaliação por sessão, em vez de confiar apenas na verificação da aplicação.</td></tr>
+    <tr><td>Reputação sem coluna persistida</td><td>Calculada por agregação na leitura. Elimina invalidação de cache; o volume de avaliações por mentor é pequeno o bastante para tornar o custo irrelevante.</td></tr>
+    <tr><td><code>NOTIFICACAO</code> com <code>sessao_id</code> opcional</td><td>Nem toda notificação nasce de uma sessão; o campo é anulável para acomodar avisos de moderação no futuro.</td></tr>
+    <tr><td>Chaves UUID</td><td>Não expõem volume nem ordem de cadastro em URLs públicas, ao contrário de identificadores sequenciais.</td></tr>
+  </tbody>
+</table>
+
+<h3>8.2 Segurança</h3>
+<ul>
+  <li><strong>Autenticação delegada.</strong> A identidade fica no Entra External ID. A API valida a assinatura do token contra o JWKS do provedor e nunca guarda senha. Enquanto o provedor não está integrado, os endpoints publicados são de leitura sobre dados fictícios e ficam com <code>authLevel: anonymous</code>.</li>
+  <li><strong>Autorização por recurso.</strong> Estar autenticado não basta: cada operação verifica se o usuário é o mentor ou o mentorado <em>daquela</em> sessão. Tentativa de acesso a sessão de terceiro responde 403.</li>
+  <li><strong>Segredos fora do repositório.</strong> O repositório é público. Connection strings e chaves ficam em configuração de aplicação e, na evolução, no Key Vault acessado por Managed Identity — sem credencial no código.</li>
+  <li><strong>CORS restritivo.</strong> A Function App aceita apenas a origem do Static Web App e <code>http://localhost:5173</code>, em vez do curinga <code>*</code>.</li>
+  <li><strong>Senha (caso a autenticação própria seja retomada).</strong> Hash <code>bcrypt</code>, nunca em texto plano e nunca em log.</li>
+</ul>
+
+<h3>8.3 Validação e tratamento de erros</h3>
+<ul>
+  <li>Os mesmos schemas Zod validam no formulário e no servidor. A validação no cliente é conveniência; a do servidor é a que vale.</li>
+  <li>Códigos de resposta com significado consistente: <code>400</code> payload malformado, <code>403</code> ator sem permissão sobre o recurso, <code>404</code> recurso inexistente, <code>422</code> payload válido mas proibido pela regra de negócio.</li>
+  <li>Toda tela trata três situações além do caminho feliz: carregando, vazio e erro. Nenhuma falha de rede resulta em tela branca — a interface explica o que houve, na voz do sistema.</li>
+</ul>
+
+<h3>8.4 Internacionalização e formatação</h3>
+<p>Interface inteiramente em pt-BR. Datas em <code>dd/MM/yyyy</code> e horários no fuso
+<code>America/Sao_Paulo</code>, formatados com <code>Intl.DateTimeFormat</code> no cliente a partir de
+timestamps com fuso vindos da API — o servidor nunca envia data já formatada.</p>
+
+<h3>8.5 Observabilidade</h3>
+<p>Application Insights coleta requisições, dependências e exceções da Function App. Cada handler
+registra a operação e os filtros recebidos, sem incluir dado pessoal no log. Falhas de envio de
+e-mail são registradas como aviso, não como erro da requisição — coerente com o tratamento
+<em>best effort</em> descrito na seção 4.</p>
+
+<h3>8.6 Experiência e interface</h3>
+<p>O front-end é responsivo com abordagem <em>mobile first</em>, porque o calouro abre o sistema no
+celular entre uma aula e outra. A identidade visual parte do mundo do aluno — papel quadriculado e
+marca-texto — e reserva a cor de destaque para uma única informação: o que está disponível. O
+elemento de maior peso visual é a grade semanal de disponibilidade do mentor, desenhada como a grade
+horária da faculdade. Foco de teclado visível e <code>prefers-reduced-motion</code> respeitado.</p>
+
+<h3>8.7 Uso de IA generativa</h3>
+<p>O front-end, as Azure Functions e os scripts de infraestrutura foram gerados com assistência do
+Claude Code, com acesso ao Azure MCP Server e à Azure CLI. Os prompts estão versionados em
+<code>Prompt.md</code>, no repositório. Todo código gerado passou por revisão humana antes da
+publicação: conferência das regras de negócio contra o PRD, teste dos endpoints e navegação nas três
+telas no ambiente publicado.</p>
+
+<h2>9. Decisões de Arquitetura</h2>
+
+<p class="intro">Decisões registradas no formato ADR. Só entram aqui as que foram custosas de tomar
+ou que seriam caras de reverter.</p>
+
+<div class="adr">
+  <h4>ADR-01 — Substituir o Next.js full-stack por SPA estática mais API serverless</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>O PRD original previa Next.js com App Router, Route Handlers e SSR em um único projeto, publicado na Vercel. A disciplina exige Azure, e a atividade exige Azure Static Web Apps com Azure Functions.</dd>
+    <dt>Decisão</dt>
+    <dd>Separar em dois artefatos: uma SPA React + Vite puramente estática e uma API em Azure Functions.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> o front-end vira arquivo estático, servido pela borda a custo próximo de zero; front-end e API escalam e são publicados de forma independente; o contrato entre eles fica explícito. <strong>Negativas:</strong> perdemos SSR e Server Actions, o que piora o SEO (irrelevante aqui, já que o conteúdo é autenticado) e obriga a tratar estados de carregamento manualmente em cada tela.</dd>
+    <dt>Alternativas descartadas</dt>
+    <dd>Next.js com adaptador para Static Web Apps (SSR híbrido) — mais partes móveis do que a equipe conseguiria operar no semestre.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-02 — Flex Consumption em vez de Consumption clássico</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>A Function App criada no plano Consumption em Linux respondia HTTP 503 em todos os endpoints, inclusive no site de deploy (SCM), sem que o host chegasse a iniciar. O plano também tem fim de suporte anunciado.</dd>
+    <dt>Decisão</dt>
+    <dd>Recriar a Function App em Flex Consumption com Node 22.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> a aplicação subiu na primeira tentativa; <em>cold start</em> menor e plano com suporte de longo prazo. <strong>Negativas:</strong> o comando <code>az functionapp deploy</code> não funciona nesse plano (responde 415) — a publicação usa <code>az functionapp deployment source config-zip</code>, o que precisa estar documentado para quem for publicar depois.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-03 — Function App separada, e não as managed functions do Static Web App</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>O Static Web Apps permite hospedar funções na pasta <code>/api</code> do próprio site, o que dispensaria configurar CORS e um segundo recurso.</dd>
+    <dt>Decisão</dt>
+    <dd>Manter a API como Function App independente.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> a API tem URL pública própria e pode ser consumida por outros clientes; escala e é publicada separadamente do front-end; a entrega da disciplina exige o endereço da Azure Function. <strong>Negativas:</strong> exige configurar CORS explicitamente e gerenciar mais um recurso.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-04 — Reputação calculada na leitura, sem coluna materializada</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>A reputação (RF11) aparece na busca e no perfil, e muda a cada avaliação nova. Guardá-la em coluna evitaria a agregação.</dd>
+    <dt>Decisão</dt>
+    <dd>Calcular por agregação na leitura, sem persistir.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> nenhuma invalidação de cache, nenhum risco de divergência entre a média exibida e as notas reais. <strong>Negativas:</strong> a consulta de busca agrega em toda leitura — aceitável no volume esperado, e revisável se a listagem crescer.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-05 — Notificação in-app como fonte de verdade, e-mail assíncrono</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>O RF8 pede notificação a cada mudança de status. A entrega de e-mail depende de terceiro e pode falhar ou demorar.</dd>
+    <dt>Decisão</dt>
+    <dd>Gravar a notificação in-app dentro da transação da transição e enfileirar o e-mail para um processador separado.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> a requisição HTTP não fica presa a um serviço externo; falha de e-mail não vira erro para o usuário; retentativa fica isolada no consumidor da fila. <strong>Negativas:</strong> mais um contêiner e uma fila para operar, e o e-mail passa a ter latência variável.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-06 — Dados mock dentro das Functions, sem serviço externo de mock</h4>
+  <dl>
+    <dt>Contexto</dt>
+    <dd>A atividade sugeria o Apidog como plataforma de mock. O banco ainda não existe e a API precisa responder dados coerentes.</dd>
+    <dt>Decisão</dt>
+    <dd>Manter os dados fictícios em um módulo dentro da própria Function App, atrás dos mesmos handlers que atenderão o banco real.</dd>
+    <dt>Consequências</dt>
+    <dd><strong>Positivas:</strong> as regras de negócio (filtro, ordenação, ausência de avaliações) já rodam no servidor e continuam valendo quando o banco entrar; nenhuma dependência de conta em serviço de terceiro; o contrato da API é o definitivo. <strong>Negativas:</strong> trocar o mock pelo banco exige alterar código, não apenas apontar para outra URL.</dd>
+  </dl>
+</div>
+
+<h2>10. Requisitos de Qualidade</h2>
+
+<h3>10.1 Árvore de qualidade</h3>
+
+{{DIAGRAMA:qualidade}}
+
+<h3>10.2 Cenários de qualidade</h3>
+
+<table>
+  <thead><tr><th style="width:6%">#</th><th style="width:16%">Atributo</th><th style="width:30%">Estímulo</th><th>Resposta esperada</th></tr></thead>
+  <tbody>
+    <tr><td>Q1</td><td>Usabilidade</td><td>Um calouro abre a plataforma no celular pela primeira vez, sem treinamento.</td><td>Encontra e filtra mentores pela matéria sem zoom horizontal e sem instruções, usando os atalhos de matérias em alta.</td></tr>
+    <tr><td>Q2</td><td>Desempenho</td><td>Uma busca com filtro de matéria é submetida.</td><td>A lista é atualizada em até 2 s no P95, descontado o <em>cold start</em> da primeira chamada do dia.</td></tr>
+    <tr><td>Q3</td><td>Segurança</td><td>Um usuário autenticado chama <code>PATCH /api/sessoes/{id}/status</code> de uma sessão em que não é participante.</td><td>Resposta 403, nenhuma alteração de estado e o evento registrado na telemetria.</td></tr>
+    <tr><td>Q4</td><td>Confiabilidade</td><td>O serviço de e-mail fica indisponível durante o aceite de uma solicitação.</td><td>A sessão transiciona normalmente, a notificação in-app é gravada, a falha é registrada como aviso e a requisição responde 200.</td></tr>
+    <tr><td>Q5</td><td>Robustez</td><td>A API fica fora do ar enquanto a tela de busca carrega.</td><td>A interface exibe "Não foi possível carregar os mentores" com o motivo, em vez de tela em branco ou <em>spinner</em> infinito.</td></tr>
+    <tr><td>Q6</td><td>Corretude do domínio</td><td>Um mentor sem nenhuma avaliação aparece na busca.</td><td>O card mostra "Sem avaliações ainda", nunca 0.0, e o mentor é ordenado ao final da lista.</td></tr>
+    <tr><td>Q7</td><td>Manutenibilidade</td><td>Um novo desenvolvedor precisa alterar a regra de quem pode cancelar uma sessão.</td><td>A mudança acontece em um único componente (<code>ServicoDeSessao</code>), sem tocar no front-end nem nos handlers HTTP.</td></tr>
+    <tr><td>Q8</td><td>Custo</td><td>A plataforma passa um mês inteiro com uso esporádico.</td><td>O custo permanece dentro do crédito Azure for Students, com os recursos serverless escalando a zero nos períodos ociosos.</td></tr>
+  </tbody>
+</table>
+
+<h2>11. Riscos e Dívidas Técnicas</h2>
+
+<h3>11.1 Riscos</h3>
+
+<table>
+  <thead><tr><th style="width:26%">Risco</th><th style="width:12%">Impacto</th><th>Mitigação</th></tr></thead>
+  <tbody>
+    <tr><td>Latência de <code>centralus</code> para usuários no Brasil</td><td>Médio</td><td>O front-end é servido pela rede de borda, o que atenua o efeito nos arquivos estáticos. Migrar para <code>brazilsouth</code> assim que a policy da assinatura permitir.</td></tr>
+    <tr><td><em>Cold start</em> na primeira requisição após ociosidade</td><td>Baixo</td><td>Flex Consumption reduz o tempo de partida. Se incomodar, avaliar instâncias sempre prontas — ao custo de sair do escalar-a-zero.</td></tr>
+    <tr><td>Esgotamento do crédito Azure for Students</td><td>Alto</td><td>Todos os recursos em SKU gratuita ou de consumo. Alerta de orçamento na assinatura e possibilidade de recriar o ambiente inteiro com <code>infra.sh</code>.</td></tr>
+    <tr><td>Integração com o Entra External ID ainda não validada</td><td>Alto</td><td>É o item que mais pode surpreender no cronograma. Fazer uma prova de conceito isolada do fluxo de login antes da sprint de identidade.</td></tr>
+    <tr><td>Dependência de um único ambiente, sem staging</td><td>Médio</td><td>Usar os ambientes de <em>preview</em> do Static Web Apps por pull request antes de publicar em produção.</td></tr>
+  </tbody>
+</table>
+
+<h3>11.2 Dívidas técnicas assumidas</h3>
+
+<table>
+  <thead><tr><th style="width:30%">Dívida</th><th style="width:26%">Por que foi aceita</th><th>Como será paga</th></tr></thead>
+  <tbody>
+    <tr><td>Dados mock em memória no lugar do banco</td><td>Permite entregar a integração front-end/Functions antes de o banco existir.</td><td>Substituir o módulo de dados pelos repositórios sobre PostgreSQL, mantendo os handlers e as regras.</td></tr>
+    <tr><td>Endpoints anônimos, sem autenticação</td><td>Os dados publicados são fictícios e somente de leitura.</td><td>Introduzir o <code>AuthMiddleware</code> e mudar o <code>authLevel</code> junto com a sprint de identidade.</td></tr>
+    <tr><td>Usuário fixo na listagem de sessões</td><td>Sem autenticação, não há de onde tirar o usuário corrente.</td><td>Derivar o usuário do token depois da integração com o Entra.</td></tr>
+    <tr><td>Publicação manual por CLI, sem pipeline</td><td>A conta usada não tinha permissão de criar workflows no repositório.</td><td>Adicionar GitHub Actions com <em>build</em>, publicação e ambiente de preview por pull request.</td></tr>
+    <tr><td>Ausência de testes automatizados</td><td>O escopo atual é leitura sobre dados fixos, verificada manualmente.</td><td>Testes de unidade sobre a máquina de estados e o cálculo de reputação, que são a parte com regra de verdade.</td></tr>
+    <tr><td>Infraestrutura em script imperativo</td><td><code>infra.sh</code> resolveu a necessidade imediata com o ferramental já instalado.</td><td>Migrar para Bicep ou Terraform quando o número de recursos justificar.</td></tr>
+  </tbody>
+</table>
+
+<h2>12. Glossário</h2>
+
+<table>
+  <thead><tr><th style="width:26%">Termo</th><th>Definição</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro / mentorado</td><td>Aluno que busca ajuda. No modelo de dados, um <code>Usuario</code> com <code>ehMentorado = true</code>.</td></tr>
+    <tr><td>Veterano / mentor</td><td>Aluno que oferece mentoria. Um <code>Usuario</code> com <code>ehMentor = true</code>. Os dois papéis podem coexistir na mesma pessoa.</td></tr>
+    <tr><td>Área de mentoria</td><td>Par curso + matéria em que um mentor se declara apto a ajudar. Sem ao menos uma, o mentor não aparece na busca.</td></tr>
+    <tr><td>Disponibilidade</td><td>Bloco recorrente de dia da semana e faixa de horário em que o mentor aceita ser agendado.</td></tr>
+    <tr><td>Sessão</td><td>Encontro de mentoria entre um mentor e um mentorado, com estado governado pela máquina da seção 6.2.</td></tr>
+    <tr><td>Reputação</td><td>Média aritmética das notas recebidas por um mentor, com uma casa decimal, acompanhada do total de avaliações. Mentor sem avaliação não tem reputação — e não exibe 0.0.</td></tr>
+    <tr><td>arc42</td><td>Template livre para documentação de arquitetura de software, organizado em doze seções.</td></tr>
+    <tr><td>C4 Model</td><td>Notação de diagramas de arquitetura em quatro níveis de zoom: Contexto, Contêineres, Componentes e Código.</td></tr>
+    <tr><td>DER</td><td>Diagrama de Entidades e Relacionamentos: representa as entidades persistidas, seus atributos e a cardinalidade entre elas.</td></tr>
+    <tr><td>Cold start</td><td>Latência adicional da primeira requisição a uma função serverless que estava sem instância ativa.</td></tr>
+    <tr><td>Best effort</td><td>Operação que se tenta executar, mas cuja falha não interrompe nem invalida o fluxo principal.</td></tr>
+    <tr><td>Managed Identity</td><td>Identidade gerenciada pela Azure e atribuída a um recurso, permitindo autenticação em outros serviços sem credencial no código.</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:10mm;font-size:8pt;color:var(--apoio);border-top:1px solid var(--grade);padding-top:3mm">
+  Documento parcial de arquitetura &middot; Veterano. &middot; versão 1.0 &middot; agosto de 2026<br>
+  Bento Barp &middot; Guilherme Reis &middot; Guilherme Selenko &middot; Vinicius Trevisan<br>
+  Estrutura conforme o template arc42 (arc42.org), traduzido e adaptado para o contexto do PJBL.
+</p>
+
+</body>
+</html>

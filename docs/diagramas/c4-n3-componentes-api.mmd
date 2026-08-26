@@ -1,0 +1,53 @@
+---
+title: "Diagrama de Componentes (C4 - Nível 3) - Contêiner 'API de Mentoria'"
+---
+flowchart TB
+    classDef contêiner fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef componente fill:#85bbf0,stroke:#5d82a8,color:#000000
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+    classDef limite fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+
+    SPA["<b>Aplicação Web (SPA)</b><br/>[Container: React 19 + Vite]"]:::contêiner
+
+    subgraph APIB["API de Mentoria [Container: Azure Functions v4, Node 22]"]
+        direction TB
+        Auth["<b>AuthMiddleware</b><br/>[Component: Módulo Node]<br/>Valida o JWT e injeta o<br/>usuário no contexto."]:::componente
+
+        FMent["<b>MentoresFunction</b><br/>[Component: HTTP Trigger]<br/>GET /api/mentores<br/>RF5, RF11"]:::componente
+        FSes["<b>SessoesFunction</b><br/>[Component: HTTP Trigger]<br/>GET/POST /api/sessoes<br/>RF6, RF7, RF9, RF12"]:::componente
+        FAva["<b>AvaliacoesFunction</b><br/>[Component: HTTP Trigger]<br/>POST .../avaliação<br/>RF10"]:::componente
+        FPer["<b>PerfilFunction</b><br/>[Component: HTTP Trigger]<br/>/api/perfil, áreas,<br/>disponibilidade<br/>RF2, RF3, RF4"]:::componente
+
+        Val["<b>Validadores Zod</b><br/>[Component: Módulo Node]<br/>Valida o payload<br/>no servidor."]:::componente
+        SvcSes["<b>ServicoDeSessao</b><br/>[Component: Módulo Node]<br/>Máquina de estados e<br/>autorização por recurso."]:::componente
+        SvcRep["<b>ServicoDeReputacao</b><br/>[Component: Módulo Node]<br/>Calcula a media das<br/>avaliações. RF11"]:::componente
+        SvcNot["<b>ServicoDeNotificacao</b><br/>[Component: Módulo Node]<br/>Notificacao in-app e<br/>e-mail na fila. RF8"]:::componente
+        Repo["<b>Repositórios</b><br/>[Component: Módulo Node, driver pg]<br/>Único ponto que<br/>conhece SQL."]:::componente
+    end
+
+    Entra["<b>Entra External ID</b><br/>[Software System]"]:::externo
+    Fila[("<b>Fila de Notificações</b><br/>[Container: Storage Queue]")]:::contêiner
+    DB[("<b>Banco de Dados</b><br/>[Container: PostgreSQL]")]:::contêiner
+
+    SPA -->|"Bearer token<br/><i>[JSON/HTTPS]</i>"| Auth
+    Auth -->|"Valida<br/><i>[JWKS]</i>"| Entra
+    Auth --> FMent
+    Auth --> FSes
+    Auth --> FAva
+    Auth --> FPer
+
+    FMent --> SvcRep
+    FSes --> Val
+    FSes --> SvcSes
+    FAva --> Val
+    FPer --> Val
+    FAva --> SvcSes
+
+    SvcSes -->|"Notifica a<br/>contraparte"| SvcNot
+    SvcNot -->|"Enfileira"| Fila
+    SvcRep --> Repo
+    SvcSes --> Repo
+    SvcNot --> Repo
+    Repo -->|"SQL <i>[TLS]</i>"| DB
+
+    class APIB limite

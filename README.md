@@ -17,6 +17,22 @@ mock hospedada em **Azure Functions**.
 > em [`api/src/data/mock.js`](api/src/data/mock.js), e as regras de negócio (reputação e filtros de
 > busca) são aplicadas no servidor.
 
+## Documentação de arquitetura
+
+[`docs/Arquitetura-Veterano-arc42.pdf`](docs/Arquitetura-Veterano-arc42.pdf) — documentação parcial no
+padrão **arc42** (12 seções), com **C4 Model** nos níveis 1 a 4, diagramas **UML** (classes, componentes,
+sequência, máquina de estados e implantação), **DER** e **Software Architecture Canvas**.
+
+Fontes e reprodução:
+
+- Diagramas: [`docs/diagramas/*.mmd`](docs/diagramas) (Mermaid)
+- Texto e estilo: [`docs/arc42.template.html`](docs/arc42.template.html)
+- Geração do PDF: [`docs/build-pdf.py`](docs/build-pdf.py)
+
+```bash
+cd docs && for f in diagramas/*.mmd; do mmdc -i "$f" -o "${f%.mmd}.svg" -b white -p diagramas/.puppeteer.json; done && python3 build-pdf.py
+```
+
 ## Grupo
 
 Bento Barp · Guilherme Reis · Guilherme Selenko · Vinicius Trevisan — ver [GRUPO.md](GRUPO.md).

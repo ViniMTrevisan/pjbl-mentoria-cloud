@@ -1,0 +1,19 @@
+---
+title: "Máquina de estados da Sessao (UML Staté Machine)"
+---
+stateDiagram-v2
+    direction LR
+    [*] --> SOLICITADA : mentorado solicita (RF6)
+    SOLICITADA --> ACEITA : mentor aceita (RF7)
+    SOLICITADA --> RECUSADA : mentor recusa (RF7)
+    SOLICITADA --> CANCELADA : qualquer um cancela (RF12)
+    ACEITA --> CONCLUIDA : qualquer um conclui (RF12)
+    ACEITA --> CANCELADA : qualquer um cancela (RF12)
+    CONCLUIDA --> [*] : libera avaliação do mentorado (RF10)
+    RECUSADA --> [*]
+    CANCELADA --> [*]
+
+    note right of CONCLUIDA
+        Estados terminais não voltam atrás.
+        Só o mentorado avalia, e uma única vez.
+    end note

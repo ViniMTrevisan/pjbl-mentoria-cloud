@@ -1,0 +1,60 @@
+---
+title: "C4 Nível 4 - Diagrama de Sequencia (UML) - RF6/RF7: solicitar e aceitar uma sessão"
+---
+sequenceDiagram
+    autonumber
+    actor Calouro as :Calouro
+    participant SPA as :SPA (React)
+    participant Auth as :AuthMiddleware
+    participant FSes as :SessoesFunction
+    participant Val as :ValidadorZod
+    participant Svc as :ServicoDeSessao
+    participant Repo as :Repositórios
+    participant DB as :PostgreSQL
+    participant Not as :ServicoDeNotificacao
+    participant Fila as :Storage Queue
+    actor Veterano as :Veterano
+
+    Calouro->>SPA: escolhe horário e confirma
+    SPA->>Auth: POST /api/sessoes (Bearer token)
+    Auth->>Auth: valida assinatura do JWT
+    Auth->>FSes: requisição autenticada
+    FSes->>Val: valida payload
+    alt payload invalido
+        Val-->>SPA: 400 Bad Request
+    else payload valido
+        FSes->>Svc: solicitar(mentorado, mentor, dataHora, assunto)
+        Svc->>Repo: buscarDisponibilidade(mentorId)
+        Repo->>DB: SELECT disponibilidade
+        DB-->>Repo: blocos do mentor
+        Repo-->>Svc: blocos
+        alt horário fora da disponibilidade ou no passado
+            Svc-->>SPA: 422 Unprocessable Entity
+        else horário valido
+            Svc->>Repo: criarSessão(status = SOLICITADA)
+            Repo->>DB: INSERT sessão
+            DB-->>Repo: sessão criada
+            Svc->>Not: notificar(mentor, SOLICITACAO_CRIADA)
+            Not->>Repo: criarNotificação
+            Not->>Fila: enfileirar e-mail (best effort)
+            Svc-->>SPA: 201 Created + sessão
+            SPA-->>Calouro: "Solicitação enviada"
+        end
+    end
+
+    Note over Veterano,FSes: Mais tarde, o mentor responde a solicitação.
+
+    Veterano->>SPA: abre a solicitação e clica em "Aceitar"
+    SPA->>FSes: PATCH /api/sessoes/{id}/status {acao: "aceitar"}
+    FSes->>Svc: transicionar(sessão, "aceitar", ator = veterano)
+    Svc->>Svc: autoriza (so o mentor aceita) e valida SOLICITADA -> ACEITA
+    alt ator não e o mentor da sessão
+        Svc-->>SPA: 403 Forbidden
+    else transição permitida
+        Svc->>Repo: atualizarStatus(ACEITA)
+        Repo->>DB: UPDATE sessão
+        Svc->>Not: notificar(mentorado, SOLICITACAO_ACEITA)
+        Not->>Fila: enfileirar e-mail
+        Svc-->>SPA: 200 OK
+        SPA-->>Veterano: sessão movida para "Proximas"
+    end

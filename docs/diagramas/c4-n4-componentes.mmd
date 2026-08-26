@@ -1,0 +1,44 @@
+---
+title: "C4 Nível 4 - Diagrama de Componentes (UML) - módulos internos da API"
+---
+flowchart TB
+    classDef comp fill:#ffffff,stroke:#16233a,stroke-width:1.5px,color:#16233a
+    classDef iface fill:#d9f24a,stroke:#16233a,stroke-width:1px,color:#16233a
+    classDef ext fill:#eef1f6,stroke:#5c6b8a,stroke-width:1px,stroke-dasharray:4 3,color:#16233a
+
+    IHTTP(["«interface»<br/>IHttpApi"]):::iface
+    IPersist(["«interface»<br/>IRepositório"]):::iface
+    IFila(["«interface»<br/>IFilaNotificação"]):::iface
+    IIdent(["«interface»<br/>IProvedorIdentidade"]):::iface
+
+    subgraph API["«subsystem» API de Mentoria (Azure Functions)"]
+        direction TB
+        Host["«component»<br/>FunctionsHost<br/>[Azure Functions v4]"]:::comp
+        Auth["«component»<br/>AuthMiddleware"]:::comp
+        Rotas["«component»<br/>HttpTriggers<br/>(mentores, sessões, perfil, avaliações)"]:::comp
+        Regras["«component»<br/>NucleoDeDominio<br/>(ServicoDeSessao, ServicoDeReputacao)"]:::comp
+        Valid["«component»<br/>ValidadoresZod"]:::comp
+        Notif["«component»<br/>ServicoDeNotificacao"]:::comp
+        Repos["«component»<br/>Repositórios<br/>[driver pg]"]:::comp
+    end
+
+    SPA["«component»<br/>SPA React"]:::ext
+    DB[("«database»<br/>PostgreSQL")]:::ext
+    Queue["«component»<br/>Azure Storage Queue"]:::ext
+    Entra["«component»<br/>Entra External ID"]:::ext
+
+    SPA -->|consome| IHTTP
+    IHTTP --- Host
+    Host --> Auth
+    Auth -->|requer| IIdent
+    IIdent --- Entra
+    Auth --> Rotas
+    Rotas --> Valid
+    Rotas --> Regras
+    Regras --> Notif
+    Regras --> Repos
+    Notif --> Repos
+    Notif -->|requer| IFila
+    IFila --- Queue
+    Repos -->|requer| IPersist
+    IPersist --- DB

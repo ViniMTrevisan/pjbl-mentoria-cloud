@@ -1,0 +1,26 @@
+---
+title: "Árvore de Requisitos de Qualidade (arc42 seção 10)"
+---
+flowchart LR
+    classDef raiz fill:#16233a,stroke:#16233a,color:#ffffff
+    classDef cat fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef folha fill:#ffffff,stroke:#5c6b8a,color:#16233a
+
+    Q["Qualidade do Veterano."]:::raiz
+
+    Q --> U["Usabilidade"]:::cat
+    Q --> C["Confiabilidade"]:::cat
+    Q --> S["Segurança"]:::cat
+    Q --> M["Manutenibilidade"]:::cat
+    Q --> E["Eficiência / Custo"]:::cat
+
+    U --> U1["O calouro conclui a busca<br/>no celular sem zoom"]:::folha
+    U --> U2["Interface toda em pt-BR,<br/>datas em dd/MM/yyyy"]:::folha
+    C --> C1["Falha no e-mail não derruba<br/>a requisição (best effort)"]:::folha
+    C --> C2["Erro da API vira mensagem<br/>na tela, nunca tela branca"]:::folha
+    S --> S1["Senha com hash bcrypt,<br/>nunca em log"]:::folha
+    S --> S2["Usuario so le e altera sessão<br/>em que e mentor ou mentorado"]:::folha
+    M --> M1["Regra de negócio no servidor,<br/>não no front"]:::folha
+    M --> M2["Migrations versionadas<br/>no repositório"]:::folha
+    E --> E1["Custo mensal dentro do crédito<br/>Azure for Students"]:::folha
+    E --> E2["Busca de mentores responde<br/>em até 2s no P95"]:::folha

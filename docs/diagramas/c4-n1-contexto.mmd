@@ -1,0 +1,24 @@
+---
+title: "Diagrama de Contexto (C4 - Nível 1) - Veterano."
+---
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef sistema fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    Calouro["<b>Calouro (mentorado)</b><br/>[Person]<br/><br/>Aluno de início de curso que<br/>busca ajuda em uma matéria."]:::pessoa
+    Veterano["<b>Veterano (mentor)</b><br/>[Person]<br/><br/>Aluno mais avançado que oferece<br/>mentoria e define sua disponibilidade."]:::pessoa
+    Coord["<b>Coordenação</b><br/>[Person]<br/><br/>Modera cadastros e acompanha<br/>métricas de uso."]:::pessoa
+
+    App["<b>Veterano.</b><br/>[Software System]<br/><br/>Plataforma de mentoria entre alunos:<br/>cadastro, descoberta, agendamento<br/>e avaliação de sessões."]:::sistema
+
+    Entra["<b>Microsoft Entra External ID</b><br/>[Software System]<br/><br/>Provedor de identidade. Autentica<br/>o aluno e emite o token de acesso."]:::externo
+    Email["<b>Serviço de E-mail</b><br/>[Software System]<br/><br/>Azure Communication Services Email.<br/>Entrega as notificações transacionais."]:::externo
+
+    Calouro -->|"Busca mentores, solicita<br/>e avalia sessões<br/><i>[HTTPS]</i>"| App
+    Veterano -->|"Publica áreas e horários,<br/>responde solicitações<br/><i>[HTTPS]</i>"| App
+    Coord -->|"Modera cadastros e<br/>consulta métricas<br/><i>[HTTPS]</i>"| App
+    App -->|"Valida o token do usuário<br/><i>[OpenID Connect]</i>"| Entra
+    App -->|"Solicita o envio da notificação<br/><i>[HTTPS]</i>"| Email
+    Email -.->|"Entrega o e-mail<br/><i>[SMTP]</i>"| Calouro
+    Email -.->|"Entrega o e-mail<br/><i>[SMTP]</i>"| Veterano

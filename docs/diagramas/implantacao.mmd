@@ -1,0 +1,44 @@
+---
+title: "Diagrama de Implantação (UML Deployment) - Azure"
+---
+flowchart TB
+    classDef node fill:#ffffff,stroke:#16233a,stroke-width:1.5px,color:#16233a
+    classDef art fill:#eef1f6,stroke:#5c6b8a,stroke-width:1px,color:#16233a
+    classDef mark fill:#d9f24a,stroke:#16233a,stroke-width:1px,color:#16233a
+
+    Dev["«device»<br/>Navegador do aluno<br/>(desktop / celular)"]:::node
+
+    subgraph Azure["«execution environment» Microsoft Azure - assinatura Azure for Students"]
+        direction TB
+        subgraph RG["Resource Group rg-pjbl-mentoria (região centralus)"]
+            direction TB
+            SWA["«device»<br/>Azure Static Web Apps (Free)<br/>swa-pjbl-mentoria-7205"]:::mark
+            FUNC["«device»<br/>Azure Functions (Flex Consumption, Node 22)<br/>func-pjbl-mentoria"]:::mark
+            ST["«device»<br/>Azure Storage Account<br/>stpjblmentoria7205"]:::mark
+            PG["«device»<br/>Azure Database for PostgreSQL<br/>Flexible Server (planejado)"]:::node
+            KV["«device»<br/>Azure Key Vault (planejado)"]:::node
+            AI["«device»<br/>Application Insights"]:::mark
+        end
+        ACS["«device»<br/>Communication Services Email (planejado)"]:::node
+        ENTRA["«device»<br/>Microsoft Entra External ID (planejado)"]:::node
+    end
+
+    GH["«device»<br/>GitHub<br/>ViniMTrevisan/pjbl-mentoria-cloud"]:::node
+
+    ArtSPA["«artifact»<br/>dist/ (bundle Vite)"]:::art
+    ArtAPI["«artifact»<br/>api.zip (Functions v4)"]:::art
+
+    Dev -->|"HTTPS 443"| SWA
+    Dev -->|"HTTPS 443 (JSON)"| FUNC
+    GH -.->|"swa deploy"| ArtSPA
+    GH -.->|"zip deploy"| ArtAPI
+    ArtSPA -.->|"«deploy»"| SWA
+    ArtAPI -.->|"«deploy»"| FUNC
+    FUNC -->|"pacote de deploy"| ST
+    FUNC -->|"fila de notificações"| ST
+    FUNC -->|"TLS 5432"| PG
+    FUNC -->|"Managed Identity"| KV
+    FUNC -->|"HTTPS"| ACS
+    FUNC -->|"JWKS"| ENTRA
+    FUNC -->|"telemetria"| AI
+    SWA -->|"telemetria"| AI
