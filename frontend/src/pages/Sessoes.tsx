@@ -62,7 +62,7 @@ export function Sessoes() {
     <>
       <h1 className="titulo-secao">Minhas sessões</h1>
       <p className="linha-fina">
-        Tudo que você agendou, está esperando resposta ou já concluiu. {dados.total} registro(s) no total.
+        Tudo que você agendou, está esperando resposta ou já concluiu. {dados.total} {dados.total === 1 ? 'registro' : 'registros'} no total.
       </p>
 
       <h2 className="rotulo" style={{ display: 'block', marginBottom: 10 }}>Próximas</h2>

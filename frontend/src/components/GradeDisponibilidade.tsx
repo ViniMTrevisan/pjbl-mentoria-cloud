@@ -24,7 +24,7 @@ export function GradeDisponibilidade({ disponibilidades }: { disponibilidades: D
 
   return (
     <div>
-      <div className="grade-semana" role="img" aria-label={`Disponibilidade semanal: ${totalLivres} bloco(s) de horario`}>
+      <div className="grade-semana" role="img" aria-label={`Disponibilidade semanal: ${totalLivres} bloco(s) de horário`}>
         {SIGLAS.map((sigla, dia) => (
           <div className="grade-dia" key={NOMES[dia]}>
             <span className="grade-sigla" aria-hidden="true">{sigla}</span>
@@ -39,7 +39,9 @@ export function GradeDisponibilidade({ disponibilidades }: { disponibilidades: D
         ))}
       </div>
       <p className="grade-legenda">
-        {totalLivres > 0 ? `${totalLivres} bloco(s) livres na semana` : 'sem horários cadastrados'}
+        {totalLivres === 0
+          ? 'sem horários cadastrados'
+          : `${totalLivres} ${totalLivres === 1 ? 'bloco livre' : 'blocos livres'} na semana`}
       </p>
     </div>
   );
