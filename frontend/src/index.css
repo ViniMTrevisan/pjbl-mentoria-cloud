@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Direcao visual: caderno de grade + marca-texto.
+   Tinta azul-escura sobre papel milimetrado, com o amarelo-limao de marca-texto
+   reservado para uma coisa so: o que esta disponivel / o que importa agora. */
+:root {
+  --tinta: #16233a;
+  --papel: #eef1f6;
+  --carta: #ffffff;
+  --grade: #d6dde9;
+  --apoio: #5c6b8a;
+  --marca: #d9f24a;
+  --alerta: #c8402c;
+
+  --raio: 4px;
+  --display: 'Bricolage Grotesque', 'Arial Black', sans-serif;
+  --corpo: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--corpo);
+  color: var(--tinta);
+  background-color: var(--papel);
+  /* papel milimetrado */
+  background-image:
+    linear-gradient(var(--grade) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grade) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+/* ---------- estrutura ---------- */
+
+.casca { max-width: 1040px; margin: 0 auto; padding: 0 20px 72px; }
+
+.topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 28px 0 24px;
+  border-bottom: 2px solid var(--tinta);
+  margin-bottom: 32px;
+}
+
+.marca-titulo {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1;
+}
+
+.marca-titulo span {
+  background: linear-gradient(transparent 55%, var(--marca) 55%);
+  padding: 0 2px;
+}
+
+.marca-sub {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--apoio);
+  margin: 6px 0 0;
+}
+
+.nav { display: flex; gap: 4px; }
+
+.nav a {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  color: var(--apoio);
+}
+
+.nav a:hover { border-color: var(--grade); color: var(--tinta); background: var(--carta); }
+.nav a.ativo { color: var(--tinta); background: var(--marca); font-weight: 700; }
+
+/* ---------- tipografia ---------- */
+
+.titulo-secao {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5vw, 2.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0 0 8px;
+}
+
+.linha-fina { color: var(--apoio); margin: 0 0 28px; max-width: 56ch; line-height: 1.55; }
+
+.rotulo {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--apoio);
+}
+
+/* ---------- busca ---------- */
+
+.busca {
+  background: var(--carta);
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  padding: 20px;
+  margin-bottom: 12px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.campo { display: flex; flex-direction: column; gap: 6px; }
+
+.campo input {
+  font-family: var(--corpo);
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.campo input:focus-visible { outline: 2px solid var(--tinta); outline-offset: 1px; }
+
+.atalhos { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 32px; }
+
+.chip {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border: 1px solid var(--grade);
+  border-radius: 999px;
+  background: var(--carta);
+  color: var(--apoio);
+  cursor: pointer;
+}
+
+.chip:hover { border-color: var(--tinta); color: var(--tinta); }
+.chip[aria-pressed='true'] { background: var(--marca); border-color: var(--tinta); color: var(--tinta); font-weight: 700; }
+
+/* ---------- cartoes ---------- */
+
+.lista { display: grid; gap: 12px; }
+
+.cartao {
+  background: var(--carta);
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+  text-decoration: none;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+a.cartao:hover { border-color: var(--tinta); transform: translateY(-1px); }
+a.cartao:focus-visible { outline: 2px solid var(--tinta); outline-offset: 2px; }
+
+.cartao h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  margin: 4px 0 6px;
+}
+
+.cartao p { margin: 0; color: var(--apoio); font-size: 0.9rem; line-height: 1.5; }
+
+.materias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+.materia {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  color: var(--tinta);
+}
+
+/* ---------- reputacao ---------- */
+
+.reputacao { text-align: right; min-width: 92px; }
+
+.nota {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  display: inline-block;
+  background: linear-gradient(transparent 62%, var(--marca) 62%);
+  padding: 0 3px;
+}
+
+.nota-vazia { font-family: var(--mono); font-size: 0.72rem; color: var(--apoio); line-height: 1.4; display: block; }
+.reputacao .rotulo { display: block; margin-top: 6px; }
+
+/* ---------- grade de disponibilidade (elemento assinatura) ---------- */
+
+.grade-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; min-width: 168px; }
+
+.grade-dia { display: grid; gap: 3px; }
+
+.grade-sigla {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-align: center;
+  color: var(--apoio);
+  padding-bottom: 2px;
+}
+
+.grade-bloco {
+  height: 10px;
+  border: 1px solid var(--grade);
+  border-radius: 1px;
+  background: var(--papel);
+}
+
+.grade-bloco.livre { background: var(--marca); border-color: #b9d02f; }
+
+.grade-legenda { font-family: var(--mono); font-size: 0.66rem; color: var(--apoio); margin-top: 8px; }
+
+/* ---------- detalhe do mentor ---------- */
+
+.voltar {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: var(--apoio);
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.voltar:hover { color: var(--tinta); }
+
+.painel {
+  background: var(--carta);
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  padding: 24px;
+  margin-bottom: 12px;
+}
+
+.painel h2 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
+.colunas { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; align-items: start; }
+
+.horarios { display: grid; gap: 8px; }
+
+.horario {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+}
+
+.avaliacao { border-left: 3px solid var(--marca); padding: 4px 0 4px 14px; margin-bottom: 16px; }
+.avaliacao:last-child { margin-bottom: 0; }
+.avaliacao p { margin: 0 0 6px; line-height: 1.5; }
+.avaliacao .rotulo { display: block; }
+
+/* ---------- sessoes ---------- */
+
+.sessao {
+  background: var(--carta);
+  border: 1px solid var(--grade);
+  border-left: 4px solid var(--grade);
+  border-radius: var(--raio);
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 152px 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.sessao.solicitada { border-left-color: var(--apoio); }
+.sessao.aceita { border-left-color: var(--marca); }
+.sessao.concluida { border-left-color: var(--tinta); }
+.sessao.cancelada, .sessao.recusada { border-left-color: var(--alerta); }
+
+.sessao-data { font-family: var(--mono); font-size: 0.8rem; line-height: 1.5; }
+.sessao-data strong { display: block; font-size: 0.95rem; }
+.sessao h3 { font-family: var(--corpo); font-weight: 600; font-size: 1rem; margin: 0 0 4px; }
+.sessao p { margin: 0; color: var(--apoio); font-size: 0.85rem; }
+
+.selo {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 5px 9px;
+  border: 1px solid var(--grade);
+  border-radius: var(--raio);
+  white-space: nowrap;
+}
+
+.selo.aceita { background: var(--marca); border-color: #b9d02f; font-weight: 700; }
+.selo.cancelada, .selo.recusada { color: var(--alerta); border-color: var(--alerta); }
+
+.nota-dada { font-family: var(--mono); font-size: 0.75rem; color: var(--apoio); margin-top: 6px; }
+
+/* ---------- estados ---------- */
+
+.estado {
+  background: var(--carta);
+  border: 1px dashed var(--grade);
+  border-radius: var(--raio);
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--apoio);
+}
+
+.estado.erro { border-style: solid; border-color: var(--alerta); color: var(--alerta); }
+.estado strong { display: block; color: var(--tinta); font-weight: 600; margin-bottom: 6px; }
+.estado.erro strong { color: var(--alerta); }
+
+.rodape {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--grade);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--apoio);
+  line-height: 1.7;
+  word-break: break-all;
+}
+
+/* ---------- responsivo ---------- */
+
+@media (max-width: 760px) {
+  .busca { grid-template-columns: 1fr; }
+  .cartao { grid-template-columns: 1fr; gap: 16px; }
+  .reputacao { text-align: left; }
+  .colunas { grid-template-columns: 1fr; }
+  .sessao { grid-template-columns: 1fr; gap: 10px; }
+  .topo { padding-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  a.cartao:hover { transform: none; }
+}
