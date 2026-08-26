@@ -54,7 +54,7 @@ app.http('mentorPorId', {
 
     const mentor = mentores.find((m) => m.id === id);
     if (!mentor) {
-      return json(404, { erro: 'Mentor nao encontrado', id });
+      return json(404, { erro: 'Mentor não encontrado', id });
     }
 
     return json(200, {

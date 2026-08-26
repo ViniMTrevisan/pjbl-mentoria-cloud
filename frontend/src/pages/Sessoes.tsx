@@ -26,7 +26,7 @@ function CartaoSessao({ sessao }: { sessao: Sessao }) {
         <h3>{sessao.assunto}</h3>
         <p>com {sessao.mentorNome}</p>
         {sessao.avaliacao && (
-          <p className="nota-dada">voce avaliou {sessao.avaliacao.nota}/5 &mdash; &ldquo;{sessao.avaliacao.comentario}&rdquo;</p>
+          <p className="nota-dada">você avaliou {sessao.avaliacao.nota}/5 &mdash; &ldquo;{sessao.avaliacao.comentario}&rdquo;</p>
         )}
       </div>
       <span className={`selo ${classe}`}>{sessao.status}</span>
@@ -34,7 +34,7 @@ function CartaoSessao({ sessao }: { sessao: Sessao }) {
   );
 }
 
-/** Tela 3 (RF9) - minhas sessoes. Consome GET /api/sessoes. */
+/** Tela 3 (RF9) - minhas sessões. Consome GET /api/sessoes. */
 export function Sessoes() {
   const [dados, setDados] = useState<RespostaSessoes | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -47,12 +47,12 @@ export function Sessoes() {
       .finally(() => setCarregando(false));
   }, []);
 
-  if (carregando) return <div className="estado">Carregando suas sessoes...</div>;
+  if (carregando) return <div className="estado">Carregando suas sessões...</div>;
 
   if (erro || !dados) {
     return (
       <div className="estado erro">
-        <strong>Nao deu para carregar suas sessoes.</strong>
+        <strong>Não foi possível carregar suas sessões.</strong>
         {erro ?? 'Resposta vazia da API.'}
       </div>
     );
@@ -60,16 +60,16 @@ export function Sessoes() {
 
   return (
     <>
-      <h1 className="titulo-secao">Minhas sessoes</h1>
+      <h1 className="titulo-secao">Minhas sessões</h1>
       <p className="linha-fina">
-        Tudo que voce agendou, esperando resposta ou ja concluiu. {dados.total} registro(s) no total.
+        Tudo que você agendou, está esperando resposta ou já concluiu. {dados.total} registro(s) no total.
       </p>
 
-      <h2 className="rotulo" style={{ display: 'block', marginBottom: 10 }}>Proximas</h2>
+      <h2 className="rotulo" style={{ display: 'block', marginBottom: 10 }}>Próximas</h2>
       {dados.proximas.length === 0 ? (
         <div className="estado" style={{ marginBottom: 32 }}>
-          <strong>Nenhuma sessao agendada.</strong>
-          Busque um mentor e escolha um horario livre.
+          <strong>Nenhuma sessão agendada.</strong>
+          Busque um mentor e escolha um horário livre.
         </div>
       ) : (
         <div className="lista" style={{ marginBottom: 32 }}>
@@ -77,7 +77,7 @@ export function Sessoes() {
         </div>
       )}
 
-      <h2 className="rotulo" style={{ display: 'block', marginBottom: 10 }}>Historico</h2>
+      <h2 className="rotulo" style={{ display: 'block', marginBottom: 10 }}>Histórico</h2>
       <div className="lista">
         {dados.historico.map((s) => <CartaoSessao sessao={s} key={s.id} />)}
       </div>

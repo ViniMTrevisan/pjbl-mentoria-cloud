@@ -17,7 +17,7 @@ export default function App() {
             buscar mentores
           </NavLink>
           <NavLink to="/sessoes" className={({ isActive }) => (isActive ? 'ativo' : '')}>
-            minhas sessoes
+            minhas sessões
           </NavLink>
         </nav>
       </header>
@@ -27,12 +27,12 @@ export default function App() {
           <Route path="/" element={<Mentores />} />
           <Route path="/mentores/:id" element={<MentorDetalhe />} />
           <Route path="/sessoes" element={<Sessoes />} />
-          <Route path="*" element={<div className="estado"><strong>Pagina nao encontrada.</strong>Volte para a busca de mentores.</div>} />
+          <Route path="*" element={<div className="estado"><strong>Página não encontrada.</strong>Volte para a busca de mentores.</div>} />
         </Routes>
       </main>
 
       <footer className="rodape">
-        PJBL &middot; Arquitetura e Solucoes em Cloud &middot; Bento Barp, Guilherme Reis, Guilherme Selenko, Vinicius Trevisan
+        PJBL &middot; Arquitetura e Soluções em Cloud &middot; Bento Barp, Guilherme Reis, Guilherme Selenko, Vinicius Trevisan
         <br />
         API (Azure Functions): {API_BASE}
       </footer>

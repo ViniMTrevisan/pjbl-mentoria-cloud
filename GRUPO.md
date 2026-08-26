@@ -15,9 +15,9 @@
 
 ## Repositório
 
-- GitHub: <!--REPO_URL-->
+- GitHub: https://github.com/ViniMTrevisan/pjbl-mentoria-cloud
 
 ## Entregáveis publicados
 
-- Front-end (Azure Static Web Apps): <!--SWA_URL-->
-- API (Azure Functions): <!--FUNC_URL-->
+- Front-end (Azure Static Web Apps): https://white-rock-03ee36c10.7.azurestaticapps.net
+- API (Azure Functions): https://func-pjbl-mentoria.azurewebsites.net

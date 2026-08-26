@@ -2,7 +2,7 @@ import type { Disponibilidade } from '../types';
 
 const SIGLAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const NOMES = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-// Blocos de 2h cobrindo o dia letivo: 8h as 22h.
+// Blocos de 2h cobrindo o dia letivo: 8h às 22h.
 const BLOCOS = [8, 10, 12, 14, 16, 18, 20];
 
 const paraMinutos = (hora: string) => {
@@ -10,7 +10,7 @@ const paraMinutos = (hora: string) => {
   return h * 60 + m;
 };
 
-/** Grade horaria da semana com os blocos livres marcados (RF4). */
+/** Grade horária da semana com os blocos livres marcados (RF4). */
 export function GradeDisponibilidade({ disponibilidades }: { disponibilidades: Disponibilidade[] }) {
   const estaLivre = (dia: number, blocoInicio: number) =>
     disponibilidades.some(
@@ -39,7 +39,7 @@ export function GradeDisponibilidade({ disponibilidades }: { disponibilidades: D
         ))}
       </div>
       <p className="grade-legenda">
-        {totalLivres > 0 ? `${totalLivres} bloco(s) livres na semana` : 'sem horarios cadastrados'}
+        {totalLivres > 0 ? `${totalLivres} bloco(s) livres na semana` : 'sem horários cadastrados'}
       </p>
     </div>
   );

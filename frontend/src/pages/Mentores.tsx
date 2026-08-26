@@ -6,10 +6,10 @@ import { Reputacao } from '../components/Reputacao';
 
 const MATERIAS_EM_ALTA = [
   'Estrutura de Dados',
-  'Calculo Diferencial e Integral',
+  'Cálculo Diferencial e Integral',
   'Banco de Dados',
   'Redes de Computadores',
-  'Arquitetura e Solucoes em Cloud',
+  'Arquitetura e Soluções em Cloud',
 ];
 
 /** Tela 1 (RF5) - busca de mentores. Consome GET /api/mentores da Azure Function. */
@@ -40,15 +40,15 @@ export function Mentores() {
 
   return (
     <>
-      <h1 className="titulo-secao">Quem ja passou por essa materia.</h1>
+      <h1 className="titulo-secao">Quem já passou por essa matéria.</h1>
       <p className="linha-fina">
-        Veteranos que se ofereceram para ajudar, com os horarios que eles mesmos marcaram como livres.
-        Filtre pela materia que esta te travando agora.
+        Veteranos que se ofereceram para ajudar, com os horários que eles mesmos marcaram como livres.
+        Filtre pela matéria que está te travando agora.
       </p>
 
       <div className="busca">
         <label className="campo">
-          <span className="rotulo">Materia</span>
+          <span className="rotulo">Matéria</span>
           <input value={materia} onChange={(e) => setMateria(e.target.value)} placeholder="Banco de Dados" />
         </label>
         <label className="campo">
@@ -57,7 +57,7 @@ export function Mentores() {
         </label>
         <label className="campo">
           <span className="rotulo">Nome ou palavra-chave</span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="react, monitoria, calculo..." />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="react, monitoria, cálculo..." />
         </label>
       </div>
 
@@ -78,7 +78,7 @@ export function Mentores() {
 
       {erro && (
         <div className="estado erro">
-          <strong>Nao deu para carregar os mentores.</strong>
+          <strong>Não foi possível carregar os mentores.</strong>
           {erro}
         </div>
       )}
@@ -88,7 +88,7 @@ export function Mentores() {
       {!erro && !carregando && mentores.length === 0 && (
         <div className="estado">
           <strong>Nenhum mentor para esses filtros.</strong>
-          Tente uma materia mais generica ou limpe os campos.
+          Tente uma matéria mais genérica ou limpe os campos.
         </div>
       )}
 
@@ -97,7 +97,7 @@ export function Mentores() {
           {mentores.map((mentor) => (
             <Link className="cartao" to={`/mentores/${mentor.id}`} key={mentor.id}>
               <div>
-                <span className="rotulo">{mentor.curso} &middot; {mentor.periodo}o periodo</span>
+                <span className="rotulo">{mentor.curso} &middot; {mentor.periodo}º período</span>
                 <h3>{mentor.nome}</h3>
                 <p>{mentor.bio}</p>
                 <div className="materias">

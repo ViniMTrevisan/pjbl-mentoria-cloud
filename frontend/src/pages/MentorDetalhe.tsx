@@ -5,7 +5,7 @@ import type { MentorDetalhado } from '../types';
 import { GradeDisponibilidade } from '../components/GradeDisponibilidade';
 import { Reputacao } from '../components/Reputacao';
 
-const DIAS = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 /** Tela 2 (RF5 + RF11) - perfil publico do mentor. Consome GET /api/mentores/{id}. */
 export function MentorDetalhe() {
@@ -28,8 +28,8 @@ export function MentorDetalhe() {
   if (erro || !mentor) {
     return (
       <div className="estado erro">
-        <strong>Perfil indisponivel.</strong>
-        {erro ?? 'Mentor nao encontrado.'}
+        <strong>Perfil indisponível.</strong>
+        {erro ?? 'Mentor não encontrado.'}
       </div>
     );
   }
@@ -41,7 +41,7 @@ export function MentorDetalhe() {
       <div className="painel">
         <div className="colunas">
           <div>
-            <span className="rotulo">{mentor.curso} &middot; {mentor.periodo}o periodo</span>
+            <span className="rotulo">{mentor.curso} &middot; {mentor.periodo}º período</span>
             <h1 className="titulo-secao">{mentor.nome}</h1>
             <p className="linha-fina" style={{ marginBottom: 16 }}>{mentor.bio}</p>
             <div className="materias">
@@ -56,7 +56,7 @@ export function MentorDetalhe() {
 
       <div className="colunas">
         <div className="painel">
-          <h2>Horarios livres</h2>
+          <h2>Horários livres</h2>
           <GradeDisponibilidade disponibilidades={mentor.disponibilidades} />
           <div className="horarios" style={{ marginTop: 16 }}>
             {mentor.disponibilidades.map((d) => (
@@ -72,7 +72,7 @@ export function MentorDetalhe() {
           <h2>O que dizem</h2>
           {mentor.avaliacoes.length === 0 ? (
             <p className="linha-fina" style={{ margin: 0 }}>
-              Ninguem avaliou esse mentor ainda. Voce pode ser o primeiro.
+              Ninguém avaliou esse mentor ainda. Você pode ser o primeiro.
             </p>
           ) : (
             mentor.avaliacoes.map((a, i) => (
