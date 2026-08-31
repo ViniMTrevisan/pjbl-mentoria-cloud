@@ -1,0 +1,30 @@
+############ 1/4  mentoresInserir — POST /api/mentores-db
+{"mensagem":"Mentor inserido","mentor":{"nome":"Vinicius Trevisan","curso":"Engenharia de Software","periodo":6,"bio":"Mentor de Cloud e Azure Functions.","areas":[{"id":"a1","curso":"Engenharia de Software","materia":"Arquitetura e Soluções em Cloud"}],"criadoEm":"2026-08-31T22:20:18.631Z","id":"6a95fe225ceb9caa8792f5a2"}}
+HTTP 201
+
+############ 2/4  mentoresPesquisar — GET /api/mentores-db?q=cloud
+total: 3
+ - 6a95fb7e901adccb95d968a6 Ana Beatriz Moraes | Estrutura de Dados, Arquitetura e Soluções em Cloud
+ - 6a95fb7e901adccb95d968aa Mariana Alves Pinto | Redes de Computadores, Arquitetura e Soluções em Cloud
+ - 6a95fe225ceb9caa8792f5a2 Vinicius Trevisan | Arquitetura e Soluções em Cloud
+HTTP 200
+
+############ 3/4  mentoresAlterar — PUT /api/mentores-db/6a95fe225ceb9caa8792f5a2
+{"mensagem":"Mentor alterado","mentor":{"nome":"Vinicius Trevisan","curso":"Engenharia de Software","periodo":7,"bio":"Mentor de Cloud, Azure Functions e MongoDB.","areas":[{"id":"a1","curso":"Engenharia de Software","materia":"Arquitetura e Soluções em Cloud"}],"criadoEm":"2026-08-31T22:20:18.631Z","atualizadoEm":"2026-08-31T22:20:20.842Z","id":"6a95fe225ceb9caa8792f5a2"}}
+HTTP 200
+############ 4/4  mentoresExcluir — DELETE /api/mentores-db/6a95fe225ceb9caa8792f5a2
+{"mensagem":"Mentor excluido","mentor":{"nome":"Vinicius Trevisan","curso":"Engenharia de Software","periodo":7,"bio":"Mentor de Cloud, Azure Functions e MongoDB.","areas":[{"id":"a1","curso":"Engenharia de Software","materia":"Arquitetura e Soluções em Cloud"}],"criadoEm":"2026-08-31T22:20:18.631Z","atualizadoEm":"2026-08-31T22:20:20.842Z","id":"6a95fe225ceb9caa8792f5a2"}}
+HTTP 200
+############ validações de erro
+-- POST sem nome:
+{"erro":"Dados invalidos","detalhes":["nome e obrigatorio"]}  HTTP 400
+
+-- DELETE id já excluído:
+{"erro":"Mentor nao encontrado","id":"6a95fe225ceb9caa8792f5a2"}  HTTP 404
+
+-- PUT id inválido:
+{"erro":"Id invalido","id":"abc"}  HTTP 400
+
+
+############ estado final do banco
+total: 5

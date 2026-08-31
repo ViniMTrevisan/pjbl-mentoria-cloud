@@ -1,0 +1,30 @@
+Painel "Chamadas às Functions" — https://white-rock-03ee36c10.7.azurestaticapps.net/cadastro
+Sessão de teste: inserir -> pesquisar -> alterar -> excluir, todas disparadas pela interface.
+
+mentoresPesquisar
+GET /api/mentores-db
+19:22:16 - 200 · 5 registro(s)
+
+mentoresExcluir
+DELETE /api/mentores-db/6a95fe705ceb9caa8792f5a3
+19:22:15 - 200 · Bento Barp
+
+mentoresPesquisar
+GET /api/mentores-db
+19:22:04 - 200 · 6 registro(s)
+
+mentoresAlterar
+PUT /api/mentores-db/6a95fe705ceb9caa8792f5a3
+19:22:04 - 200 · Bento Barp
+
+mentoresPesquisar
+GET /api/mentores-db
+19:21:36 - 200 · 6 registro(s)
+
+mentoresInserir
+POST /api/mentores-db
+19:21:36 - 201 · id 6a95fe705ceb9caa8792f5a3
+
+mentoresPesquisar
+GET /api/mentores-db
+19:21:23 - 200 · 5 registro(s)

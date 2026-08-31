@@ -35,3 +35,27 @@ export type Sessao = {
 
 export type RespostaMentores = { total: number; mentores: Mentor[] };
 export type RespostaSessoes = { total: number; proximas: Sessao[]; historico: Sessao[]; sessoes: Sessao[] };
+
+/* ---------- CRUD MongoDB (4 Azure Functions) ---------- */
+
+export type MentorDb = {
+  id: string;
+  nome: string;
+  curso: string;
+  periodo: number | null;
+  bio: string;
+  areas: Area[];
+  criadoEm?: string;
+  atualizadoEm?: string;
+};
+
+export type EntradaMentor = {
+  nome: string;
+  curso: string;
+  periodo: number | null;
+  bio: string;
+  areas: Area[];
+};
+
+export type RespostaPesquisa = { total: number; mentores: MentorDb[] };
+export type RespostaEscrita = { mensagem: string; mentor: MentorDb };

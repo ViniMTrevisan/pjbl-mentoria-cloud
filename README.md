@@ -52,6 +52,19 @@ Todos são `GET`, `authLevel: anonymous`, e devolvem JSON.
 | [`GET /api/sessoes`](https://func-pjbl-mentoria.azurewebsites.net/api/sessoes) | RF9 | Sessões do usuário, separadas em `proximas` e `historico`. Aceita `?status=`. |
 | [`GET /api/health`](https://func-pjbl-mentoria.azurewebsites.net/api/health) | — | Verificação de disponibilidade da Function App. |
 
+### CRUD no MongoDB Atlas — 4 Azure Functions
+
+Banco `pjbl_mentoria`, coleção `mentores`. Detalhes e evidências em [`ENTREGA-CRUD.md`](ENTREGA-CRUD.md).
+
+| Azure Function | Endpoint | Operação |
+|---|---|---|
+| `mentoresInserir` | `POST /api/mentores-db` | Inserir |
+| `mentoresPesquisar` | `GET /api/mentores-db?q=` | Pesquisar |
+| `mentoresAlterar` | `PUT /api/mentores-db/{id}` | Alterar |
+| `mentoresExcluir` | `DELETE /api/mentores-db/{id}` | Excluir |
+
+Consumidas pela tela [`/cadastro`](https://white-rock-03ee36c10.7.azurestaticapps.net/cadastro).
+
 Exemplo:
 
 ```bash
@@ -65,6 +78,7 @@ curl "https://func-pjbl-mentoria.azurewebsites.net/api/mentores?materia=cloud"
 | **Busca de mentores** — filtros por matéria, curso e palavra-chave, chips de matérias em alta, lista ordenada por reputação | `/` | `GET /api/mentores` |
 | **Perfil do mentor** — bio, áreas, grade semanal de horários livres e avaliações recebidas | `/mentores/:id` | `GET /api/mentores/{id}` |
 | **Minhas sessões** — próximas e histórico, com selo de status da máquina de estados do PRD | `/sessoes` | `GET /api/sessoes` |
+| **Cadastro de mentores** — CRUD no MongoDB Atlas, com registro de qual Function respondeu cada ação | `/cadastro` | as 4 Functions de `/api/mentores-db` |
 
 ## Arquitetura
 

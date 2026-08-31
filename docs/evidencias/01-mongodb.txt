@@ -1,0 +1,75 @@
+banco: pjbl_mentoria
+colecoes: mentores
+documentos em mentores: 5
+indices: ["_id_","nome_1"]
+--- amostra ---
+{
+  _id: ObjectId('6a95fb7e901adccb95d968a6'),
+  nome: 'Ana Beatriz Moraes',
+  curso: 'Engenharia de Software',
+  periodo: 7,
+  areas: [
+    {
+      materia: 'Estrutura de Dados'
+    },
+    {
+      materia: 'Arquitetura e Soluções em Cloud'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a95fb7e901adccb95d968a7'),
+  nome: 'Carlos Eduardo Tanaka',
+  curso: 'Ciência da Computação',
+  periodo: 6,
+  areas: [
+    {
+      materia: 'Cálculo Diferencial e Integral'
+    },
+    {
+      materia: 'Álgebra Linear'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a95fb7e901adccb95d968a8'),
+  nome: 'Fernanda Ribeiro Costa',
+  curso: 'Engenharia de Software',
+  periodo: 8,
+  areas: [
+    {
+      materia: 'Desenvolvimento Web'
+    },
+    {
+      materia: 'Interação Humano-Computador'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a95fb7e901adccb95d968a9'),
+  nome: 'João Vitor Salles',
+  curso: 'Sistemas de Informação',
+  periodo: 5,
+  areas: [
+    {
+      materia: 'Banco de Dados'
+    },
+    {
+      materia: 'Modelagem de Sistemas'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a95fb7e901adccb95d968aa'),
+  nome: 'Mariana Alves Pinto',
+  curso: 'Ciência da Computação',
+  periodo: 9,
+  areas: [
+    {
+      materia: 'Redes de Computadores'
+    },
+    {
+      materia: 'Arquitetura e Soluções em Cloud'
+    }
+  ]
+}

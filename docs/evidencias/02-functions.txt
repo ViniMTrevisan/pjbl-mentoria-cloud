@@ -1,0 +1,10 @@
+Funcao                                Rota              Metodos     Auth
+------------------------------------  ----------------  ----------  ---------
+func-pjbl-mentoria/health             health            GET         anonymous
+func-pjbl-mentoria/mentorPorId        mentores/{id}     GET         anonymous
+func-pjbl-mentoria/mentores           mentores          GET         anonymous
+func-pjbl-mentoria/mentoresAlterar    mentores-db/{id}  PUT, PATCH  anonymous
+func-pjbl-mentoria/mentoresExcluir    mentores-db/{id}  DELETE      anonymous
+func-pjbl-mentoria/mentoresInserir    mentores-db       POST        anonymous
+func-pjbl-mentoria/mentoresPesquisar  mentores-db       GET         anonymous
+func-pjbl-mentoria/sessoes            sessoes           GET         anonymous

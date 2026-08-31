@@ -2,6 +2,7 @@ import { NavLink, Route, Routes } from 'react-router-dom';
 import { Mentores } from './pages/Mentores';
 import { MentorDetalhe } from './pages/MentorDetalhe';
 import { Sessoes } from './pages/Sessoes';
+import { Cadastro } from './pages/Cadastro';
 import { API_BASE } from './api';
 
 export default function App() {
@@ -19,6 +20,9 @@ export default function App() {
           <NavLink to="/sessoes" className={({ isActive }) => (isActive ? 'ativo' : '')}>
             minhas sessões
           </NavLink>
+          <NavLink to="/cadastro" className={({ isActive }) => (isActive ? 'ativo' : '')}>
+            cadastro
+          </NavLink>
         </nav>
       </header>
 
@@ -27,6 +31,7 @@ export default function App() {
           <Route path="/" element={<Mentores />} />
           <Route path="/mentores/:id" element={<MentorDetalhe />} />
           <Route path="/sessoes" element={<Sessoes />} />
+          <Route path="/cadastro" element={<Cadastro />} />
           <Route path="*" element={<div className="estado"><strong>Página não encontrada.</strong>Volte para a busca de mentores.</div>} />
         </Routes>
       </main>
