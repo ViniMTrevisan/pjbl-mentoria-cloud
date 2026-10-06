@@ -30,10 +30,11 @@ Base: `main` (`bb8189a`). Branch: `tde2-vertical-slice-clean-architecture`. O re
    - Verificação: extrair texto, conferir páginas e renderizar para PNG com Poppler; inspecionar visualmente todas as páginas.
    - Não atribuir contribuição individual sem confirmação; aguardar a resposta do aluno antes de fechar o arquivo.
 
-5. **[ ] Revisão e publicação da branch**
+5. **[x] Revisão e publicação da branch**
    - Revisar `git diff`, verificar apenas mudanças do repo `pjbl-mentoria`, ignorar o DOCX não rastreado e não incluir alterações do repositório pai.
    - Commitar escopo exato e enviar a branch ao remoto `origin`; não abrir PR nem fazer deploy.
-   - Verificação: `git status --short --branch`, `git log -1` e `git ls-remote --heads origin tde2-vertical-slice-clean-architecture`.
+   - Verificação: commit `157e478` enviado; `origin/tde2-vertical-slice-clean-architecture` existe no GitHub e rastreia a branch local.
+   - `git status --short --branch` confirmou que os únicos arquivos não rastreados restantes são a evidência DOCX preexistente, preservada sem stage.
 
 ## Conclusão do plano
 
