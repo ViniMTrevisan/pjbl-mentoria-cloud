@@ -33,6 +33,18 @@ Fontes e reprodução:
 cd docs && for f in diagramas/*.mmd; do mmdc -i "$f" -o "${f%.mmd}.svg" -b white -p diagramas/.puppeteer.json; done && python3 build-pdf.py
 ```
 
+## TDE 2 - arquitetura do backend
+
+Entrega de **Vertical Slice, Clean Architecture e SOLID** aplicada ao backend:
+
+- [PDF para entrega](output/pdf/TDE2-Vertical-Slice-Clean-Architecture-SOLID.pdf)
+- [Documento Markdown de arquitetura](docs/TDE2-VERTICAL-SLICE-CLEAN-ARCHITECTURE.md)
+- [Prompts utilizados](docs/TDE2-PROMPTS.md)
+- Diagramas editáveis e imagens: [`classes Mermaid`](docs/diagramas/tde2-backend-classes.mmd), [`classes PNG`](docs/diagramas/tde2-backend-classes.png), [`componentes Mermaid`](docs/diagramas/tde2-backend-componentes.mmd), [`componentes PNG`](docs/diagramas/tde2-backend-componentes.png)
+- [Branch no GitHub](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/tree/tde2-vertical-slice-clean-architecture)
+
+Para regenerar o PDF: `python3 -m pip install reportlab` e `python3 docs/build-tde2-pdf.py`.
+
 ## Grupo
 
 Bento Barp · Guilherme Reis · Guilherme Selenko · Vinicius Trevisan — ver [GRUPO.md](GRUPO.md).

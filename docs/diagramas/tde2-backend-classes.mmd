@@ -1,0 +1,81 @@
+classDiagram
+direction LR
+
+class Mentor {
+  <<entidade por estrutura>>
+  +id
+  +nome
+  +curso
+  +periodo
+  +bio
+  +areas
+  +disponibilidades
+  +avaliacoes
+}
+
+class RegrasMentor {
+  <<modulo de dominio>>
+  +calcularReputacao(avaliacoes)
+  +validarMentor(corpo, parcial)
+  +novoMentor(corpo, agora)
+  +camposAlterados(corpo, agora)
+}
+
+class MentorRepository {
+  <<porta JSDoc>>
+  +pesquisar(consulta)
+  +idValido(id)
+  +buscarPorId(id)
+  +inserir(mentor)
+  +alterar(id, campos)
+  +excluir(id)
+}
+
+class MongoMentorRepository {
+  <<adaptador>>
+  +pesquisar(consulta)
+  +idValido(id)
+  +buscarPorId(id)
+  +inserir(mentor)
+  +alterar(id, campos)
+  +excluir(id)
+}
+
+class CatalogoMock {
+  <<adaptador>>
+  +listarMentores()
+  +buscarMentorPorId(id)
+  +listarSessoes()
+}
+
+class FatiasDeMentores {
+  <<casos de uso>>
+  +listarMentoresPublicos(catalogo, filtros)
+  +obterMentorPublico(catalogo, id)
+  +criarMentor(repository, corpo)
+  +pesquisarMentores(repository, consulta, id)
+  +alterarMentor(repository, id, corpo)
+  +excluirMentor(repository, id)
+}
+
+class FatiaDeSessoes {
+  <<caso de uso>>
+  +listarSessoes(catalogo, status, agora)
+}
+
+class AzureFunctions {
+  <<adaptador HTTP>>
+  +registrarRotas()
+  +lerCorpo(request)
+  +executarCasoHttp(context)
+}
+
+MentorRepository <|.. MongoMentorRepository : implementa
+FatiasDeMentores --> MentorRepository : depende da porta
+FatiasDeMentores --> RegrasMentor : aplica regras
+FatiasDeMentores --> CatalogoMock : leitura publica
+FatiaDeSessoes --> CatalogoMock : leitura de sessoes
+AzureFunctions --> FatiasDeMentores : encaminha
+AzureFunctions --> FatiaDeSessoes : encaminha
+MongoMentorRepository ..> Mentor : persiste
+CatalogoMock ..> Mentor : fornece

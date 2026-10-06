@@ -1,8 +1,8 @@
 const { app } = require('@azure/functions');
-const { sessoes } = require('../data/mock');
+const { catalogoMock } = require('./dependencies');
+const { executarCasoHttp } = require('./http');
+const { listarSessoes } = require('../features/sessions/listSessions');
 
-// RF9 - GET /api/sessoes?status=
-// Lista as sessoes do usuario logado (mock: usuario fixo "Vinicius Trevisan").
 app.http('sessoes', {
   methods: ['GET'],
   authLevel: 'anonymous',
@@ -10,21 +10,7 @@ app.http('sessoes', {
   handler: async (request, context) => {
     const status = (request.query.get('status') || '').toUpperCase();
     context.log(`GET /api/sessoes status="${status}"`);
-
-    const lista = sessoes
-      .filter((s) => !status || s.status === status)
-      .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
-
-    const agora = new Date();
-    return json(200, {
-      total: lista.length,
-      proximas: lista.filter((s) => new Date(s.dataHora) >= agora && ['SOLICITADA', 'ACEITA'].includes(s.status)),
-      historico: lista.filter((s) => new Date(s.dataHora) < agora || ['CONCLUIDA', 'CANCELADA', 'RECUSADA'].includes(s.status)),
-      sessoes: lista,
-    });
+    return executarCasoHttp(context, 'listar sessoes', 'Falha ao consultar sessoes', () =>
+      listarSessoes({ catalogo: catalogoMock, status }));
   },
 });
-
-function json(status, body) {
-  return { status, jsonBody: body, headers: { 'Content-Type': 'application/json; charset=utf-8' } };
-}

@@ -180,13 +180,4 @@ const sessoes = [
   },
 ];
 
-// RF11 - reputacao = media aritmetica das notas, 1 casa decimal.
-// Mentor sem avaliacao NAO exibe 0.0 (regra do PRD).
-function calcularReputacao(mentor) {
-  const total = mentor.avaliacoes.length;
-  if (total === 0) return { media: null, total: 0 };
-  const soma = mentor.avaliacoes.reduce((acc, a) => acc + a.nota, 0);
-  return { media: Math.round((soma / total) * 10) / 10, total };
-}
-
-module.exports = { mentores, sessoes, calcularReputacao, DIAS_SEMANA };
+module.exports = { mentores, sessoes, DIAS_SEMANA };

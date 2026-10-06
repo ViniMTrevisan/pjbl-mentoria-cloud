@@ -1,0 +1,44 @@
+flowchart LR
+  subgraph Entrada[Adaptador de entrada]
+    HTTP[Azure Functions<br/>rotas HTTP]
+    COMPOSICAO[functions/dependencies.js<br/>composicao e injecao]
+  end
+
+  subgraph Aplicacao[Aplicacao - Vertical Slices]
+    MENTORES[Fatias de mentores<br/>listar, obter, criar,<br/>pesquisar, alterar, excluir]
+    SESSOES[Fatia de sessoes<br/>listar e classificar]
+  end
+
+  subgraph Dominio[Dominio]
+    REGRAS[mentor.js<br/>validacao, reputacao,<br/>normalizacao]
+    PORTA[MentorRepository<br/>contrato JSDoc]
+  end
+
+  subgraph Adaptadores[Adaptadores de saida]
+    MOCK[MockMentorCatalog<br/>catalogo de leitura]
+    DADOS[data/mock.js<br/>fixtures]
+    MONGO[MongoMentorRepository<br/>CRUD e mapeamento]
+    CLIENT[mongo/client.js<br/>conexao lazy e pool]
+  end
+
+  HTTP --> MENTORES
+  HTTP --> SESSOES
+  COMPOSICAO -. injeta .-> MONGO
+  COMPOSICAO -. injeta .-> MOCK
+  MENTORES --> REGRAS
+  MENTORES --> PORTA
+  MENTORES --> MOCK
+  SESSOES --> MOCK
+  MONGO -. implementa .-> PORTA
+  MOCK --> DADOS
+  MONGO --> CLIENT
+  CLIENT --> DB[(MongoDB Atlas<br/>pjbl_mentoria.mentores)]
+
+  classDef entrada fill:#d9f24a,stroke:#16233a,color:#16233a;
+  classDef aplicacao fill:#eaf0ff,stroke:#425a8b,color:#16233a;
+  classDef dominio fill:#fff1c7,stroke:#987326,color:#16233a;
+  classDef adaptador fill:#eef1f6,stroke:#5c6b8a,color:#16233a;
+  class HTTP,COMPOSICAO entrada;
+  class MENTORES,SESSOES aplicacao;
+  class REGRAS,PORTA dominio;
+  class MOCK,DADOS,MONGO,CLIENT,DB adaptador;
