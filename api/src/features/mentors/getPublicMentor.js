@@ -1,5 +1,6 @@
 const { calcularReputacao } = require('../../domain/mentor');
 
+/** @param {{catalogo: import('../../ports/CatalogoMentores').CatalogoMentores, id: string}} entrada */
 async function obterMentorPublico({ catalogo, id }) {
   const mentor = await catalogo.buscarMentorPorId(id);
   if (!mentor) return { status: 404, body: { erro: 'Mentor não encontrado', id } };

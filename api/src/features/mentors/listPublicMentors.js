@@ -2,6 +2,7 @@ const { calcularReputacao } = require('../../domain/mentor');
 
 const contem = (texto, termo) => (texto || '').toLowerCase().includes(termo.toLowerCase());
 
+/** @param {{catalogo: import('../../ports/CatalogoMentores').CatalogoMentores, filtros: Object}} entrada */
 async function listarMentoresPublicos({ catalogo, filtros }) {
   const curso = filtros.curso || '';
   const materia = filtros.materia || '';

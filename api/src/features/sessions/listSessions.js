@@ -1,3 +1,4 @@
+/** @param {{catalogo: import('../../ports/CatalogoMentores').CatalogoMentores, status?: string, agora?: Date}} entrada */
 async function listarSessoes({ catalogo, status = '', agora = new Date() }) {
   const lista = (await catalogo.listarSessoes())
     .filter((sessao) => !status || sessao.status === status.toUpperCase())
