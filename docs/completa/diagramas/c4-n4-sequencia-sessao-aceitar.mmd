@@ -1,0 +1,38 @@
+---
+config:
+  sequence:
+    wrap: true
+    width: 170
+    actorMargin: 40
+    messageMargin: 34
+---
+sequenceDiagram
+    autonumber
+    participant RL as :Relay do outbox<br/>(Timer 10 s)
+    participant SQL as :BD Sessões
+    participant SB as :Service Bus<br/>veterano.eventos
+    participant SN as :Serviço de<br/>Notificações
+    actor V as :Veterano
+    participant MF as :MFE Agenda
+    participant SS as :Serviço de Sessões<br/>(via APIM e BFF)
+
+    loop a cada 10 s
+        RL->>SQL: lê OUTBOX pendente
+        RL->>SB: publica SessaoSolicitada
+        Note over RL,SB: messageId = id do evento
+        RL->>SQL: marca publicado
+    end
+    SB-)SN: entrega SessaoSolicitada
+    SN->>SN: messageId já visto?
+    alt repetido
+        SN-->>SB: complete (descarta)
+    else novo
+        SN-)V: notificação in-app + e-mail
+        SN-->>SB: complete
+    end
+    V->>MF: aceita a solicitação
+    MF->>SS: PATCH /sessoes/{id}/status ACEITA
+    SS->>SS: ator = mentor e status = SOLICITADA?
+    SS->>SQL: UPDATE SESSAO + INSERT OUTBOX (SessaoAceita)
+    SS-->>MF: 200
+    Note over RL,SN: o relay publica SessaoAceita no próximo ciclo e o<br/>Serviço de Notificações avisa o calouro pelo mesmo caminho

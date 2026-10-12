@@ -1,0 +1,64 @@
+---
+config:
+  layout: elk
+  elk:
+    nodePlacementStrategy: BRANDES_KOEPF
+---
+flowchart TB
+    classDef comp fill:#85bbf0,stroke:#5d82a8,color:#0b2340
+    classDef plan fill:#ffffff,stroke:#5d82a8,stroke-dasharray:5 4,color:#0b2340
+    classDef cont fill:#438dd5,stroke:#2e6295,color:#ffffff
+
+    BFF["<b>BFF Web</b><br/>[Container: Azure Functions]"]:::cont
+    Bus[["<b>Barramento de Eventos</b><br/>[Container: Service Bus]"]]:::cont
+
+    subgraph S["Serviço de Mentores [Container: Azure Functions v4, Node 22] — repositório: api/src"]
+        direction TB
+        subgraph E["1 · Adaptadores de entrada — functions/"]
+            direction LR
+            HPub["<b>Triggers HTTP de leitura</b><br/>[Component: mentores.js, sessoes.js]<br/>GET /mentores · /mentores/{id} · /sessoes"]:::comp
+            HCrud["<b>Triggers HTTP do cadastro</b><br/>[Component: mentoresInserir · Pesquisar ·<br/>Alterar · Excluir.js] — /mentores-db"]:::comp
+            HEvt["<b>Consumidor de eventos</b><br/>[Component: Service Bus trigger]<br/>AvaliacaoRegistrada"]:::plan
+            Comp["<b>Raiz de composição + HTTP</b><br/>[Component: dependencies.js, http.js]<br/>cria adaptadores, monta resposta JSON"]:::comp
+        end
+        subgraph A["2 · Aplicação — features/ (uma fatia por caso de uso)"]
+            direction LR
+            FPub["<b>Fatias de leitura</b><br/>[Component: listPublicMentors ·<br/>getPublicMentor · listSessions]"]:::comp
+            FCrud["<b>Fatias de cadastro</b><br/>[Component: createMentor · searchMentors ·<br/>updateMentor · deleteMentor]"]:::comp
+            FRep["<b>Fatia de reputação</b><br/>[Component: atualizarReputacao]"]:::plan
+        end
+        subgraph D["3 · Domínio e portas — domain/, ports/"]
+            direction LR
+            Cat["<b>CatálogoMentores</b><br/>[Component: porta de leitura]"]:::comp
+            Dom["<b>Regras de mentor</b><br/>[Component: domain/mentor.js]<br/>validar · normalizar · reputação"]:::comp
+            Porta["<b>MentorRepository</b><br/>[Component: porta de persistência]"]:::comp
+        end
+        subgraph I["4 · Adaptadores de saída — infrastructure/"]
+            direction LR
+            Mock["<b>MockMentorCatalog</b><br/>[Component: data/mock.js]"]:::comp
+            Mongo["<b>MongoMentorRepository</b><br/>[Component: driver mongodb 7 +<br/>client.js com conexão reaproveitada]"]:::comp
+        end
+    end
+
+    DB[("<b>BD Mentores</b><br/>[Container: MongoDB Atlas]<br/>pjbl_mentoria.mentores")]:::cont
+
+    BFF -->|"JSON/HTTPS"| HPub
+    BFF -->|"JSON/HTTPS"| HCrud
+    Bus -.->|"evento"| HEvt
+    HPub --> FPub
+    HCrud --> FCrud
+    HEvt -.-> FRep
+    FPub --> Cat
+    FPub --> Dom
+    FCrud --> Dom
+    FCrud --> Porta
+    FRep -.-> Porta
+    Mock -.->|"implementa"| Cat
+    Mongo -.->|"implementa"| Porta
+    Mongo -->|"MongoDB wire / TLS"| DB
+
+    style S fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style E fill:#f6f8fb,stroke:#9aa7bd
+    style A fill:#f6f8fb,stroke:#9aa7bd
+    style D fill:#fdf8e6,stroke:#c9a94a
+    style I fill:#f6f8fb,stroke:#9aa7bd

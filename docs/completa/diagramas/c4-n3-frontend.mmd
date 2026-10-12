@@ -1,0 +1,55 @@
+---
+config:
+  layout: elk
+  elk:
+    nodePlacementStrategy: BRANDES_KOEPF
+---
+flowchart TB
+    classDef comp fill:#85bbf0,stroke:#5d82a8,color:#0b2340
+    classDef cont fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+
+    Aluno["<b>Aluno</b><br/>[Person]"]:::pessoa
+
+    subgraph SH["Shell [Container: React 19 + Vite — host]"]
+        direction LR
+        L["<b>Layout / casca</b><br/>[Component: App.tsx]<br/>topo, navegação, rodapé"]:::comp
+        R["<b>Roteador</b><br/>[Component: react-router-dom]<br/>/ · /mentores/:id · /sessoes · /cadastro"]:::comp
+        Au["<b>Provedor de autenticação</b><br/>[Component: MSAL] — planejado"]:::comp
+        RL["<b>Carregador de remotes</b><br/>[Component: Module Federation]"]:::comp
+    end
+
+    subgraph M1["MFE Descoberta [Container]"]
+        direction TB
+        P1["<b>Mentores</b><br/>[Component: pages/Mentores.tsx]"]:::comp
+        P2["<b>MentorDetalhe</b><br/>[Component: pages/MentorDetalhe.tsx]"]:::comp
+        C1["<b>GradeDisponibilidade, Reputacao</b><br/>[Component: components/]"]:::comp
+    end
+    subgraph M2["MFE Agenda [Container]"]
+        direction TB
+        P3["<b>Sessoes</b><br/>[Component: pages/Sessoes.tsx]"]:::comp
+    end
+    subgraph M3["MFE Perfil do Mentor [Container]"]
+        direction TB
+        P4["<b>Cadastro</b><br/>[Component: pages/Cadastro.tsx]"]:::comp
+    end
+
+    K["<b>Pacote compartilhado</b><br/>[Component: api.ts + types.ts]<br/>cliente HTTP e contratos tipados"]:::comp
+    GW["<b>API Gateway</b><br/>[Container: API Management]"]:::cont
+
+    Aluno -->|"HTTPS"| L
+    L --> R
+    L --> Au
+    R --> RL
+    RL -->|"/"| P1
+    RL -->|"/mentores/:id"| P2
+    RL -->|"/sessoes"| P3
+    RL -->|"/cadastro"| P4
+    P2 --> C1
+    P1 & P2 & P3 & P4 --> K
+    K -->|"JSON/HTTPS"| GW
+
+    style SH fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style M1 fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style M2 fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style M3 fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444

@@ -1,0 +1,52 @@
+---
+config:
+  sequence:
+    wrap: true
+    width: 150
+    actorMargin: 30
+    messageMargin: 32
+---
+sequenceDiagram
+    autonumber
+    actor V as :Veterano
+    participant UI as :Cadastro.tsx<br/>(MFE Perfil)
+    participant H as :mentoresAlterar<br/>(Azure Function)
+    participant A as :http.js
+    participant U as :alterarMentor<br/>(fatia)
+    participant D as :mentor.js<br/>(domínio)
+    participant R as :MongoMentorRepository
+    participant DB as :MongoDB Atlas
+
+    V->>UI: edita campos e salva
+    UI->>H: PATCH /api/mentores-db/{id}
+    H->>A: lerCorpo(request)
+    A-->>H: corpo | null
+    H->>A: executarCasoHttp(...)
+    A->>U: alterarMentor({repository, id, corpo})
+    U->>R: idValido(id)
+    alt id inválido
+        R-->>U: false
+        U-->>A: 400 Id invalido
+    else id válido
+        U->>D: validarMentor(corpo, {parcial: true})
+        D-->>U: erros[]
+        alt erros.length > 0
+            U-->>A: 400 detalhes
+        else corpo válido
+            U->>D: camposAlterados(corpo, agora)
+            D-->>U: {curso, areas, atualizadoEm}
+            U->>R: alterar(id, campos)
+            R->>DB: findOneAndUpdate($set)
+            DB-->>R: documento | null
+            R-->>U: Mentor | null
+            alt não encontrado
+                U-->>A: {status: 404}
+            else alterado
+                U-->>A: {status: 200, mentor}
+            end
+        end
+    end
+    A-->>H: json(status, body)
+    Note over A: exceção do driver vira 500<br/>sem expor a mensagem interna
+    H-->>UI: resposta HTTP JSON
+    UI-->>V: atualiza a lista

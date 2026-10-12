@@ -1,0 +1,46 @@
+---
+config:
+  layout: elk
+  elk:
+    nodePlacementStrategy: BRANDES_KOEPF
+---
+flowchart TB
+    classDef comp fill:#85bbf0,stroke:#5d82a8,color:#0b2340
+    classDef cont fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    MFE["<b>Microfrontends</b><br/>[Containers: React]"]:::cont
+
+    subgraph G["API Gateway [Container: Azure API Management] — políticas em ordem de execução"]
+        direction LR
+        G1["<b>Política validate-jwt</b><br/>[Component] issuer e audience do Entra"]:::comp
+        G2["<b>Política rate-limit-by-key</b><br/>[Component] 60 req/min por usuário"]:::comp
+        G3["<b>Política cors + set-header</b><br/>[Component] origens das SWA,<br/>repassa x-user-id"]:::comp
+        G4["<b>Roteamento</b><br/>[Component] /bff/* → BFF Web<br/>/v1/* versionado"]:::comp
+    end
+
+    subgraph B["BFF Web [Container: Azure Functions] — um endpoint por tela"]
+        direction LR
+        B1["<b>GET /bff/descoberta</b><br/>[Component] lista + filtros + matérias em alta"]:::comp
+        B2["<b>GET /bff/mentores/{id}</b><br/>[Component] perfil + reputação + horários"]:::comp
+        B3["<b>GET /bff/agenda</b><br/>[Component] sessões + nome do outro participante"]:::comp
+        B4["<b>/bff/perfil</b><br/>[Component] CRUD do mentor (repasse)"]:::comp
+        C["<b>Clientes dos serviços</b><br/>[Component] timeout 3 s,<br/>resposta parcial se um falhar"]:::comp
+    end
+
+    Entra["<b>Entra External ID</b><br/>[Software System]"]:::externo
+    SM["<b>Serviço de Mentores</b>"]:::cont
+    SS["<b>Serviço de Sessões</b>"]:::cont
+    SA["<b>Serviço de Avaliações</b>"]:::cont
+
+    MFE -->|"HTTPS + Bearer"| G1
+    G1 -.->|"JWKS"| Entra
+    G1 --> G2 --> G3 --> G4
+    G4 --> B1 & B2 & B3 & B4
+    B1 & B2 & B3 & B4 --> C
+    C -->|"REST"| SM
+    C -->|"REST"| SS
+    C -->|"REST"| SA
+
+    style G fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style B fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444

@@ -1,0 +1,71 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+    classDef node fill:#ffffff,stroke:#16233a,stroke-width:1.5px,color:#16233a
+    classDef mark fill:#d9f24a,stroke:#16233a,stroke-width:1.5px,color:#16233a
+    classDef art fill:#eef1f6,stroke:#5c6b8a,stroke-dasharray:4 3,color:#16233a
+
+    Dev["«device»<br/>Navegador do aluno"]:::node
+    GH["«device»<br/>GitHub Actions<br/>1 workflow por serviço"]:::node
+
+    subgraph AZ["«execution environment» Microsoft Azure — Azure for Students — região centralus"]
+        direction TB
+        subgraph FE["rg-veterano-frontend"]
+            direction LR
+            SW1["«device» Static Web App<br/>shell (Free)<br/>swa-pjbl-mentoria-7205"]:::mark
+            SW2["«device» Static Web Apps<br/>mfe-descoberta · mfe-agenda<br/>· mfe-perfil (Free)"]:::node
+        end
+        subgraph EDGE["rg-veterano-gateway"]
+            APIM["«device» API Management<br/>Consumption<br/>apim-veterano"]:::node
+        end
+        subgraph BE["rg-veterano-servicos"]
+            direction LR
+            F1["«device» Function App Flex<br/>func-pjbl-mentoria<br/>(Mentores + BFF hoje)"]:::mark
+            F2["«device» Function Apps Flex<br/>func-bff · func-sessoes ·<br/>func-avaliacoes · func-notificacoes"]:::node
+            SB["«device» Service Bus<br/>Standard<br/>sb-veterano"]:::node
+        end
+        subgraph DATA["rg-veterano-dados"]
+            direction LR
+            SQL["«device» Azure SQL<br/>serverless (auto-pause)"]:::node
+            COS["«device» Cosmos DB<br/>NoSQL serverless"]:::node
+            ST["«device» Storage Account<br/>Table + deploy<br/>stpjblmentoria7205"]:::mark
+            KV["«device» Key Vault"]:::node
+        end
+        AI["«device» Application Insights<br/>+ Log Analytics"]:::mark
+    end
+
+    ATL["«device» MongoDB Atlas M0<br/>(AWS/Azure, cluster compartilhado)"]:::mark
+    ENT["«device» Entra External ID"]:::node
+    ACS["«device» Communication Services Email"]:::node
+
+    A1["«artifact» dist/ (Vite)"]:::art
+    A2["«artifact» api.zip (Functions v4)"]:::art
+
+    GH -.->|"«deploy»"| A1
+    GH -.->|"«deploy»"| A2
+    A1 -.-> SW1
+    A1 -.-> SW2
+    A2 -.-> F1
+    A2 -.-> F2
+    Dev -->|"HTTPS 443"| SW1
+    Dev -->|"HTTPS 443"| APIM
+    APIM -->|"HTTPS"| F2
+    APIM -->|"HTTPS"| F1
+    F2 -->|"AMQP 5671"| SB
+    SB -->|"trigger"| F1
+    F2 -->|"TDS 1433"| SQL
+    F2 -->|"HTTPS"| COS
+    F2 -->|"HTTPS"| ST
+    F1 -->|"TLS 27017"| ATL
+    F1 & F2 -->|"Managed Identity"| KV
+    F2 -->|"HTTPS"| ACS
+    APIM -.->|"JWKS"| ENT
+    F1 & F2 -.->|"telemetria"| AI
+
+    style AZ fill:#ffffff,stroke:#16233a
+    style FE fill:#f6f8fb,stroke:#9aa7bd
+    style EDGE fill:#f6f8fb,stroke:#9aa7bd
+    style BE fill:#f6f8fb,stroke:#9aa7bd
+    style DATA fill:#f6f8fb,stroke:#9aa7bd

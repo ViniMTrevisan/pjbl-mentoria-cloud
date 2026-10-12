@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Documentação de Arquitetura — Veterano.</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+  @page :first { margin: 0; }
+  @page paisagem { size: A4 landscape; margin: 14mm; }
+  @page a3retrato { size: A3 portrait; margin: 14mm; }
+  @page a3paisagem { size: A3 landscape; margin: 14mm; }
+
+  :root {
+    --tinta: #16233a;
+    --apoio: #5c6b8a;
+    --grade: #d6dde9;
+    --marca: #d9f24a;
+    --papel: #f6f8fb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--tinta);
+    font-size: 10pt;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ---------- capa ---------- */
+  .capa {
+    height: 297mm;
+    padding: 32mm 22mm;
+    background: var(--papel);
+    border-bottom: 3px solid var(--tinta);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .capa-topo { border-top: 4px solid var(--tinta); padding-top: 8mm; }
+  .capa h1 { font-size: 32pt; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 6mm; }
+  .capa h1 em { font-style: normal; background: linear-gradient(transparent 58%, var(--marca) 58%); }
+  .capa .sub { font-size: 13pt; color: var(--apoio); margin: 0 0 12mm; max-width: 130mm; }
+  .capa .meta { font-size: 10pt; }
+  .capa .meta dt { font-size: 7.5pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--apoio); margin-top: 5mm; }
+  .capa .meta dd { margin: 1mm 0 0; }
+  .capa .rodape { font-size: 8.5pt; color: var(--apoio); border-top: 1px solid var(--grade); padding-top: 4mm; }
+
+  .grupo { list-style: none; padding: 0; margin: 2mm 0 0; }
+  .grupo li { padding: 1.5mm 0; border-bottom: 1px solid var(--grade); font-size: 11pt; }
+
+  /* ---------- estrutura ---------- */
+  h2 {
+    font-size: 15pt;
+    letter-spacing: -0.02em;
+    margin: 10mm 0 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 2px solid var(--tinta);
+    page-break-after: avoid;
+    page-break-before: always;
+  }
+  h2:first-of-type { page-break-before: avoid; }
+  h3 { font-size: 11.5pt; margin: 6mm 0 2mm; page-break-after: avoid; }
+  h4 { font-size: 10pt; margin: 4mm 0 1mm; color: var(--apoio); page-break-after: avoid; }
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1mm; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 8.5pt; background: var(--papel); padding: 0.5mm 1mm; border-radius: 2px; }
+
+  .intro { color: var(--apoio); font-size: 9pt; border-left: 3px solid var(--marca); padding-left: 4mm; margin-bottom: 4mm; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 8.5pt; page-break-inside: avoid; }
+  th, td { border: 1px solid var(--grade); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: var(--papel); font-weight: 600; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: var(--apoio); }
+  td.must { white-space: nowrap; }
+
+  figure { margin: 5mm 0 6mm; page-break-inside: avoid; text-align: center; }
+  figure svg { max-width: 100%; height: auto; }
+  figcaption { font-size: 8pt; color: var(--apoio); margin-top: 2mm; text-align: left; border-top: 1px solid var(--grade); padding-top: 1.5mm; }
+  figure.paisagem, figure.a3retrato, figure.a3paisagem { page-break-before: always; page-break-after: always; margin: 0; }
+  figure.paisagem { page: paisagem; }
+  figure.a3retrato { page: a3retrato; }
+  figure.a3paisagem { page: a3paisagem; }
+
+  .selo { display: inline-block; font-size: 7pt; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.6mm 1.6mm; border: 1px solid var(--grade); border-radius: 2px; white-space: nowrap; }
+  .selo.feito { background: var(--marca); border-color: #b9d02f; font-weight: 700; }
+  .selo.planejado { color: var(--apoio); }
+
+  /* ---------- canvas ---------- */
+  .canvas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2mm; page-break-inside: avoid; }
+  .canvas .bloco { border: 1px solid var(--tinta); padding: 3mm; font-size: 8pt; }
+  .canvas .bloco h5 { margin: 0 0 1.5mm; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tinta); background: var(--marca); display: inline-block; padding: 0.6mm 1.5mm; }
+  .canvas .bloco ul { padding-left: 4mm; margin: 0; }
+  .canvas .bloco li { margin-bottom: 0.8mm; }
+  .canvas .larga2 { grid-column: span 2; }
+  .canvas .larga3 { grid-column: span 3; }
+
+  .adr { border: 1px solid var(--grade); border-left: 3px solid var(--marca); padding: 3mm 4mm; margin-bottom: 4mm; page-break-inside: avoid; }
+  .adr h4 { color: var(--tinta); font-size: 10pt; margin: 0 0 1.5mm; }
+  .adr dl { margin: 0; font-size: 8.5pt; }
+  .adr dt { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.1em; color: var(--apoio); margin-top: 2mm; }
+  .adr dd { margin: 0.5mm 0 0; }
+
+  .sumario { page-break-after: always; }
+  .sumario ol { list-style: none; padding: 0; counter-reset: sec; }
+  .sumario li { counter-increment: sec; padding: 1.5mm 0; border-bottom: 1px solid var(--grade); font-size: 10pt; }
+  .sumario li::before { content: counter(sec) ". "; color: var(--apoio); font-variant-numeric: tabular-nums; }
+  .selo.parcial { background: #fff1c7; border-color: #c9a94a; font-weight: 700; }
+  .sumario li.apendice::before { content: "A. "; }
+  pre.arvore { font-family: "SF Mono", Menlo, monospace; font-size: 8pt; line-height: 1.45; background: var(--papel); border: 1px solid var(--grade); padding: 3mm 4mm; margin: 0 0 4mm; page-break-inside: avoid; white-space: pre; }
+  .nota { font-size: 8.5pt; color: var(--apoio); border: 1px dashed var(--grade); padding: 2.5mm 3.5mm; margin: 0 0 4mm; }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="capa-topo">
+    <p style="font-size:8pt;letter-spacing:0.18em;text-transform:uppercase;color:var(--apoio);margin:0 0 14mm">
+      Pontifícia Universidade Católica do Paraná &middot; Arquitetura e Soluções em Cloud
+    </p>
+    <h1>Documentação de<br>Arquitetura<em>.</em></h1>
+    <p class="sub"><strong>Veterano.</strong> — Plataforma de mentoria entre veteranos e calouros. Documentação completa no
+    padrão arc42, com C4 Model (níveis 1 a 4), UML, DER e Software Architecture Canvas, cobrindo os estilos Serverless,
+    Microfrontend, BFF + Microsserviços + Database per Service, API Gateway, Arquitetura Orientada a Eventos e
+    Clean Architecture com Vertical Slice.</p>
+  </div>
+
+  <div class="meta">
+    <dl>
+      <dt>Grupo</dt>
+      <dd>
+        <ul class="grupo">
+          <li>Bento Barp</li>
+          <li>Guilherme Reis</li>
+          <li>Guilherme Selenko</li>
+          <li>Vinicius Trevisan</li>
+        </ul>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="rodape">
+    Repositório: github.com/ViniMTrevisan/pjbl-mentoria-cloud &middot; código desta entrega em <code>api/src</code> e <code>frontend/src</code><br>
+    Aplicação publicada: white-rock-03ee36c10.7.azurestaticapps.net &middot; API: func-pjbl-mentoria.azurewebsites.net<br>
+    Versão 2.0 &middot; outubro de 2026 &middot; documentação completa
+  </div>
+</section>
+
+<section class="sumario">
+  <h2 style="page-break-before:avoid;margin-top:0">Sumário</h2>
+  <ol>
+    <li>Introdução e Objetivos</li>
+    <li>Restrições da Arquitetura</li>
+    <li>Escopo e Contexto do Sistema — <em>C4 Nível 1</em></li>
+    <li>Estratégia de Solução — <em>estilos arquiteturais e Software Architecture Canvas</em></li>
+    <li>Visão de Blocos de Construção — <em>C4 Níveis 2, 3 e 4 (UML Classes e Componentes), Clean Architecture e Vertical Slice</em></li>
+    <li>Visão de Runtime — <em>UML Sequência e Máquina de Estados</em></li>
+    <li>Visão de Implantação — <em>UML Deployment</em></li>
+    <li>Conceitos Transversais — <em>EDA, Database per Service e DER</em></li>
+    <li>Decisões de Arquitetura — <em>ADRs</em></li>
+    <li>Requisitos de Qualidade</li>
+    <li>Riscos e Dívidas Técnicas</li>
+    <li class="apendice">Apêndice — Glossário</li>
+  </ol>
+  <p style="font-size:8.5pt;color:var(--apoio);margin-top:6mm">
+    <strong>Como ler as marcações.</strong> O documento descreve a arquitetura-alvo do Veterano. e indica, em cada
+    elemento, o quanto dela já existe: <span class="selo feito">implementado</span> está publicado em Azure;
+    <span class="selo parcial">parcial</span> existe em código, mas ainda não na forma final do estilo (por exemplo, as
+    telas que serão microfrontends hoje convivem no mesmo bundle); <span class="selo planejado">planejado</span> está
+    desenhado e ainda não construído. Nos diagramas C4, a <strong>borda grossa</strong> marca os contêineres cujo papel
+    já é cumprido por código publicado. A Clean Architecture e o Vertical Slice (seção 5.3) descrevem o código entregue
+    em <code>api/src</code>, arquivo por arquivo.
+  </p>
+  <p style="font-size:8.5pt;color:var(--apoio)">
+    <strong>Seções.</strong> As onze seções numeradas seguem o template oficial arc42 (arc42.org). O glossário,
+    que o template traz como seção 12, foi mantido como apêndice.
+  </p>
+</section>
+
+<!-- =============================================================== 1 -->
+<h2>1. Introdução e Objetivos</h2>
+
+<p><strong>Veterano.</strong> é uma plataforma web que conecta calouros que precisam de ajuda em uma matéria a
+veteranos dispostos a dar mentoria. Hoje esse encontro acontece de forma informal — grupos de WhatsApp, indicação
+pessoal, sorte — e depende de o calouro já conhecer alguém. O sistema cobre o fluxo inteiro:
+<strong>cadastro → descoberta → agendamento → notificação → avaliação</strong>.</p>
+
+<h3>1.1 Visão geral dos requisitos</h3>
+
+<table>
+  <thead><tr><th style="width:8%">ID</th><th>Requisito funcional</th><th style="width:24%">Dono na arquitetura</th><th style="width:14%">Situação</th></tr></thead>
+  <tbody>
+    <tr><td>RF1</td><td>Cadastro e login do usuário.</td><td>Entra External ID + Shell</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF2</td><td>Definir o perfil como mentor, mentorado ou ambos.</td><td>Serviço de Mentores</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF3</td><td>Mentor cadastra as matérias/áreas em que pode ajudar.</td><td>Serviço de Mentores · MFE Perfil</td><td><span class="selo parcial">parcial</span><br>CRUD em MongoDB</td></tr>
+    <tr><td>RF4</td><td>Mentor define sua disponibilidade de horários.</td><td>Serviço de Mentores · MFE Perfil</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF5</td><td>Mentorado busca mentores por curso, matéria ou área.</td><td>Serviço de Mentores · MFE Descoberta</td><td><span class="selo feito">implementado</span><br>sobre dados mock</td></tr>
+    <tr><td>RF6</td><td>Mentorado solicita uma sessão.</td><td>Serviço de Sessões · MFE Agenda</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF7</td><td>Mentor aceita ou recusa a solicitação.</td><td>Serviço de Sessões · MFE Agenda</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF8</td><td>Notificar o usuário a cada mudança de status.</td><td>Serviço de Notificações (eventos)</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF9</td><td>Visualizar sessões futuras e histórico.</td><td>Serviço de Sessões · MFE Agenda</td><td><span class="selo feito">implementado</span><br>sobre dados mock</td></tr>
+    <tr><td>RF10</td><td>Mentorado avalia o mentor após a sessão concluída.</td><td>Serviço de Avaliações</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>RF11</td><td>Calcular e exibir a reputação do mentor.</td><td>Domínio de Mentores (projeção)</td><td><span class="selo feito">implementado</span><br>cálculo na leitura</td></tr>
+    <tr><td>RF12</td><td>Marcar a sessão como concluída ou cancelada.</td><td>Serviço de Sessões</td><td><span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+<p>Ficam <strong>fora de escopo</strong>: chat em tempo real, videochamada integrada, pagamento de mentorias, app
+mobile nativo e integração com o sistema acadêmico da instituição.</p>
+
+<h3>1.2 Metas de qualidade</h3>
+
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:20%">Atributo</th><th>Meta concreta</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Manutenibilidade</td><td>Um caso de uso novo ou alterado mexe em uma fatia vertical e, no máximo, no domínio. Trocar o banco de um serviço muda apenas o adaptador de saída.</td></tr>
+    <tr><td>2</td><td>Implantabilidade</td><td>Cada microfrontend e cada microsserviço é publicado sozinho, sem republicar os demais.</td></tr>
+    <tr><td>3</td><td>Confiabilidade</td><td>A falha de um serviço não derruba os outros: notificação e reputação são assíncronas, e o BFF devolve resposta parcial quando um serviço não responde.</td></tr>
+    <tr><td>4</td><td>Segurança</td><td>Token validado no gateway antes de qualquer função executar; autorização por recurso dentro do serviço dono do dado.</td></tr>
+    <tr><td>5</td><td>Custo</td><td>Tudo serverless, com custo ocioso próximo de zero e total dentro do crédito Azure for Students.</td></tr>
+    <tr><td>6</td><td>Usabilidade</td><td>O calouro conclui a busca por mentor no celular, sem zoom; interface em pt-BR, datas em <code>dd/MM/yyyy</code>, fuso <code>America/Sao_Paulo</code>.</td></tr>
+  </tbody>
+</table>
+
+<h3>1.3 Stakeholders</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Papel</th><th style="width:28%">Quem é</th><th>O que espera da arquitetura</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro (mentorado)</td><td>Aluno de 1º a 3º período</td><td>Achar rápido quem já passou pela matéria e agendar pelo celular.</td></tr>
+    <tr><td>Veterano (mentor)</td><td>Aluno a partir do 4º período</td><td>Controlar disponibilidade, ser avisado de solicitações e construir reputação visível.</td></tr>
+    <tr><td>Coordenação do curso</td><td>Professores e coordenadores</td><td>Moderar cadastros e ver métricas sem acesso direto aos bancos.</td></tr>
+    <tr><td>Equipe de desenvolvimento</td><td>Bento Barp, Guilherme Reis, Guilherme Selenko, Vinicius Trevisan</td><td>Trabalhar em paralelo — cada um dono de um MFE ou serviço — com contratos estáveis entre as partes.</td></tr>
+    <tr><td>Professor da disciplina</td><td>Avaliador do PJBL</td><td>Ver cada estilo arquitetural aplicado com justificativa, rastreável até o código e os requisitos.</td></tr>
+  </tbody>
+</table>
+
+<!-- =============================================================== 2 -->
+<h2>2. Restrições da Arquitetura</h2>
+
+<h3>2.1 Restrições técnicas</h3>
+
+<table>
+  <thead><tr><th style="width:24%">Restrição</th><th>Origem e consequência</th></tr></thead>
+  <tbody>
+    <tr><td>Hospedagem em Microsoft Azure</td><td>Exigência da disciplina. Toda a seleção de serviços da seção 4 parte do catálogo Azure; a única exceção é o MongoDB Atlas, já usado pela entrega de CRUD.</td></tr>
+    <tr><td>Front-end em Azure Static Web Apps</td><td>Artefato estático, sem renderização no servidor. A composição dos microfrontends precisa ser feita no navegador (Module Federation), não no servidor.</td></tr>
+    <tr><td>Back-end em Azure Functions</td><td>Funções stateless que toleram <em>cold start</em>. Nada de estado em memória entre requisições — exceto o cliente MongoDB reaproveitado entre invocações, que é cache de conexão, não de dados.</td></tr>
+    <tr><td>Assinatura Azure for Students</td><td>Crédito limitado e sem cartão: só SKUs gratuitas, de consumo ou serverless (APIM Consumption, Service Bus Standard, Azure SQL serverless, Cosmos DB serverless).</td></tr>
+    <tr><td>Regiões permitidas por policy</td><td>Apenas <code>centralus</code>, <code>mexicocentral</code>, <code>southafricanorth</code>, <code>canadacentral</code> e <code>chilecentral</code>. <code>brazilsouth</code> está bloqueada.</td></tr>
+    <tr><td>MongoDB Atlas M0</td><td>Camada gratuita compartilhada: 512 MB e limite de conexões. Obriga a reaproveitar o cliente entre invocações (<code>infrastructure/mongo/client.js</code>).</td></tr>
+    <tr><td>Uso de IA generativa</td><td>O código gerado é rastreável aos prompts versionados (<code>Prompt.md</code>, <code>docs/TDE2-PROMPTS.md</code>) e revisado antes de publicar.</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 Restrições organizacionais e convenções</h3>
+
+<table>
+  <thead><tr><th style="width:24%">Restrição</th><th>Consequência</th></tr></thead>
+  <tbody>
+    <tr><td>Quatro alunos, um semestre</td><td>A arquitetura-alvo é distribuída, mas a construção é incremental: primeiro um monólito modular bem fatiado, depois a extração de serviços e MFEs pelas costuras já existentes (seção 9, ADR-01 e ADR-04).</td></tr>
+    <tr><td>Sem orçamento para licenças</td><td>Ferramental gratuito ou open source: Vite, React, Node, Mermaid, GitHub.</td></tr>
+    <tr><td>Nomes de domínio em português</td><td>Funções e campos em pt-BR (<code>alterarMentor</code>, <code>camposAlterados</code>), reduzindo a tradução entre requisito e código. Nomes de arquivo das fatias seguem o verbo em inglês (<code>updateMentor.js</code>), como já está no repositório.</td></tr>
+    <tr><td>Repositório público</td><td>Nenhum segredo versionado. <code>MONGODB_URI</code> fica nas configurações da Function App e, na evolução, no Key Vault.</td></tr>
+  </tbody>
+</table>
+
+<!-- =============================================================== 3 -->
+<h2>3. Escopo e Contexto do Sistema</h2>
+
+<p class="intro">A fronteira do sistema: quem usa o Veterano. e de quais sistemas externos ele depende. O diagrama é o
+<strong>Nível 1 do C4 Model</strong> (contexto). Os bancos de cada serviço — inclusive o MongoDB Atlas, que é um
+serviço gerenciado — aparecem como contêineres no Nível 2, porque guardam dados do próprio sistema.</p>
+
+<h3>3.1 Contexto de negócio</h3>
+
+{{DIAGRAMA:c4-n1-contexto|C4 Model — Nível 1 (Contexto do Sistema). Pessoas, o sistema Veterano. e os sistemas externos com que ele se comunica.}}
+
+<table>
+  <thead><tr><th style="width:24%">Parceiro</th><th style="width:34%">Entrada no sistema</th><th>Saída do sistema</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro</td><td>Filtros de busca, solicitação de sessão, nota e comentário.</td><td>Mentores com reputação, situação das solicitações, notificações.</td></tr>
+    <tr><td>Veterano</td><td>Perfil, áreas, horários, aceite ou recusa.</td><td>Solicitações recebidas, agenda, reputação acumulada.</td></tr>
+    <tr><td>Coordenação</td><td>Ações de moderação.</td><td>Métricas de uso.</td></tr>
+    <tr><td>Entra External ID</td><td>Credenciais no fluxo de login.</td><td>Token JWT, validado pelo API Gateway.</td></tr>
+    <tr><td>ACS Email</td><td>Destinatário, assunto e corpo.</td><td>Aceite do envio; a entrega é assíncrona.</td></tr>
+  </tbody>
+</table>
+
+<h3>3.2 Contexto técnico</h3>
+
+<table>
+  <thead><tr><th style="width:26%">Canal</th><th style="width:20%">Protocolo</th><th>Observação</th></tr></thead>
+  <tbody>
+    <tr><td>Navegador → Static Web Apps</td><td>HTTPS</td><td>Shell e remotes servidos pela borda. <span class="selo feito">implementado</span> (bundle único)</td></tr>
+    <tr><td>Navegador → API Gateway</td><td>HTTPS, JSON, Bearer</td><td>Ponto único de entrada da API. <span class="selo planejado">planejado</span> — hoje o navegador chama a Function App diretamente, com CORS restrito.</td></tr>
+    <tr><td>Shell → Entra External ID</td><td>OIDC + PKCE</td><td>Cliente público, sem segredo. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Serviço de Mentores → MongoDB Atlas</td><td>MongoDB wire sobre TLS</td><td>Driver <code>mongodb</code> 7, conexão aberta sob demanda e reaproveitada. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>Serviços ↔ Service Bus</td><td>AMQP 1.0 (5671)</td><td>Publicação e assinatura de eventos de domínio. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Serviço de Notificações → ACS</td><td>HTTPS</td><td>Envio de e-mail. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Functions → Application Insights</td><td>HTTPS</td><td>Requisições, dependências e exceções. <span class="selo feito">implementado</span></td></tr>
+  </tbody>
+</table>
+
+<!-- =============================================================== 4 -->
+<h2>4. Estratégia de Solução</h2>
+
+<p class="intro">As decisões estruturais que moldam a solução. A primeira tabela mostra onde cada estilo
+arquitetural exigido aparece e por quê; as decisões detalhadas estão como ADRs na seção 9.</p>
+
+<h3>4.1 Estilos arquiteturais adotados</h3>
+
+<table>
+  <thead><tr><th style="width:17%">Estilo</th><th style="width:31%">Onde aparece no Veterano.</th><th>Por que foi escolhido</th><th style="width:13%">Situação</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Serverless</strong></td><td>Todo o cômputo em Azure Functions (Flex Consumption); front-ends em Static Web Apps; APIM Consumption, Service Bus, Azure SQL serverless, Cosmos DB serverless.</td><td>Tráfego intermitente, com pico em época de prova. Pagar por execução e escalar a zero cabe no crédito de estudante e elimina gestão de servidor.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td><strong>Microfrontend</strong></td><td>Shell (host) + três remotes: Descoberta, Agenda e Perfil do Mentor, compostos no navegador por Module Federation. Seções 5.1 e 5.2.1.</td><td>Cada aluno pode ser dono de uma área do produto e publicá-la sozinho. As fronteiras dos MFEs coincidem com as dos serviços, então cada time vai do botão ao banco.</td><td><span class="selo parcial">parcial</span><br>telas separadas, mesmo bundle</td></tr>
+    <tr><td><strong>BFF</strong></td><td>BFF Web em Functions, um endpoint por tela, agregando os microsserviços. Seção 5.2.2.</td><td>A tela de perfil precisa de dados de Mentores, Avaliações e disponibilidade; sem BFF o navegador faria três chamadas e juntaria os dados.</td><td><span class="selo parcial">parcial</span><br>respostas já moldadas à tela</td></tr>
+    <tr><td><strong>Microsserviços</strong></td><td>Mentores, Sessões, Avaliações e Notificações — um por subdomínio, cada um com sua Function App.</td><td>Os subdomínios mudam em ritmos diferentes e têm cargas diferentes; separar permite escalar e publicar cada um sem afetar os outros.</td><td><span class="selo parcial">parcial</span><br>Mentores existe</td></tr>
+    <tr><td><strong>Database per Service</strong></td><td>MongoDB Atlas (Mentores), Azure SQL (Sessões), Cosmos DB (Avaliações), Table Storage (Notificações). Seção 8.2.</td><td>Nenhum serviço lê a tabela de outro; o acoplamento fica no contrato da API e dos eventos. Cada banco foi escolhido pela forma do dado.</td><td><span class="selo parcial">parcial</span><br>BD Mentores existe</td></tr>
+    <tr><td><strong>API Gateway</strong></td><td>Azure API Management Consumption na frente do BFF: JWT, rate limit, CORS, versionamento. Seção 5.2.2.</td><td>Concentra preocupações transversais em um lugar, antes de qualquer função rodar, e esconde a topologia interna do cliente.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td><strong>Orientada a Eventos (EDA)</strong></td><td>Tópico <code>veterano.eventos</code> no Service Bus; outbox no Serviço de Sessões; consumidores idempotentes. Seções 6.2 e 8.1.</td><td>Notificação e reputação são efeitos colaterais de uma sessão: não devem atrasar nem derrubar a requisição que os origina, e precisam ser entregues mesmo com o consumidor fora do ar.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td><strong>Clean Architecture + Vertical Slice</strong></td><td>Código de <code>api/src</code>: <code>functions/</code> (entrada), <code>features/</code> (fatias), <code>domain/</code> e <code>ports/</code>, <code>infrastructure/</code> (saída). Seção 5.3.</td><td>Organização por caso de uso facilita achar e mudar uma funcionalidade; a regra de dependência protege o domínio de Azure e MongoDB e permite trocar o mock pelo banco sem tocar nas regras.</td><td><span class="selo feito">implementado</span></td></tr>
+  </tbody>
+</table>
+
+<h3>4.2 Decisões-chave</h3>
+
+<table>
+  <thead><tr><th style="width:24%">Decisão</th><th style="width:34%">Escolha</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td>Construção incremental</td><td>Monólito modular primeiro, extração depois</td><td>As costuras dos serviços já existem no código como fatias e portas; extrair é mover pastas e trocar a chamada local por HTTP ou evento.</td></tr>
+    <tr><td>Comunicação síncrona</td><td>Só na leitura (BFF → serviços)</td><td>Leituras precisam de resposta imediata. Escritas que afetam outro serviço viram evento.</td></tr>
+    <tr><td>Consistência entre serviços</td><td>Eventual, por eventos</td><td>Transação distribuída não cabe em serverless. A reputação pode atrasar segundos sem prejuízo ao usuário.</td></tr>
+    <tr><td>Entrega de eventos</td><td>Outbox transacional + pelo menos uma vez + consumidor idempotente</td><td>Evita o caso “sessão gravada, evento perdido” sem depender de transação entre banco e barramento.</td></tr>
+    <tr><td>Identidade</td><td>Entra External ID, validado no gateway</td><td>Senha não é guardada pelo sistema; token rejeitado não chega a gastar execução de função.</td></tr>
+    <tr><td>Regra de negócio</td><td>Só no servidor, dentro do domínio</td><td>O front-end não recalcula reputação nem decide transição de estado.</td></tr>
+  </tbody>
+</table>
+
+<h3>4.3 Software Architecture Canvas</h3>
+
+<div class="canvas">
+  <div class="bloco larga2">
+    <h5>Contexto e problema</h5>
+    <ul>
+      <li>Calouros não têm canal estruturado para tirar dúvidas de matéria.</li>
+      <li>Veteranos dispostos a ajudar não têm onde se oferecer nem acumular reputação.</li>
+      <li>O encontro depende de rede pessoal e é invisível para a coordenação.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Objetivos de negócio</h5>
+    <ul>
+      <li>Reduzir evasão nos primeiros períodos.</li>
+      <li>Dar visibilidade a quem ajuda.</li>
+      <li>Tornar a mentoria mensurável.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Usuários e stakeholders</h5>
+    <ul>
+      <li>Calouro — usuário primário.</li>
+      <li>Veterano — oferta.</li>
+      <li>Coordenação — moderação.</li>
+      <li>Equipe de 4 alunos.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Requisitos-chave</h5>
+    <ul>
+      <li>RF5 descoberta com filtros.</li>
+      <li>RF6/RF7 solicitação e resposta.</li>
+      <li>RF8 notificação por evento.</li>
+      <li>RF10/RF11 avaliação e reputação.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Atributos de qualidade</h5>
+    <ul>
+      <li>Manutenibilidade por fatia.</li>
+      <li>Deploy independente.</li>
+      <li>Falha isolada por serviço.</li>
+      <li>Custo ocioso perto de zero.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Restrições</h5>
+    <ul>
+      <li>Azure + SWA + Functions.</li>
+      <li>Assinatura de estudante.</li>
+      <li><code>brazilsouth</code> bloqueada.</li>
+      <li>Atlas M0 (512 MB).</li>
+      <li>Repositório público.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Estilos</h5>
+    <ul>
+      <li>Serverless.</li>
+      <li>Microfrontends.</li>
+      <li>API Gateway + BFF.</li>
+      <li>Microsserviços + DB per Service.</li>
+      <li>EDA.</li>
+      <li>Clean Architecture + Vertical Slice.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Princípios</h5>
+    <ul>
+      <li>Dependências apontam para o domínio.</li>
+      <li>Um caso de uso, uma fatia.</li>
+      <li>Nenhum serviço lê o banco de outro.</li>
+      <li>Escrita entre serviços é evento.</li>
+      <li>Complexidade só com requisito.</li>
+    </ul>
+  </div>
+
+  <div class="bloco">
+    <h5>Componentes</h5>
+    <ul>
+      <li>Shell + 3 MFEs.</li>
+      <li>API Gateway, BFF Web.</li>
+      <li>4 microsserviços.</li>
+      <li>Barramento de eventos.</li>
+      <li>4 bancos.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Tecnologias</h5>
+    <ul>
+      <li>React 19, Vite, TypeScript.</li>
+      <li>Azure Functions v4, Node 22.</li>
+      <li>API Management, Service Bus.</li>
+      <li>MongoDB Atlas, Azure SQL, Cosmos DB, Table Storage.</li>
+    </ul>
+  </div>
+  <div class="bloco">
+    <h5>Riscos</h5>
+    <ul>
+      <li>Complexidade distribuída para 4 pessoas.</li>
+      <li><em>Cold start</em> em cadeia.</li>
+      <li>Consistência eventual visível.</li>
+      <li>Crédito de estudante.</li>
+    </ul>
+  </div>
+
+  <div class="bloco larga3">
+    <h5>Métricas de sucesso</h5>
+    <ul>
+      <li><strong>Produto:</strong> cadastrar → publicar disponibilidade → buscar → solicitar → aceitar → concluir → avaliar → ver reputação executa de ponta a ponta.</li>
+      <li><strong>Arquitetura:</strong> busca em até 2 s no P95; falha de e-mail não gera erro HTTP; nenhuma alteração de requisito exige mudança em mais de um serviço.</li>
+      <li><strong>Operação:</strong> custo mensal dentro do crédito; cada serviço publicável sozinho; nenhuma mensagem perdida (dead-letter monitorada).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- =============================================================== 5 -->
+<h2>5. Visão de Blocos de Construção</h2>
+
+<p class="intro">A decomposição estática, em três níveis de refinamento. Nível 1 = <strong>C4 Nível 2</strong>
+(contêineres); Nível 2 = <strong>C4 Nível 3</strong> (componentes de cada contêiner); Nível 3 = <strong>C4 Nível 4</strong>
+(código), com diagramas UML de classes e de componentes e a organização Clean Architecture + Vertical Slice do
+código entregue.</p>
+
+<h3>5.1 Nível 1 — caixa-branca do sistema (C4 Nível 2: Contêineres)</h3>
+
+<p>O diagrama mostra os seis estilos ao mesmo tempo: os <strong>microfrontends</strong> no topo, o
+<strong>API Gateway</strong> como entrada única, o <strong>BFF</strong> agregando, os <strong>microsserviços</strong>
+cada um com <strong>seu banco</strong>, e o <strong>barramento de eventos</strong> ligando os serviços sem
+chamada direta. Tudo roda em serviços <strong>serverless</strong>.</p>
+
+{{DIAGRAMA:c4-n2-conteineres|C4 Model — Nível 2 (Contêineres). Borda grossa: papel já cumprido por código publicado (em alguns casos ainda no mesmo artefato). Setas grossas: caminho de toda requisição do usuário.}}
+
+<table>
+  <thead><tr><th style="width:20%">Contêiner</th><th style="width:21%">Tecnologia</th><th>Responsabilidade</th><th style="width:15%">Situação</th></tr></thead>
+  <tbody>
+    <tr><td>Shell</td><td>React 19, Vite, SWA</td><td>Layout, navegação, login e carga dos remotes. Hoje é o <code>App.tsx</code> (“casca”) da SPA.</td><td><span class="selo parcial">parcial</span></td></tr>
+    <tr><td>MFE Descoberta</td><td>React remote</td><td>Busca de mentores e perfil público (<code>Mentores.tsx</code>, <code>MentorDetalhe.tsx</code>).</td><td><span class="selo parcial">parcial</span></td></tr>
+    <tr><td>MFE Agenda</td><td>React remote</td><td>Sessões futuras e histórico (<code>Sessoes.tsx</code>); aceite e avaliação no alvo.</td><td><span class="selo parcial">parcial</span></td></tr>
+    <tr><td>MFE Perfil do Mentor</td><td>React remote</td><td>Cadastro e edição do mentor (<code>Cadastro.tsx</code>).</td><td><span class="selo parcial">parcial</span></td></tr>
+    <tr><td>API Gateway</td><td>API Management Consumption</td><td>Entrada única: JWT, rate limit, CORS, roteamento e versão.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>BFF Web</td><td>Azure Functions</td><td>Um endpoint por tela, agregando os serviços. Hoje os endpoints públicos da Function App já devolvem dados no formato da tela (ex.: <code>proximas</code>/<code>historico</code>).</td><td><span class="selo parcial">parcial</span></td></tr>
+    <tr><td>Serviço de Mentores</td><td>Azure Functions + MongoDB Atlas</td><td>Perfil, áreas, horários e projeção de reputação. É a Function App <code>func-pjbl-mentoria</code>.</td><td><span class="selo feito">implementado</span></td></tr>
+    <tr><td>Serviço de Sessões</td><td>Azure Functions + Azure SQL</td><td>Máquina de estados da sessão e outbox de eventos.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Serviço de Avaliações</td><td>Azure Functions + Cosmos DB</td><td>Uma avaliação por sessão concluída; publica <code>AvaliacaoRegistrada</code>.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Serviço de Notificações</td><td>Azure Functions + Table Storage</td><td>Consome eventos de sessão; grava a notificação in-app e envia e-mail.</td><td><span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Barramento de Eventos</td><td>Service Bus Standard</td><td>Tópico com uma assinatura filtrada por consumidor e dead-letter.</td><td><span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+<h3>5.2 Nível 2 — componentes dos contêineres (C4 Nível 3)</h3>
+
+<h4>5.2.1 Microfrontends: Shell e remotes</h4>
+
+{{DIAGRAMA:c4-n3-frontend|C4 Model — Nível 3 (Componentes) do front-end. O Shell carrega cada remote pela rota; todos compartilham o cliente HTTP e os tipos.}}
+
+<table>
+  <thead><tr><th style="width:24%">Componente</th><th style="width:30%">Código hoje</th><th>Na forma de microfrontend</th></tr></thead>
+  <tbody>
+    <tr><td>Layout / casca</td><td><code>frontend/src/App.tsx</code></td><td>Fica no Shell. Navegação e rodapé comuns a todos os remotes.</td></tr>
+    <tr><td>Roteador</td><td><code>react-router-dom</code> em <code>App.tsx</code></td><td>Fica no Shell; cada rota passa a carregar um remote via <code>import()</code> do Module Federation.</td></tr>
+    <tr><td>Páginas</td><td><code>frontend/src/pages/*.tsx</code></td><td>Cada pasta vira um projeto Vite com seu próprio deploy em SWA.</td></tr>
+    <tr><td>Pacote compartilhado</td><td><code>api.ts</code>, <code>types.ts</code></td><td>Publicado como pacote interno e declarado <code>shared</code> (singleton) junto com React, para não carregar duas cópias.</td></tr>
+  </tbody>
+</table>
+
+<h4>5.2.2 API Gateway e BFF Web</h4>
+
+{{DIAGRAMA:c4-n3-bff-gateway|C4 Model — Nível 3 (Componentes) do API Gateway e do BFF Web. As políticas do gateway executam em ordem antes de chegar ao BFF.}}
+
+<p>O gateway resolve o que é igual para toda rota (quem é o usuário, quanto ele pode chamar, de qual origem) e o
+BFF resolve o que é específico de cada tela (quais serviços chamar e como juntar as respostas). O BFF não tem
+banco nem regra de negócio: se um serviço não responder em 3 s, devolve a parte que obteve e sinaliza o campo
+ausente, em vez de falhar a tela inteira.</p>
+
+<h4>5.2.3 Serviço de Mentores — código entregue</h4>
+
+{{DIAGRAMA:c4-n3-servico-mentores|C4 Model — Nível 3 (Componentes) do Serviço de Mentores, espelhando as pastas de api/src. Componentes tracejados são planejados.}}
+
+<table>
+  <thead><tr><th style="width:26%">Componente</th><th style="width:28%">Arquivos</th><th>Responsabilidade</th></tr></thead>
+  <tbody>
+    <tr><td>Triggers HTTP de leitura</td><td><code>functions/mentores.js</code>, <code>sessoes.js</code></td><td>Lêem query e rota e chamam a fatia correspondente. Não contêm regra.</td></tr>
+    <tr><td>Triggers HTTP do cadastro</td><td><code>functions/mentoresInserir|Pesquisar|Alterar|Excluir.js</code></td><td>Uma Azure Function por operação do CRUD em <code>/api/mentores-db</code>.</td></tr>
+    <tr><td>Raiz de composição + HTTP</td><td><code>functions/dependencies.js</code>, <code>http.js</code></td><td>Cria os adaptadores concretos uma vez e os injeta; padroniza resposta JSON e converte exceção em 500 sem expor detalhes do driver.</td></tr>
+    <tr><td>Fatias</td><td><code>features/mentors/*.js</code>, <code>features/sessions/*.js</code></td><td>Um arquivo por caso de uso; devolve <code>{status, body}</code>, sem conhecer Azure Functions.</td></tr>
+    <tr><td>Domínio</td><td><code>domain/mentor.js</code></td><td>Funções puras: validação, normalização, campos alterados e cálculo de reputação.</td></tr>
+    <tr><td>Portas</td><td><code>ports/MentorRepository.js</code>, <code>ports/CatalogoMentores.js</code></td><td>Contratos estruturais (JSDoc) que as fatias exigem.</td></tr>
+    <tr><td>Adaptadores de saída</td><td><code>infrastructure/mongo/*</code>, <code>infrastructure/mock/*</code></td><td>Implementam as portas sobre MongoDB Atlas e sobre os dados fictícios.</td></tr>
+  </tbody>
+</table>
+
+<h4>5.2.4 Serviço de Sessões</h4>
+
+{{DIAGRAMA:c4-n3-servico-sessoes|C4 Model — Nível 3 (Componentes) do Serviço de Sessões (planejado), com a mesma organização do Serviço de Mentores e o outbox de eventos.}}
+
+<p>O serviço repete a estrutura do código entregue: triggers, fatias, domínio com portas e adaptadores. A diferença
+está no lado de saída: o <code>SqlSessaoRepository</code> grava a sessão e a linha de <code>OUTBOX_EVENTO</code> na mesma
+transação, e um <em>timer trigger</em> separado publica o que estiver pendente no Service Bus. A consulta de
+disponibilidade ao Serviço de Mentores passa por uma porta (<code>DisponibilidadeGateway</code>), então o domínio não sabe
+que existe HTTP.</p>
+
+<h4>5.2.5 Serviços de Avaliações e de Notificações</h4>
+
+<table>
+  <thead><tr><th style="width:20%">Serviço</th><th style="width:28%">Fatias</th><th>Entrada e saída</th></tr></thead>
+  <tbody>
+    <tr><td>Avaliações</td><td><code>registrarAvaliacao</code>, <code>listarAvaliacoesDoMentor</code>, <code>liberarAvaliacao</code></td><td>Recebe <code>SessaoConcluida</code> e libera a avaliação; HTTP para registrar; publica <code>AvaliacaoRegistrada</code>. Cosmos DB com <code>sessaoId</code> como chave única.</td></tr>
+    <tr><td>Notificações</td><td><code>notificarMudancaDeSessao</code>, <code>listarNotificacoes</code>, <code>marcarComoLida</code></td><td>Service Bus trigger na assinatura <code>notificacoes</code>; grava em Table Storage (partição = usuário); envia e-mail <em>best effort</em> pelo ACS.</td></tr>
+  </tbody>
+</table>
+
+<h3>5.3 Nível 3 — código (C4 Nível 4)</h3>
+
+<h4>5.3.1 Clean Architecture e Vertical Slice no código entregue</h4>
+
+<p>O back-end entregue (<code>api/src</code>) combina os dois estilos. A <strong>Clean Architecture</strong> define camadas
+e a regra de que dependências só apontam para dentro; o <strong>Vertical Slice</strong> define que cada caso de uso é
+um arquivo próprio que atravessa essas camadas, em vez de existir um “service” genérico com todos os métodos.</p>
+
+<pre class="arvore">api/src/
+├── functions/              ← adaptadores de entrada (Azure Functions) — camada externa
+│   ├── mentores.js           GET /mentores, GET /mentores/{id}
+│   ├── sessoes.js            GET /sessoes
+│   ├── mentoresInserir.js    POST   /mentores-db
+│   ├── mentoresPesquisar.js  GET    /mentores-db
+│   ├── mentoresAlterar.js    PUT|PATCH /mentores-db/{id}
+│   ├── mentoresExcluir.js    DELETE /mentores-db/{id}
+│   ├── health.js             GET /health
+│   ├── http.js               json(), lerCorpo(), executarCasoHttp()
+│   └── dependencies.js       raiz de composição: cria e injeta os adaptadores
+├── features/               ← aplicação: uma fatia por caso de uso
+│   ├── mentors/  listPublicMentors · getPublicMentor · createMentor
+│   │             searchMentors · updateMentor · deleteMentor
+│   └── sessions/ listSessions
+├── domain/mentor.js        ← regras puras: calcularReputacao, validarMentor, novoMentor, camposAlterados
+├── ports/                  ← contratos exigidos pelas fatias
+│   ├── MentorRepository.js
+│   └── CatalogoMentores.js
+├── infrastructure/         ← adaptadores de saída
+│   ├── mongo/  MongoMentorRepository.js · client.js
+│   └── mock/   MockMentorCatalog.js
+└── data/mock.js            ← fixtures, sem lógica</pre>
+
+<p><strong>Regra de dependência, verificável no código:</strong> <code>domain/mentor.js</code> não importa nada;
+as fatias importam só o domínio e recebem portas como parâmetro; apenas <code>infrastructure/mongo</code> importa o
+pacote <code>mongodb</code>; apenas <code>functions/</code> importa <code>@azure/functions</code>. Quem liga as peças é
+<code>dependencies.js</code>, na borda. A figura a seguir mostra as fatias (colunas) cruzando as camadas (faixas).</p>
+
+{{DIAGRAMA:vertical-slices|Vertical Slice × Clean Architecture no código entregue. Cada coluna é um caso de uso e mostra o arquivo que o implementa em cada camada.}}
+
+<table>
+  <thead><tr><th style="width:24%">Princípio SOLID</th><th>Onde aparece</th></tr></thead>
+  <tbody>
+    <tr><td>Responsabilidade única</td><td>Trigger cuida de HTTP; fatia coordena um caso de uso; <code>mentor.js</code> guarda regras; repositório executa persistência.</td></tr>
+    <tr><td>Aberto/fechado</td><td>Novo caso de uso = nova fatia + novo trigger, sem editar as existentes.</td></tr>
+    <tr><td>Substituição de Liskov</td><td><code>MockMentorCatalog</code> e um futuro catálogo sobre Mongo cumprem o mesmo <code>CatalogoMentores</code>; a fatia não percebe a troca.</td></tr>
+    <tr><td>Segregação de interfaces</td><td>Leitura pública depende de <code>CatalogoMentores</code> (3 métodos); cadastro depende de <code>MentorRepository</code> (6 métodos). Ninguém recebe métodos que não usa.</td></tr>
+    <tr><td>Inversão de dependência</td><td>Fatias recebem <code>repository</code>/<code>catalogo</code> por parâmetro; <code>dependencies.js</code> escolhe a implementação concreta.</td></tr>
+  </tbody>
+</table>
+
+<h4>5.3.2 Diagrama de classes (UML)</h4>
+
+<p>JavaScript não declara interfaces; os contratos são <code>@typedef</code> JSDoc e os módulos exportam funções.
+O diagrama representa cada módulo como classe UML com estereótipo (<code>«use case»</code>, <code>«interface»</code>,
+<code>«adapter»</code>, <code>«module»</code>), e cada operação corresponde a uma função exportada com a mesma assinatura.</p>
+
+{{DIAGRAMA:c4-n4-classes|C4 Model — Nível 4 (Código). Diagrama de classes UML do Serviço de Mentores, agrupado pelas pastas de api/src. Setas tracejadas: dependência; triângulo vazado: realização da interface.}}
+
+<h4>5.3.3 Diagrama de componentes (UML)</h4>
+
+{{DIAGRAMA:c4-n4-componentes|C4 Model — Nível 4 (Código). Diagrama de componentes UML com interfaces providas e requeridas. A fatia requer as portas; os adaptadores as proveem.}}
+
+<p>A notação mostra a inversão de dependência: <code>features</code> requer <code>MentorRepository</code> e
+<code>CatalogoMentores</code>, e quem as provê são os componentes de <code>infrastructure</code>. A seta de
+<code>infrastructure</code> aponta para a interface, nunca o contrário — é por isso que o mock pôde conviver com o
+MongoDB sem nenhuma alteração nas fatias de cadastro.</p>
+
+<!-- =============================================================== 6 -->
+<h2>6. Visão de Runtime</h2>
+
+<p class="intro">Como os blocos colaboram em execução. O primeiro cenário é código que roda hoje; o segundo é o
+caminho crítico do produto na arquitetura-alvo, com gateway, BFF e eventos.</p>
+
+<h3>6.1 Cenário implementado: alterar um mentor (CRUD no MongoDB)</h3>
+
+<p>O diagrama segue a chamada real, função por função. Os três desfechos de erro (400 por id inválido, 400 por
+validação, 404 por inexistente) são decididos dentro da fatia, e o 500 é decidido em <code>http.js</code>.</p>
+
+{{DIAGRAMA:c4-n4-sequencia-alterar|C4 Model — Nível 4 (Código). Diagrama de sequência UML de PATCH /api/mentores-db/:id, como implementado em api/src.}}
+
+<h3>6.2 Cenário alvo: solicitar e aceitar uma sessão (RF6, RF7, RF8)</h3>
+
+<ul>
+  <li><strong>O gateway barra antes.</strong> Token inválido ou excesso de chamadas é recusado no APIM, sem executar função.</li>
+  <li><strong>A regra fica no dono.</strong> Só o Serviço de Sessões decide se o horário é válido (422) e se o ator pode aceitar (403).</li>
+  <li><strong>Gravar e avisar não dependem um do outro.</strong> A sessão e o evento entram no banco na mesma transação (outbox); o relay publica depois. Se o Service Bus cair, a sessão já existe e o evento sai quando ele voltar.</li>
+  <li><strong>O consumidor é idempotente.</strong> Entrega “pelo menos uma vez” pode repetir a mensagem; o Serviço de Notificações descarta o <code>messageId</code> já processado.</li>
+</ul>
+
+<p>A requisição do calouro termina no passo do <code>COMMIT</code>: a partir daí, a notificação é trabalho assíncrono e não
+afeta o tempo de resposta nem o resultado da solicitação.</p>
+
+{{DIAGRAMA:c4-n4-sequencia-sessao-solicitar|C4 Model — Nível 4 (Código). Diagrama de sequência UML, parte 1: o calouro solicita a sessão; gateway, BFF e Serviço de Sessões, com sessão e evento gravados na mesma transação (outbox).}}
+
+{{DIAGRAMA:c4-n4-sequencia-sessao-aceitar|C4 Model — Nível 4 (Código). Diagrama de sequência UML, parte 2: relay publica o evento, o Serviço de Notificações consome de forma idempotente e o veterano aceita a sessão.}}
+
+<h3>6.3 Ciclo de vida da Sessão</h3>
+
+<table>
+  <thead><tr><th style="width:14%">Ação</th><th style="width:20%">Quem pode</th><th style="width:20%">A partir de</th><th>Regra e evento publicado</th></tr></thead>
+  <tbody>
+    <tr><td>Solicitar</td><td>Mentorado</td><td>—</td><td>Horário dentro da disponibilidade e no futuro; não consigo mesmo. <code>SessaoSolicitada</code>.</td></tr>
+    <tr><td>Aceitar</td><td>Mentor da sessão</td><td>SOLICITADA</td><td><code>SessaoAceita</code>.</td></tr>
+    <tr><td>Recusar</td><td>Mentor da sessão</td><td>SOLICITADA</td><td>Terminal. <code>SessaoRecusada</code>.</td></tr>
+    <tr><td>Cancelar</td><td>Qualquer participante</td><td>SOLICITADA ou ACEITA</td><td>Terminal. <code>SessaoCancelada</code>.</td></tr>
+    <tr><td>Concluir</td><td>Qualquer participante</td><td>ACEITA</td><td><code>SessaoConcluida</code> — libera a avaliação no Serviço de Avaliações.</td></tr>
+  </tbody>
+</table>
+
+{{DIAGRAMA:estados-sessao|Diagrama de máquina de estados UML da Sessão. Notação: evento [guarda] / evento de domínio publicado.}}
+
+<h3>6.4 Cenário alvo: avaliação atualiza a reputação</h3>
+
+<ol>
+  <li>O Serviço de Avaliações recebe a nota, confere que a sessão está liberada e grava no Cosmos DB.</li>
+  <li>Publica <code>AvaliacaoRegistrada {mentorId, nota, avaliacaoId}</code> em <code>veterano.eventos</code>.</li>
+  <li>A assinatura <code>reputacao</code> entrega o evento ao Serviço de Mentores, que recalcula <code>REPUTACAO_PROJECAO</code> no documento do mentor usando a mesma <code>calcularReputacao</code> do domínio e guarda o último <code>avaliacaoId</code> aplicado (idempotência).</li>
+  <li>A busca de mentores lê a projeção local — sem consultar o banco de Avaliações. A reputação fica alguns segundos atrasada em relação à nota: consistência eventual aceita (ADR-06).</li>
+</ol>
+
+<!-- =============================================================== 7 -->
+<h2>7. Visão de Implantação</h2>
+
+<p class="intro">Infraestrutura de execução e o mapeamento dos contêineres sobre ela. As tabelas listam os recursos,
+a região e o pipeline; o diagrama de implantação UML (Figura ao final da seção) mostra os nós e os artefatos — em
+verde-limão, o que já está provisionado.</p>
+
+
+
+<h3>7.1 Recursos</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Recurso</th><th style="width:24%">Nome</th><th style="width:19%">SKU / plano</th><th>Papel</th></tr></thead>
+  <tbody>
+    <tr><td>Static Web App (Shell)</td><td><code>swa-pjbl-mentoria-7205</code></td><td>Free</td><td>Serve a SPA atual; será o Shell. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>Static Web Apps (MFEs)</td><td><code>swa-mfe-*</code></td><td>Free</td><td>Um por remote. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Function App</td><td><code>func-pjbl-mentoria</code></td><td>Flex Consumption, Node 22</td><td>Serviço de Mentores e endpoints de tela. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>Function Apps</td><td><code>func-bff</code>, <code>func-sessoes</code>, <code>func-avaliacoes</code>, <code>func-notificacoes</code></td><td>Flex Consumption</td><td>Um por serviço. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>MongoDB Atlas</td><td>cluster M0, banco <code>pjbl_mentoria</code></td><td>Free (512 MB)</td><td>BD Mentores. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>Storage Account</td><td><code>stpjblmentoria7205</code></td><td>Standard LRS</td><td>Pacotes de deploy; tabela de notificações. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>Application Insights</td><td><code>func-pjbl-mentoria</code></td><td>Pago por GB</td><td>Telemetria. <span class="selo feito">implementado</span></td></tr>
+    <tr><td>API Management</td><td><code>apim-veterano</code></td><td>Consumption</td><td>API Gateway; cota gratuita mensal de chamadas. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Service Bus</td><td><code>sb-veterano</code></td><td>Standard</td><td>Tópicos exigem Standard (o Basic só tem filas). <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Azure SQL Database</td><td><code>sql-veterano/sessoes</code></td><td>Serverless, auto-pause</td><td>BD Sessões. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Cosmos DB</td><td><code>cosmos-veterano</code></td><td>NoSQL serverless</td><td>BD Avaliações. <span class="selo planejado">planejado</span></td></tr>
+    <tr><td>Key Vault</td><td><code>kv-veterano</code></td><td>Standard</td><td>Segredos via Managed Identity. <span class="selo planejado">planejado</span></td></tr>
+  </tbody>
+</table>
+
+<h3>7.2 Região</h3>
+
+<p>Tudo em <strong><code>centralus</code></strong>. <code>brazilsouth</code> está bloqueada pela policy da assinatura; entre as
+regiões liberadas, <code>centralus</code> suporta todos os serviços usados, inclusive Static Web Apps, o que evita tráfego
+entre regiões. O custo é latência maior para o usuário no Brasil (seção 11).</p>
+
+<h3>7.3 Pipeline e implantação independente</h3>
+
+<table>
+  <thead><tr><th style="width:22%">Artefato</th><th style="width:26%">Origem</th><th>Como é publicado</th></tr></thead>
+  <tbody>
+    <tr><td>Shell e cada MFE</td><td><code>dist/</code> de cada projeto Vite</td><td>Hoje: <code>swa deploy</code> com token. Alvo: um workflow GitHub Actions por MFE, disparado só por mudanças na sua pasta.</td></tr>
+    <tr><td>Cada serviço</td><td>pacote zip da Function App</td><td>Hoje: <code>az functionapp deployment source config-zip</code>. Alvo: um workflow por serviço.</td></tr>
+    <tr><td>Políticas do gateway</td><td>XML versionado</td><td>Publicadas com a definição OpenAPI do BFF.</td></tr>
+    <tr><td>Infraestrutura</td><td><code>infra.sh</code></td><td>Script Azure CLI; migração para Bicep prevista.</td></tr>
+  </tbody>
+</table>
+
+{{DIAGRAMA:implantacao|Diagrama de implantação UML. Nós de execução em Azure e externos, artefatos publicados e protocolos. Verde-limão: recurso já provisionado.}}
+
+<!-- =============================================================== 8 -->
+<h2>8. Conceitos Transversais</h2>
+
+<h3>8.1 Arquitetura orientada a eventos</h3>
+
+<p>Toda comunicação assíncrona entre serviços passa por um único tópico do Service Bus. Cada consumidor tem
+sua assinatura com filtro, então recebe só os tipos de evento que lhe interessam e falha sem afetar os demais.</p>
+
+<ul>
+  <li><strong>Envelope:</strong> CloudEvents 1.0 (<code>id</code>, <code>type</code>, <code>source</code>, <code>time</code>, <code>data</code>). O <code>id</code> vira <code>messageId</code> no Service Bus e é a chave de idempotência.</li>
+  <li><strong>Garantia:</strong> pelo menos uma vez. O outbox impede perder evento; o consumidor idempotente impede efeito duplicado.</li>
+  <li><strong>Ordem:</strong> eventos da mesma sessão usam <code>sessionId = sessaoId</code>, preservando a ordem SOLICITADA → ACEITA → CONCLUIDA.</li>
+  <li><strong>Falha:</strong> após 5 tentativas a mensagem vai para a dead-letter da assinatura, com alerta no Application Insights.</li>
+  <li><strong>Evolução:</strong> campos só são adicionados; remover ou mudar significado exige novo <code>type</code> (<code>SessaoAceita.v2</code>).</li>
+</ul>
+
+{{DIAGRAMA:eventos|Fluxo de eventos de domínio: produtores, tópico veterano.eventos com assinaturas filtradas, consumidores e dead-letter.}}
+
+<table>
+  <thead><tr><th style="width:21%">Evento</th><th style="width:17%">Produtor</th><th style="width:22%">Consumidores</th><th>Payload (campo <code>data</code>)</th></tr></thead>
+  <tbody>
+    <tr><td><code>SessaoSolicitada</code></td><td>Sessões</td><td>Notificações</td><td><code>sessaoId, mentorId, mentoradoId, dataHora</code></td></tr>
+    <tr><td><code>SessaoAceita</code> / <code>Recusada</code> / <code>Cancelada</code></td><td>Sessões</td><td>Notificações</td><td><code>sessaoId, ator, statusAnterior</code></td></tr>
+    <tr><td><code>SessaoConcluida</code></td><td>Sessões</td><td>Notificações, Avaliações</td><td><code>sessaoId, mentorId, mentoradoId</code></td></tr>
+    <tr><td><code>AvaliacaoRegistrada</code></td><td>Avaliações</td><td>Mentores</td><td><code>avaliacaoId, sessaoId, mentorId, nota</code></td></tr>
+    <tr><td><code>MentorAtualizado</code></td><td>Mentores</td><td>BFF (cache)</td><td><code>mentorId, camposAlterados</code></td></tr>
+  </tbody>
+</table>
+
+
+<h3>8.2 Dados: Database per Service — Diagrama de Entidades e Relacionamentos</h3>
+
+{{DIAGRAMA:der|Diagrama de Entidades e Relacionamentos. Linha contínua: relacionamento dentro do mesmo banco. Linha tracejada: referência lógica entre bancos de serviços diferentes, por identificador, sem chave estrangeira.}}
+
+<table>
+  <thead><tr><th style="width:18%">Banco</th><th style="width:18%">Entidades</th><th>Decisão de modelagem</th></tr></thead>
+  <tbody>
+    <tr><td>BD Mentores<br>MongoDB Atlas</td><td>MENTOR com AREA_MENTORIA, DISPONIBILIDADE e REPUTACAO_PROJECAO embutidos</td><td>O perfil é lido inteiro de uma vez; documento único evita junção. Coleção real: <code>pjbl_mentoria.mentores</code>, com <code>nome</code>, <code>curso</code>, <code>periodo</code>, <code>bio</code>, <code>areas</code>, <code>criadoEm</code>, <code>atualizadoEm</code> (gravados por <code>novoMentor</code>/<code>camposAlterados</code>). Um único documento para mentor e mentorado, com <code>ehMentor</code>/<code>ehMentorado</code>.</td></tr>
+    <tr><td>BD Sessões<br>Azure SQL</td><td>SESSAO, OUTBOX_EVENTO</td><td>Transição de estado precisa de transação e concorrência otimista (<code>rowversion</code>): dois cliques simultâneos de aceitar e cancelar não podem ambos vencer.</td></tr>
+    <tr><td>BD Avaliações<br>Cosmos DB</td><td>AVALIACAO</td><td><code>sessaoId</code> como chave de partição e única: o banco garante uma avaliação por sessão.</td></tr>
+    <tr><td>BD Notificações<br>Table Storage</td><td>NOTIFICACAO</td><td>Acesso sempre por usuário: <code>PartitionKey = usuarioId</code>, <code>RowKey</code> com timestamp invertido para listar as mais recentes primeiro.</td></tr>
+  </tbody>
+</table>
+
+<p>Referências entre serviços são identificadores, nunca chaves estrangeiras. Se um serviço precisa de dado de
+outro, recebe por evento e guarda uma cópia (a projeção de reputação) ou pede pelo BFF na leitura.</p>
+
+<h3>8.3 Serverless</h3>
+<ul>
+  <li><strong>Sem estado em memória.</strong> Nenhuma função guarda dado entre invocações; o único cache é a conexão com o MongoDB (<code>criarProvedorColecao</code>), que reabre sozinha se cair.</li>
+  <li><strong>Escala a zero.</strong> Functions Flex, APIM Consumption e bancos serverless não cobram ociosidade relevante; Azure SQL pausa sozinho.</li>
+  <li><strong><em>Cold start</em> em cadeia.</strong> Gateway → BFF → serviço podem acordar em sequência. Mitigação: Flex Consumption e, se medido como problema, uma instância sempre pronta só no BFF.</li>
+  <li><strong>Gatilhos como contrato.</strong> HTTP para leitura e comando; Service Bus para eventos; Timer para o relay do outbox.</li>
+</ul>
+
+<h3>8.4 Segurança</h3>
+<ul>
+  <li><strong>Autenticação no gateway.</strong> <code>validate-jwt</code> confere assinatura, emissor e audiência do Entra antes de qualquer função; o BFF recebe o usuário em cabeçalho definido pelo gateway.</li>
+  <li><strong>Autorização no dono do dado.</strong> Só o Serviço de Sessões sabe se o usuário participa da sessão; resposta 403 caso contrário.</li>
+  <li><strong>Serviços internos fechados.</strong> Function Apps dos serviços aceitam apenas o BFF (chave de função ou restrição de acesso), nunca o navegador.</li>
+  <li><strong>Segredos fora do código.</strong> <code>MONGODB_URI</code> em configuração da Function App hoje; Key Vault com Managed Identity no alvo.</li>
+  <li><strong>Estado atual.</strong> Endpoints ainda anônimos (<code>authLevel: anonymous</code>) e CORS restrito à origem do Static Web App e a <code>localhost:5173</code> — registrado como dívida.</li>
+</ul>
+
+<h3>8.5 Validação e tratamento de erros</h3>
+<ul>
+  <li>Validação de domínio em <code>validarMentor</code> (completa na criação, parcial na alteração).</li>
+  <li>Códigos: <code>400</code> payload ou id inválido; <code>404</code> inexistente; <code>500</code> falha de infraestrutura, sem a mensagem do driver; no alvo, <code>403</code> ator sem permissão e <code>422</code> violação de regra de negócio.</li>
+  <li>Toda tela trata carregando, vazio e erro; nunca tela em branco.</li>
+</ul>
+
+<h3>8.6 Observabilidade</h3>
+<p>Application Insights em todas as Function Apps. O cabeçalho W3C <code>traceparent</code> é propagado do gateway ao BFF e
+aos serviços, e copiado para as propriedades da mensagem no Service Bus, permitindo ver uma solicitação de sessão e
+a notificação que ela gerou na mesma transação distribuída. Logs registram operação e filtros, sem dado pessoal.</p>
+
+<h3>8.7 Contratos entre microfrontends</h3>
+<p>Os MFEs não se importam entre si: comunicam-se pela URL (rotas) e por eventos de navegador
+(<code>CustomEvent</code> no <code>window</code>) quando necessário. React, React Router e o pacote de API são
+<code>shared</code> singletons. Estilo visual vem de tokens CSS do Shell (<code>index.css</code>), para que os remotes pareçam
+um único produto.</p>
+
+<h3>8.8 Uso de IA generativa</h3>
+<p>Front-end, Functions, reorganização em fatias e esta documentação foram produzidos com assistência do Claude Code
+(com Azure MCP e Azure CLI). Prompts versionados em <code>Prompt.md</code> e <code>docs/TDE2-PROMPTS.md</code>. Todo código
+passou por revisão humana: regras conferidas contra o PRD, endpoints testados e telas navegadas no ambiente publicado.</p>
+
+<!-- =============================================================== 9 -->
+<h2>9. Decisões de Arquitetura</h2>
+
+<p class="intro">Registradas no formato ADR. Entram as decisões caras de tomar ou de reverter.</p>
+
+<div class="adr">
+  <h4>ADR-01 — Microfrontends com Module Federation, extraídos de um monólito modular</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Quatro alunos trabalham no front-end ao mesmo tempo; o Static Web Apps só serve arquivos estáticos.</dd>
+    <dt>Decisão</dt><dd>Shell + três remotes compostos no navegador por Module Federation (<code>@originjs/vite-plugin-federation</code>). Construir primeiro como SPA única com uma pasta por área e extrair cada pasta quando a fronteira estiver estável.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> deploy independente por área; fronteira de MFE igual à de serviço. <strong>−</strong> versões de React precisam ser compatíveis entre remotes; uma falha de carga de remote precisa de fallback no Shell.</dd>
+    <dt>Alternativas</dt><dd>iframes (isolamento forte, UX ruim); composição no servidor (incompatível com SWA estático).</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-02 — Azure API Management Consumption como API Gateway</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Autenticação, limite de chamadas e CORS se repetiriam em cada Function App.</dd>
+    <dt>Decisão</dt><dd>APIM no tier Consumption na frente do BFF, com políticas <code>validate-jwt</code>, <code>rate-limit-by-key</code> e <code>cors</code>.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> preocupações transversais em um lugar; serverless, com cota gratuita mensal. <strong>−</strong> mais um salto de rede e um <em>cold start</em> próprio.</dd>
+    <dt>Alternativas</dt><dd>Roteamento do próprio SWA (sem JWT nem rate limit configuráveis); Application Gateway (não é serverless, custo fixo).</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-03 — Um BFF para a Web</h4>
+  <dl>
+    <dt>Contexto</dt><dd>As telas precisam de dados de vários serviços; só existe um tipo de cliente (navegador).</dd>
+    <dt>Decisão</dt><dd>Um único BFF Web em Functions, um endpoint por tela, sem banco e sem regra de negócio.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> navegador faz uma chamada por tela; serviços ficam com contratos genéricos. <strong>−</strong> o BFF pode virar gargalo de mudanças se acumular lógica — regra: lógica de negócio nunca entra no BFF. Um app mobile futuro teria seu próprio BFF.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-04 — Microsserviços por subdomínio, com banco próprio e poliglota</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Mentores, Sessões, Avaliações e Notificações têm dados de formas diferentes e mudam por motivos diferentes.</dd>
+    <dt>Decisão</dt><dd>Quatro serviços, cada um dono do seu banco: documento (Mentores), relacional (Sessões), NoSQL serverless (Avaliações), chave-valor (Notificações). Nenhum serviço acessa banco alheio.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> deploy, escala e falha isolados; cada dado no armazenamento que lhe cabe. <strong>−</strong> sem junção entre serviços; consultas cruzadas via BFF ou projeção; quatro tecnologias de dados para operar.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-05 — Service Bus com tópico único e outbox transacional</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Notificação e reputação precisam acontecer depois de uma escrita em outro serviço, mesmo que o consumidor esteja fora.</dd>
+    <dt>Decisão</dt><dd>Tópico <code>veterano.eventos</code> no Service Bus Standard, uma assinatura filtrada por consumidor; produtores com outbox e relay; consumidores idempotentes.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> entrega garantida, dead-letter, ordenação por sessão, retentativa automática. <strong>−</strong> custo fixo mensal do tier Standard; consistência eventual visível ao usuário.</dd>
+    <dt>Alternativas</dt><dd>Event Grid (mais barato, sem sessões/ordenação); Storage Queue (sem publicação para vários consumidores).</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-06 — Reputação como projeção atualizada por evento</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Na versão 1, a reputação era calculada lendo as avaliações. Com Database per Service, o Serviço de Mentores não pode ler o banco de Avaliações.</dd>
+    <dt>Decisão</dt><dd>O Serviço de Mentores mantém <code>REPUTACAO_PROJECAO</code>, recalculada a cada <code>AvaliacaoRegistrada</code> com a mesma função <code>calcularReputacao</code> que já existe no domínio. Substitui o ADR-04 da versão 1.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> busca rápida, sem chamada a outro serviço. <strong>−</strong> atraso de segundos entre avaliar e ver a nova média.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-07 — Clean Architecture com Vertical Slice dentro de cada serviço</h4>
+  <dl>
+    <dt>Contexto</dt><dd>Os handlers originais misturavam HTTP, regra e acesso a dados; a troca de mock por MongoDB exigiria reescrevê-los.</dd>
+    <dt>Decisão</dt><dd>Um arquivo por caso de uso em <code>features/</code>; regras em <code>domain/</code>; contratos em <code>ports/</code>; implementações em <code>infrastructure/</code>; Azure Functions só em <code>functions/</code>; composição em <code>dependencies.js</code>.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> caso de uso fácil de achar e mudar; domínio testável sem Azure nem banco; extração de serviço = mover fatias. <strong>−</strong> mais arquivos; pequena duplicação entre fatias parecidas, aceita para não acoplá-las.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-08 — Flex Consumption em vez de Consumption clássico</h4>
+  <dl>
+    <dt>Contexto</dt><dd>A Function App em Consumption Linux respondia 503 até no SCM; o plano tem fim de suporte anunciado.</dd>
+    <dt>Decisão</dt><dd>Flex Consumption com Node 22 para todas as Function Apps.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> subiu na primeira tentativa, <em>cold start</em> menor. <strong>−</strong> publicação por <code>config-zip</code>, pois <code>az functionapp deploy</code> responde 415.</dd>
+  </dl>
+</div>
+
+<div class="adr">
+  <h4>ADR-09 — MongoDB Atlas como banco do Serviço de Mentores</h4>
+  <dl>
+    <dt>Contexto</dt><dd>A entrega de CRUD pedia persistência real; o perfil de mentor é um documento com listas aninhadas.</dd>
+    <dt>Decisão</dt><dd>MongoDB Atlas M0, acessado pelo driver oficial atrás da porta <code>MentorRepository</code>.</dd>
+    <dt>Consequências</dt><dd><strong>+</strong> gratuito, modelo de documento natural para o perfil. <strong>−</strong> sai do catálogo Azure; limites do M0. Migrar para Cosmos DB for MongoDB troca só a URI, pois o protocolo é compatível.</dd>
+  </dl>
+</div>
+
+<!-- =============================================================== 10 -->
+<h2>10. Requisitos de Qualidade</h2>
+
+<h3>10.1 Árvore de qualidade</h3>
+
+{{DIAGRAMA:qualidade|Árvore de requisitos de qualidade. As folhas referenciam os cenários da tabela 10.2.}}
+
+<h3>10.2 Cenários de qualidade</h3>
+
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:16%">Atributo</th><th style="width:32%">Estímulo</th><th>Resposta esperada</th></tr></thead>
+  <tbody>
+    <tr><td>Q1</td><td>Usabilidade</td><td>Calouro abre a plataforma no celular pela primeira vez.</td><td>Encontra e filtra mentores pela matéria sem zoom horizontal.</td></tr>
+    <tr><td>Q2</td><td>Desempenho</td><td>Busca com filtro de matéria.</td><td>Resposta em até 2 s no P95, descontado o <em>cold start</em>.</td></tr>
+    <tr><td>Q3</td><td>Segurança</td><td>Usuário altera sessão da qual não participa.</td><td>Token aceito no gateway, 403 no Serviço de Sessões, nada alterado, evento na telemetria.</td></tr>
+    <tr><td>Q4</td><td>Confiabilidade</td><td>ACS Email fora do ar durante um aceite.</td><td>Sessão aceita, notificação in-app gravada, e-mail registrado como aviso; resposta 200.</td></tr>
+    <tr><td>Q5</td><td>Confiabilidade</td><td>Service Bus entrega <code>SessaoAceita</code> duas vezes.</td><td>Uma única notificação, graças ao <code>messageId</code> já processado.</td></tr>
+    <tr><td>Q6</td><td>Corretude</td><td>Mentor sem avaliações aparece na busca.</td><td>“Sem avaliações ainda”, nunca 0.0; ordenado ao final (<code>media: null</code>).</td></tr>
+    <tr><td>Q7</td><td>Manutenibilidade</td><td>Mudar a regra de período válido do mentor.</td><td>Altera só <code>validarMentor</code> em <code>domain/mentor.js</code>; triggers e adaptadores intactos.</td></tr>
+    <tr><td>Q8</td><td>Manutenibilidade</td><td>Trocar o catálogo mock por leitura no MongoDB.</td><td>Novo adaptador que cumpre <code>CatalogoMentores</code> e uma linha em <code>dependencies.js</code>.</td></tr>
+    <tr><td>Q9</td><td>Custo</td><td>Mês com uso esporádico.</td><td>Dentro do crédito; recursos serverless ociosos sem custo relevante.</td></tr>
+    <tr><td>Q10</td><td>Implantabilidade</td><td>Correção na tela de Agenda.</td><td>Só o MFE Agenda é publicado; Shell e demais remotes não mudam.</td></tr>
+  </tbody>
+</table>
+
+<!-- =============================================================== 11 -->
+<h2>11. Riscos e Dívidas Técnicas</h2>
+
+<h3>11.1 Riscos</h3>
+
+<table>
+  <thead><tr><th style="width:28%">Risco</th><th style="width:10%">Impacto</th><th>Mitigação</th></tr></thead>
+  <tbody>
+    <tr><td>Complexidade distribuída para uma equipe de 4 pessoas</td><td>Alto</td><td>Extração incremental (ADR-01, ADR-07): só separa um serviço quando houver requisito que o exija; cada aluno dono de um par MFE + serviço.</td></tr>
+    <tr><td>Custo fixo de Service Bus Standard e APIM</td><td>Médio</td><td>APIM Consumption tem cota gratuita; Service Bus é o único custo fixo relevante. Alerta de orçamento na assinatura.</td></tr>
+    <tr><td><em>Cold start</em> em cadeia gateway → BFF → serviço</td><td>Médio</td><td>Flex Consumption; instância pronta só no BFF se medição mostrar necessidade.</td></tr>
+    <tr><td>Consistência eventual percebida (reputação atrasada)</td><td>Baixo</td><td>Atraso de segundos; a tela de avaliação confirma o envio sem prometer média atualizada.</td></tr>
+    <tr><td>Latência de <code>centralus</code> para o Brasil</td><td>Médio</td><td>Estáticos pela borda do SWA; migrar quando a policy liberar <code>brazilsouth</code>.</td></tr>
+    <tr><td>Limites do MongoDB Atlas M0</td><td>Médio</td><td>Cliente reaproveitado; migração para Cosmos DB for MongoDB troca só a URI (ADR-09).</td></tr>
+  </tbody>
+</table>
+
+<h3>11.2 Dívidas técnicas assumidas</h3>
+
+<table>
+  <thead><tr><th style="width:28%">Dívida</th><th style="width:28%">Por que foi aceita</th><th>Como será paga</th></tr></thead>
+  <tbody>
+    <tr><td>Telas dos MFEs no mesmo bundle</td><td>Fronteiras ainda mudando.</td><td>Extrair cada pasta de <code>pages/</code> para um projeto Vite com Module Federation.</td></tr>
+    <tr><td>BFF e Serviço de Mentores na mesma Function App</td><td>Só existe um serviço de fato.</td><td>Separar quando o Serviço de Sessões existir e houver o que agregar.</td></tr>
+    <tr><td>Catálogo público e sessões sobre dados mock</td><td>Permitiu entregar telas antes dos bancos.</td><td>Novo adaptador para <code>CatalogoMentores</code> sobre MongoDB; sessões no futuro serviço.</td></tr>
+    <tr><td>Endpoints anônimos</td><td>Dados fictícios; identidade ainda não integrada.</td><td>APIM com <code>validate-jwt</code> e funções restritas ao BFF.</td></tr>
+    <tr><td>Sem testes automatizados</td><td>Verificação manual e <code>node --check</code>.</td><td>Testes de unidade das fatias com repositório falso — viável justamente porque as portas são injetadas.</td></tr>
+    <tr><td>Infra em script imperativo e deploy manual</td><td>Ferramental já instalado.</td><td>Bicep + um workflow GitHub Actions por MFE/serviço.</td></tr>
+  </tbody>
+</table>
+
+<!-- =============================================================== A -->
+<h2>Apêndice — Glossário</h2>
+
+<table>
+  <thead><tr><th style="width:26%">Termo</th><th>Definição</th></tr></thead>
+  <tbody>
+    <tr><td>Calouro / mentorado</td><td>Aluno que busca ajuda.</td></tr>
+    <tr><td>Veterano / mentor</td><td>Aluno que oferece mentoria. Os dois papéis podem coexistir na mesma pessoa.</td></tr>
+    <tr><td>Reputação</td><td>Média das notas do mentor com uma casa decimal, mais o total. Sem avaliações, <code>media = null</code>.</td></tr>
+    <tr><td>Fatia vertical (vertical slice)</td><td>Arquivo que implementa um caso de uso inteiro, do pedido à resposta, atravessando as camadas.</td></tr>
+    <tr><td>Porta / adaptador</td><td>Porta é o contrato que a aplicação exige; adaptador é a implementação concreta (MongoDB, mock, HTTP).</td></tr>
+    <tr><td>Raiz de composição</td><td>Único lugar que conhece as implementações concretas e as injeta (<code>dependencies.js</code>).</td></tr>
+    <tr><td>Microfrontend / Shell / remote</td><td>Parte do front-end publicada sozinha (remote), carregada em tempo de execução por uma aplicação hospedeira (Shell).</td></tr>
+    <tr><td>BFF</td><td>Backend for Frontend: camada que agrega serviços no formato de um cliente específico.</td></tr>
+    <tr><td>API Gateway</td><td>Ponto único de entrada que aplica autenticação, limites e roteamento antes dos serviços.</td></tr>
+    <tr><td>Database per Service</td><td>Cada microsserviço é o único dono e leitor do seu banco.</td></tr>
+    <tr><td>Outbox transacional</td><td>Tabela onde o evento é gravado na mesma transação do dado e publicado depois por um relay.</td></tr>
+    <tr><td>Idempotência</td><td>Processar a mesma mensagem duas vezes tem o mesmo efeito que processar uma.</td></tr>
+    <tr><td>Dead-letter</td><td>Fila para onde vão mensagens que falharam repetidamente, para análise.</td></tr>
+    <tr><td>Projeção</td><td>Cópia local de dado de outro serviço, mantida atualizada por eventos.</td></tr>
+    <tr><td>Cold start</td><td>Latência extra da primeira chamada a uma função sem instância ativa.</td></tr>
+    <tr><td>arc42 · C4 · DER</td><td>Template de documentação em seções; notação de diagramas em quatro níveis; diagrama de entidades e relacionamentos.</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:10mm;font-size:8pt;color:var(--apoio);border-top:1px solid var(--grade);padding-top:3mm">
+  Documentação completa de arquitetura &middot; Veterano. &middot; versão 2.0 &middot; outubro de 2026<br>
+  Bento Barp &middot; Guilherme Reis &middot; Guilherme Selenko &middot; Vinicius Trevisan<br>
+  Estrutura conforme o template arc42 (arc42.org), traduzido e adaptado para o contexto do PJBL.
+</p>
+
+</body>
+</html>

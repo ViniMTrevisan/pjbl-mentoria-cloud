@@ -1,0 +1,17 @@
+stateDiagram-v2
+    direction LR
+    [*] --> SOLICITADA : solicitar [horário livre e futuro] / SessaoSolicitada
+    SOLICITADA --> ACEITA : aceitar [ator = mentor] / SessaoAceita
+    SOLICITADA --> RECUSADA : recusar [ator = mentor] / SessaoRecusada
+    SOLICITADA --> CANCELADA : cancelar [ator participa] / SessaoCancelada
+    ACEITA --> CONCLUIDA : concluir [ator participa] / SessaoConcluida
+    ACEITA --> CANCELADA : cancelar [ator participa] / SessaoCancelada
+    CONCLUIDA --> [*]
+    RECUSADA --> [*]
+    CANCELADA --> [*]
+
+    note right of CONCLUIDA
+        Estados terminais não voltam atrás.
+        SessaoConcluida libera a avaliação
+        no Serviço de Avaliações (uma por sessão).
+    end note

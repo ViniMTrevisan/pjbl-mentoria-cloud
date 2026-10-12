@@ -1,0 +1,134 @@
+---
+config:
+  theme: neutral
+  layout: elk
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+direction LR
+
+namespace functions_entrada {
+  class HttpAdapter {
+    <<module>>
+    +json(status, body) HttpResponse
+    +lerCorpo(request) Object|null
+    +executarCasoHttp(context, operacao, msgErro, casoDeUso) HttpResponse
+  }
+  class Dependencies {
+    <<composition root>>
+    +mentorRepository MentorRepository
+    +catalogoMock CatalogoMentores
+  }
+}
+
+namespace features_mentors {
+  class CriarMentor {
+    <<use case>>
+    +criarMentor(repository, corpo, agora) ResultadoCaso
+  }
+  class PesquisarMentores {
+    <<use case>>
+    +pesquisarMentores(repository, consulta, id) ResultadoCaso
+  }
+  class AlterarMentor {
+    <<use case>>
+    +alterarMentor(repository, id, corpo, agora) ResultadoCaso
+  }
+  class ExcluirMentor {
+    <<use case>>
+    +excluirMentor(repository, id) ResultadoCaso
+  }
+  class ListarMentoresPublicos {
+    <<use case>>
+    +listarMentoresPublicos(catalogo, filtros) ResultadoCaso
+  }
+  class ObterMentorPublico {
+    <<use case>>
+    +obterMentorPublico(catalogo, id) ResultadoCaso
+  }
+}
+
+namespace domain {
+  class RegrasMentor {
+    <<module>>
+    +calcularReputacao(avaliacoes) Reputacao
+    +validarMentor(corpo, parcial) String[]
+    +novoMentor(corpo, agora) Mentor
+    +camposAlterados(corpo, agora) Object
+  }
+  class Mentor {
+    <<entity>>
+    +id String
+    +nome String
+    +curso String
+    +periodo Integer
+    +bio String
+    +areas AreaMentoria[]
+    +criadoEm ISODate
+    +atualizadoEm ISODate
+  }
+  class Reputacao {
+    <<value object>>
+    +media Number|null
+    +total Integer
+  }
+  class ResultadoCaso {
+    <<value object>>
+    +status Integer
+    +body Object
+  }
+}
+
+namespace ports {
+  class MentorRepository {
+    <<interface>>
+    +idValido(id) Boolean
+    +pesquisar(consulta) Mentor[]
+    +buscarPorId(id) Mentor|null
+    +inserir(mentor) Mentor
+    +alterar(id, campos) Mentor|null
+    +excluir(id) Mentor|null
+  }
+  class CatalogoMentores {
+    <<interface>>
+    +listarMentores() Mentor[]
+    +buscarMentorPorId(id) Mentor|null
+    +listarSessoes() Sessao[]
+  }
+}
+
+namespace infrastructure {
+  class MongoMentorRepository {
+    <<adapter>>
+    -obterColecao() Collection
+    -paraSaida(documento) Mentor
+    -escaparRegex(texto) String
+  }
+  class MockMentorCatalog {
+    <<adapter>>
+  }
+}
+
+MentorRepository <|.. MongoMentorRepository : realiza
+CatalogoMentores <|.. MockMentorCatalog : realiza
+Dependencies ..> MongoMentorRepository : «create»
+Dependencies ..> MockMentorCatalog : «create»
+CriarMentor ..> MentorRepository
+PesquisarMentores ..> MentorRepository
+AlterarMentor ..> MentorRepository
+ExcluirMentor ..> MentorRepository
+ListarMentoresPublicos ..> CatalogoMentores
+ObterMentorPublico ..> CatalogoMentores
+CriarMentor ..> RegrasMentor
+AlterarMentor ..> RegrasMentor
+ListarMentoresPublicos ..> RegrasMentor
+ObterMentorPublico ..> RegrasMentor
+RegrasMentor ..> Mentor
+RegrasMentor ..> Reputacao
+Mentor "1" *-- "0..*" AreaMentoria
+class AreaMentoria {
+  <<value object>>
+  +curso String
+  +materia String
+}

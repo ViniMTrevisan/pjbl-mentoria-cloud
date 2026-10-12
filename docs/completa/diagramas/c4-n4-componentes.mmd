@@ -1,0 +1,40 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+    classDef comp fill:#ffffff,stroke:#16233a,stroke-width:1.5px,color:#16233a
+    classDef iface fill:#d9f24a,stroke:#16233a,stroke-width:1px,color:#16233a
+    classDef ext fill:#eef1f6,stroke:#5c6b8a,stroke-width:1px,stroke-dasharray:4 3,color:#16233a
+
+    Cli["«component»<br/>BFF Web / Cadastro.tsx"]:::ext
+    IHttp(("«provided»<br/>API HTTP<br/>/api/*")):::iface
+
+    subgraph SVC["«subsystem» Serviço de Mentores — api/src"]
+        direction TB
+        F["«component»<br/>functions<br/>[triggers HTTP + http.js]"]:::comp
+        Root["«component»<br/>dependencies<br/>[raiz de composição]"]:::comp
+        Fe["«component»<br/>features/mentors<br/>features/sessions"]:::comp
+        Dm["«component»<br/>domain<br/>[mentor.js]"]:::comp
+        IRepo(("«required»<br/>MentorRepository")):::iface
+        ICat(("«required»<br/>CatalogoMentores")):::iface
+        Mg["«component»<br/>infrastructure/mongo<br/>[MongoMentorRepository, client]"]:::comp
+        Mk["«component»<br/>infrastructure/mock<br/>[MockMentorCatalog, data/mock.js]"]:::comp
+    end
+
+    DB[("«database»<br/>MongoDB Atlas<br/>pjbl_mentoria.mentores")]:::ext
+
+    Cli -->|"usa"| IHttp
+    IHttp --- F
+    F -->|"chama caso de uso"| Fe
+    F -->|"obtém adaptadores"| Root
+    Fe -->|"usa"| Dm
+    Fe -->|"requer"| IRepo
+    Fe -->|"requer"| ICat
+    Mg -.-|"provê"| IRepo
+    Mk -.-|"provê"| ICat
+    Root -.->|"instancia"| Mg
+    Root -.->|"instancia"| Mk
+    Mg -->|"MongoDB wire / TLS"| DB
+
+    style SVC fill:#ffffff,stroke:#16233a,stroke-width:1px,color:#16233a

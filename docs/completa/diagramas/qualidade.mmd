@@ -1,0 +1,22 @@
+flowchart LR
+    classDef raiz fill:#16233a,stroke:#16233a,color:#ffffff
+    classDef cat fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef folha fill:#ffffff,stroke:#5c6b8a,color:#16233a
+
+    Q["Qualidade do Veterano."]:::raiz
+    Q --> U["Usabilidade"]:::cat
+    Q --> C["Confiabilidade"]:::cat
+    Q --> S["Segurança"]:::cat
+    Q --> M["Manutenibilidade"]:::cat
+    Q --> E["Escalabilidade / Custo"]:::cat
+    Q --> I["Implantabilidade"]:::cat
+
+    U --> U1["Q1 · busca no celular sem zoom"]:::folha
+    C --> C1["Q4 · falha de e-mail não afeta a sessão"]:::folha
+    C --> C2["Q5 · evento duplicado não duplica efeito"]:::folha
+    S --> S1["Q3 · JWT validado no gateway; 403 para terceiro"]:::folha
+    M --> M1["Q7 · regra nova muda uma fatia só"]:::folha
+    M --> M2["Q8 · trocar banco muda só o adaptador"]:::folha
+    E --> E1["Q2 · busca em até 2 s no P95"]:::folha
+    E --> E2["Q9 · custo ocioso perto de zero"]:::folha
+    I --> I1["Q10 · deploy de um MFE ou serviço sem tocar nos outros"]:::folha

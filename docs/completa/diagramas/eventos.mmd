@@ -1,0 +1,53 @@
+---
+config:
+  layout: elk
+---
+flowchart LR
+    classDef prod fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef ev fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef sub fill:#ffffff,stroke:#16233a,color:#16233a
+    classDef dlq fill:#f6d5d5,stroke:#a33,color:#16233a
+
+    subgraph P["Produtores"]
+        direction TB
+        SS["Serviço de Sessões<br/>(outbox + relay)"]:::prod
+        SA["Serviço de Avaliações"]:::prod
+        SM["Serviço de Mentores"]:::prod
+    end
+
+    subgraph T["Azure Service Bus — tópico veterano.eventos"]
+        direction TB
+        E1["SessaoSolicitada<br/>SessaoAceita · SessaoRecusada<br/>SessaoCancelada · SessaoConcluida"]:::ev
+        E2["AvaliacaoRegistrada"]:::ev
+        E3["MentorAtualizado"]:::ev
+        S1["assinatura <b>notificacoes</b><br/>filtro: tipo LIKE 'Sessao%'"]:::sub
+        S2["assinatura <b>reputacao</b><br/>filtro: tipo = 'AvaliacaoRegistrada'"]:::sub
+        S3["assinatura <b>avaliacoes</b><br/>filtro: tipo = 'SessaoConcluida'"]:::sub
+        S4["assinatura <b>bff-cache</b><br/>filtro: tipo = 'MentorAtualizado'"]:::sub
+        DLQ["dead-letter de cada assinatura<br/>após 5 tentativas"]:::dlq
+    end
+
+    subgraph C["Consumidores (Service Bus trigger)"]
+        direction TB
+        CN["Serviço de Notificações<br/>in-app + e-mail"]:::prod
+        CM["Serviço de Mentores<br/>projeção de reputação"]:::prod
+        CA["Serviço de Avaliações<br/>libera avaliação"]:::prod
+        CB["BFF Web<br/>invalida cache"]:::prod
+    end
+
+    SS --> E1
+    SA --> E2
+    SM --> E3
+    E1 --> S1
+    E1 --> S3
+    E2 --> S2
+    E3 --> S4
+    S1 --> CN
+    S2 --> CM
+    S3 --> CA
+    S4 --> CB
+    S1 & S2 & S3 & S4 -.-> DLQ
+
+    style P fill:#f6f8fb,stroke:#9aa7bd
+    style T fill:#ffffff,stroke:#444,stroke-dasharray:6 4
+    style C fill:#f6f8fb,stroke:#9aa7bd

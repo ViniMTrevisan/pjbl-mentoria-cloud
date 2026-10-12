@@ -1,0 +1,81 @@
+---
+config:
+  layout: elk
+  theme: neutral
+---
+erDiagram
+    %% BD Mentores — MongoDB Atlas (documento)
+    MENTOR ||--o{ AREA_MENTORIA : "embute"
+    MENTOR ||--o{ DISPONIBILIDADE : "embute"
+    MENTOR ||--o| REPUTACAO_PROJECAO : "embute"
+
+    %% BD Sessões — Azure SQL
+    SESSAO ||--o{ OUTBOX_EVENTO : "gera"
+
+    %% BD Avaliações — Cosmos DB
+    %% BD Notificações — Table Storage
+
+    %% referências entre serviços: só por id, sem FK
+    MENTOR ||..o{ SESSAO : "mentorId (ref. lógica)"
+    MENTOR ||..o{ SESSAO : "mentoradoId (ref. lógica)"
+    SESSAO ||..o| AVALIACAO : "sessaoId (ref. lógica)"
+    MENTOR ||..o{ NOTIFICACAO : "usuarioId (ref. lógica)"
+
+    MENTOR {
+        ObjectId _id PK "BD Mentores"
+        string entraOid UK "id do usuário no Entra"
+        string nome
+        string curso
+        int periodo "1 a 12"
+        string bio
+        bool ehMentor
+        bool ehMentorado
+        date criadoEm
+        date atualizadoEm
+    }
+    AREA_MENTORIA {
+        string curso
+        string materia
+    }
+    DISPONIBILIDADE {
+        int diaSemana "0 a 6"
+        string horaInicio
+        string horaFim
+    }
+    REPUTACAO_PROJECAO {
+        decimal media "null sem avaliações"
+        int total
+        string ultimoEventoId "idempotência"
+    }
+    SESSAO {
+        uniqueidentifier id PK "BD Sessões"
+        string mentorId "ref. lógica"
+        string mentoradoId "ref. lógica"
+        datetimeoffset dataHora
+        nvarchar assunto
+        varchar status "SOLICITADA..CANCELADA"
+        rowversion versao "concorrência otimista"
+    }
+    OUTBOX_EVENTO {
+        uniqueidentifier id PK
+        uniqueidentifier sessaoId FK
+        varchar tipo
+        nvarchar payload "JSON"
+        datetimeoffset publicadoEm "null = pendente"
+    }
+    AVALIACAO {
+        string id PK "BD Avaliações"
+        string sessaoId UK "partition key"
+        string mentorId "ref. lógica"
+        int nota "1 a 5"
+        string comentario
+        date criadaEm
+    }
+    NOTIFICACAO {
+        string PartitionKey PK "usuarioId — BD Notificações"
+        string RowKey PK "timestamp invertido"
+        string tipo
+        string mensagem
+        string sessaoId "opcional"
+        bool lida
+    }

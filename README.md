@@ -19,6 +19,23 @@ mock hospedada em **Azure Functions**.
 
 ## Documentação de arquitetura
 
+### Completa (versão 2.0)
+
+[`docs/Arquitetura-Veterano-arc42-Completa.pdf`](docs/Arquitetura-Veterano-arc42-Completa.pdf) — arc42 com as
+11 seções, C4 Model níveis 1 a 4 (UML de sequência, classes e componentes no nível 4), DER, máquina de estados,
+implantação e Software Architecture Canvas. Cobre os estilos Serverless, Microfrontend, BFF + Microsserviços +
+Database per Service, API Gateway, EDA, Clean Architecture e Vertical Slice (este último refletindo `api/src`).
+Grupo: Bento Barp, Guilherme Reis, Guilherme Selenko e Vinicius Trevisan.
+
+```bash
+cd docs/completa && python3 build-pdf.py
+```
+
+O script renderiza os `.mmd` alterados de [`docs/completa/diagramas`](docs/completa/diagramas), injeta as
+figuras em [`arc42.template.html`](docs/completa/arc42.template.html) e imprime o PDF com o Chrome headless.
+
+### Parcial (versão 1)
+
 [`docs/Arquitetura-Veterano-arc42.pdf`](docs/Arquitetura-Veterano-arc42.pdf) — documentação parcial no
 padrão **arc42** (12 seções), com **C4 Model** nos níveis 1 a 4, diagramas **UML** (classes, componentes,
 sequência, máquina de estados e implantação), **DER** e **Software Architecture Canvas**.

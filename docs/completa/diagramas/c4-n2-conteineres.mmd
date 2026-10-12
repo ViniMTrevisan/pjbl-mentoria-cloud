@@ -1,0 +1,79 @@
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef cont fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef feito fill:#438dd5,stroke:#16233a,stroke-width:4px,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    Aluno["<b>Aluno</b><br/>[Person]<br/>calouro, veterano ou coordenação"]:::pessoa
+
+    subgraph Sistema["Veterano. [Software System]"]
+        direction TB
+        subgraph MFE["Microfrontends — Azure Static Web Apps"]
+            direction LR
+            MDesc["<b>MFE Descoberta</b><br/>[Container: React remote]<br/>Busca e perfil do mentor"]:::feito
+            MAgenda["<b>MFE Agenda</b><br/>[Container: React remote]<br/>Sessões, aceite, avaliação"]:::feito
+            Shell["<b>Shell</b><br/>[Container: React 19, Vite]<br/>Layout, rotas, login,<br/>carga dos remotes"]:::feito
+            MPerfil["<b>MFE Perfil do Mentor</b><br/>[Container: React remote]<br/>Cadastro e edição"]:::feito
+        end
+
+        GW["<b>API Gateway</b><br/>[Container: Azure API Management — Consumption]<br/>Roteamento, validação do JWT contra o JWKS<br/>do Entra, rate limit, CORS"]:::cont
+        BFF["<b>BFF Web</b><br/>[Container: Azure Functions, Node 22]<br/>Agrega microsserviços no formato de cada tela"]:::feito
+
+        subgraph CM["Mentores"]
+            direction TB
+            SMent["<b>Serviço de Mentores</b><br/>[Container: Functions]<br/>Perfis, áreas, horários,<br/>projeção de reputação"]:::feito
+            DMent[("<b>BD Mentores</b><br/>[Container: MongoDB<br/>Atlas M0]")]:::feito
+        end
+        subgraph CS["Sessões"]
+            direction TB
+            SSess["<b>Serviço de Sessões</b><br/>[Container: Functions]<br/>Ciclo de vida da sessão<br/>e outbox de eventos"]:::cont
+            DSess[("<b>BD Sessões</b><br/>[Container: Azure SQL<br/>serverless]")]:::cont
+        end
+        subgraph CA["Avaliações"]
+            direction TB
+            SAval["<b>Serviço de Avaliações</b><br/>[Container: Functions]<br/>Nota única por<br/>sessão concluída"]:::cont
+            DAval[("<b>BD Avaliações</b><br/>[Container: Cosmos DB<br/>serverless]")]:::cont
+        end
+        subgraph CN["Notificações"]
+            direction TB
+            SNot["<b>Serviço de Notificações</b><br/>[Container: Functions,<br/>Service Bus trigger]<br/>In-app e e-mail"]:::cont
+            DNot[("<b>BD Notificações</b><br/>[Container: Table<br/>Storage]")]:::cont
+        end
+
+        Bus[["<b>Barramento de Eventos</b><br/>[Container: Azure Service Bus Standard — tópico veterano.eventos, 1 assinatura por consumidor]"]]:::cont
+    end
+
+    Entra["<b>Microsoft Entra External ID</b><br/>[Software System]"]:::externo
+    ACS["<b>ACS Email</b><br/>[Software System]"]:::externo
+
+    Aluno -->|"Usa [HTTPS]"| Shell
+    Shell -->|"import remoto"| MDesc
+    Shell -->|"import remoto"| MAgenda
+    Shell -->|"import remoto"| MPerfil
+    Shell -.->|"Login [OIDC/PKCE]"| Entra
+    MFE ==>|"JSON + Bearer JWT [HTTPS]"| GW
+    GW ==>|"/bff/* [HTTPS]"| BFF
+    BFF -->|"REST interno"| SMent
+    BFF -->|"REST interno"| SSess
+    BFF -->|"REST interno"| SAval
+    BFF -->|"REST interno"| SNot
+    SMent --> DMent
+    SSess --> DSess
+    SAval --> DAval
+    SNot --> DNot
+    DMent ~~~ Bus
+    DSess ~~~ Bus
+    DAval ~~~ Bus
+    DNot ~~~ Bus
+    SSess -->|"publica Sessao*"| Bus
+    SAval -->|"publica AvaliacaoRegistrada"| Bus
+    SNot -.->|"assina Sessao*"| Bus
+    SMent -.->|"assina AvaliacaoRegistrada"| Bus
+    SNot -->|"Envia e-mail [HTTPS]"| ACS
+
+    style Sistema fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style MFE fill:#f6f8fb,stroke:#9aa7bd
+    style CM fill:#f6f8fb,stroke:#9aa7bd
+    style CS fill:#f6f8fb,stroke:#9aa7bd
+    style CA fill:#f6f8fb,stroke:#9aa7bd
+    style CN fill:#f6f8fb,stroke:#9aa7bd

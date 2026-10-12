@@ -1,0 +1,37 @@
+---
+config:
+  sequence:
+    wrap: true
+    width: 170
+    actorMargin: 40
+    messageMargin: 34
+---
+sequenceDiagram
+    autonumber
+    actor C as :Calouro
+    participant MF as :MFE Agenda
+    participant GW as :API Management
+    participant BFF as :BFF Web
+    participant SS as :Serviço de Sessões
+    participant SQL as :BD Sessões
+
+    C->>MF: escolhe horário na grade
+    MF->>GW: POST /bff/sessoes + Bearer JWT
+    GW->>GW: validate-jwt e rate-limit
+    GW->>BFF: repassa com x-user-id
+    BFF->>SS: POST /sessoes {mentorId, dataHora}
+    SS->>SS: Sessao.solicitar()
+    Note right of SS: horário dentro da<br/>disponibilidade e no futuro?
+    alt regra violada
+        SS-->>BFF: 422
+        BFF-->>MF: 422 com motivo
+        MF-->>C: mostra o motivo
+    else regra atendida
+        SS->>SQL: BEGIN TRAN
+        SS->>SQL: INSERT SESSAO (SOLICITADA)
+        SS->>SQL: INSERT OUTBOX (SessaoSolicitada)
+        SS->>SQL: COMMIT
+        SS-->>BFF: 201 {id, status}
+        BFF-->>MF: 201
+        MF-->>C: "solicitação enviada"
+    end

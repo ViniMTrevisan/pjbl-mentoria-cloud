@@ -1,0 +1,21 @@
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef sistema fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    Calouro["<b>Calouro (mentorado)</b><br/>[Person]<br/><br/>Aluno de início de curso que<br/>busca ajuda em uma matéria."]:::pessoa
+    Veterano["<b>Veterano (mentor)</b><br/>[Person]<br/><br/>Aluno avançado que oferece<br/>mentoria e define horários."]:::pessoa
+    Coord["<b>Coordenação</b><br/>[Person]<br/><br/>Modera cadastros e<br/>acompanha métricas."]:::pessoa
+
+    App["<b>Veterano.</b><br/>[Software System]<br/><br/>Plataforma de mentoria entre alunos:<br/>cadastro, descoberta, agendamento,<br/>notificação e avaliação de sessões."]:::sistema
+
+    Entra["<b>Microsoft Entra External ID</b><br/>[Software System]<br/><br/>Autentica o aluno e emite<br/>o token de acesso (JWT)."]:::externo
+    Email["<b>Azure Communication<br/>Services Email</b><br/>[Software System]<br/><br/>Entrega e-mails transacionais."]:::externo
+
+    Calouro -->|"Busca mentores, solicita<br/>e avalia sessões<br/><i>[HTTPS]</i>"| App
+    Veterano -->|"Mantém perfil e horários,<br/>responde solicitações<br/><i>[HTTPS]</i>"| App
+    Coord -->|"Modera e consulta<br/>métricas<br/><i>[HTTPS]</i>"| App
+    App -->|"Autentica e valida token<br/><i>[OpenID Connect]</i>"| Entra
+    App -->|"Solicita envio de e-mail<br/><i>[HTTPS]</i>"| Email
+    Email -.->|"Entrega o e-mail<br/><i>[SMTP]</i>"| Calouro
+    Email -.->|"Entrega o e-mail<br/><i>[SMTP]</i>"| Veterano
