@@ -1,0 +1,24 @@
+flowchart TB
+    classDef shell fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef remote fill:#85bbf0,stroke:#5a93ce,color:#16233a
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
+    classDef shared fill:#d9f24a,stroke:#16233a,color:#16233a
+
+    subgraph Navegador["Navegador — composição em runtime"]
+        direction TB
+        Shell["<b>Shell (:3000)</b><br/>layout, rotas, usuário,<br/>ErrorBoundary, Suspense"]:::shell
+        MDesc["<b>MFE Descoberta (:3001)</b><br/>busca · perfil · solicitar"]:::remote
+        MAgenda["<b>MFE Agenda (:3002)</b><br/>próximas · histórico · ações"]:::remote
+        Shared["<b>Compartilhado</b><br/>React singleton<br/>tokens CSS"]:::shared
+    end
+
+    Kong["<b>API Gateway</b><br/>:8080/api"]:::ext
+    BFF["<b>BFF</b>"]:::ext
+
+    Shell -->|"import('mfeDescoberta/App')"| MDesc
+    Shell -->|"import('mfeAgenda/App')"| MAgenda
+    Shell -.->|"CustomEvent:<br/>sessoes-atualizadas"| MAgenda
+    Shared --- Shell
+    MDesc -->|"HTTP + X-Usuario-Id"| Kong
+    MAgenda -->|"HTTP + X-Usuario-Id"| Kong
+    Kong --> BFF

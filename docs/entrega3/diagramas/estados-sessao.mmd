@@ -1,0 +1,10 @@
+stateDiagram-v2
+    [*] --> SOLICITADA: mentorado solicita
+    SOLICITADA --> ACEITA: mentor aceita
+    SOLICITADA --> RECUSADA: mentor recusa
+    SOLICITADA --> CANCELADA: mentor ou mentorado cancela
+    ACEITA --> CONCLUIDA: mentor ou mentorado conclui
+    ACEITA --> CANCELADA: mentor ou mentorado cancela
+    CONCLUIDA --> [*]: mentorado pode avaliar (uma vez)
+    RECUSADA --> [*]
+    CANCELADA --> [*]

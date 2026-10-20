@@ -1,0 +1,51 @@
+flowchart LR
+    classDef entrada fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef app fill:#eaf0ff,stroke:#5c6b8a,color:#16233a
+    classDef dom fill:#fff1c7,stroke:#a58a2e,color:#16233a
+    classDef porta fill:#f3e8ff,stroke:#8a5cc2,color:#16233a
+    classDef infra fill:#e8f5e9,stroke:#3d7a45,color:#16233a
+
+    subgraph HTTP["Entrada"]
+        H1["<b>routes.ts</b><br/>GET/POST/PUT/DELETE<br/>/mentores"]:::entrada
+        H2["<b>Swagger</b><br/>/docs · /openapi.json"]:::entrada
+    end
+
+    subgraph Fatias["features/ — uma fatia por caso de uso"]
+        F1["createMentor"]:::app
+        F2["listMentores"]:::app
+        F3["getMentor"]:::app
+        F4["updateMentor"]:::app
+        F5["deleteMentor"]:::app
+        F6["addAvaliacao"]:::app
+    end
+
+    subgraph Dominio["domain/"]
+        D1["validarMentor · novoMentor"]:::dom
+        D2["camposAlterados"]:::dom
+        D3["adicionarAvaliacao"]:::dom
+        D4["filtro de busca"]:::dom
+    end
+
+    subgraph Portas["ports/"]
+        P1["MentorRepository"]:::porta
+    end
+
+    subgraph Infra["infrastructure/"]
+        I1["MongoMentorRepository"]:::infra
+        I2["InMemoryMentorRepository"]:::infra
+        I3["seed de demonstração"]:::infra
+    end
+
+    DB[("<b>MongoDB</b><br/>pjbl_mentoria.mentores")]
+
+    H1 --> F1 & F2 & F3 & F4 & F5 & F6
+    F1 --> D1 --> P1
+    F2 --> D4 --> P1
+    F3 --> P1
+    F4 --> D2 --> P1
+    F5 --> P1
+    F6 --> D3 --> P1
+    P1 -.-> I1
+    P1 -.-> I2
+    I1 --> DB
+    I3 --> DB

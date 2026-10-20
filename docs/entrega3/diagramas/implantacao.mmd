@@ -1,0 +1,49 @@
+flowchart TB
+    classDef local fill:#ffffff,stroke:#16233a,color:#16233a
+    classDef alvo fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef art fill:#eef1f6,stroke:#5c6b8a,color:#16233a
+
+    Dev["<b>Navegador</b><br/>localhost:3000"]:::local
+
+    subgraph Docker["«execution environment» Docker Compose — máquina local"]
+        direction TB
+        Shell["<b>shell</b><br/>nginx :80 → :3000"]:::alvo
+        R1["<b>mfe-descoberta</b><br/>nginx :80 → :3001"]:::alvo
+        R2["<b>mfe-agenda</b><br/>nginx :80 → :3002"]:::alvo
+        Kong["<b>kong:3.7</b><br/>:8000 → :8080<br/>DB-less"]:::alvo
+        BFF["<b>bff</b><br/>Node 22 · :4000"]:::alvo
+        MS["<b>mentores-service</b><br/>Node 22 · :4001"]:::alvo
+        SS["<b>sessoes-service</b><br/>Node 22 · :4002"]:::alvo
+        FN["<b>azure-function</b><br/>Functions v4 · :7071"]:::alvo
+        Mongo[("<b>mongo:7</b>")]:::local
+        SQL[("<b>azure-sql-edge</b>")]:::local
+        Az[("<b>azurite</b>")]:::local
+    end
+
+    subgraph Azure["«execution environment» Azure — alvo de produção"]
+        direction LR
+        SWA["Static Web Apps<br/>3 MFEs"]:::local
+        APIM["API Management<br/>Consumption"]:::local
+        CA["Container Apps<br/>BFF · serviços"]:::local
+        AF["Function App<br/>Flex Consumption"]:::local
+        ASQL[("Azure SQL<br/>serverless")]:::local
+        ATL[("MongoDB Atlas M0")]:::local
+    end
+
+    Dev --> Shell
+    Dev --> Kong
+    Shell -.-> R1 & R2
+    R1 & R2 --> Kong --> BFF
+    BFF --> MS & SS & FN
+    MS --> Mongo
+    SS --> SQL
+    FN --> Az
+
+    A1["«artifact» imagens Docker Hub<br/>bff · mentores · sessoes · mfe-*"]:::art
+    A2["«artifact» zip da Function"]:::art
+    A1 -.->|"docker push / deploy"| CA
+    A1 -.-> SWA
+    A2 -.-> AF
+
+    style Azure fill:#ffffff,stroke:#16233a,stroke-dasharray:6 4
+    style Docker fill:#f6f8fb,stroke:#9aa7bd

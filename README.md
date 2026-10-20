@@ -17,6 +17,46 @@ mock hospedada em **Azure Functions**.
 > em [`api/src/data/mock.js`](api/src/data/mock.js), e as regras de negócio (reputação e filtros de
 > busca) são aplicadas no servidor.
 
+## Entrega 3 — arquitetura distribuída
+
+Branch [`entrega-3-microservices`](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/tree/entrega-3-microservices).
+
+A entrega 3 substitui o front + Functions únicos por uma arquitetura distribuída completa,
+executável com um `docker compose up`:
+
+| Camada | Projeto | Tecnologia | Porta |
+|---|---|---|---|
+| Microfrontends | [`microfrontend/`](microfrontend) | React 18 + Vite Module Federation | 3000 (shell), 3001, 3002 |
+| BFF | [`bff/`](bff) | Node 22 + Express + Swagger | 4000 |
+| Microsserviço Mongo | [`mentores-service/`](mentores-service) | Node 22 + Express + MongoDB | 4001 |
+| Microsserviço SQL | [`sessoes-service/`](sessoes-service) | Node 22 + Express + SQL Server 2022 | 4002 |
+| Azure Function | [`azure-function/`](azure-function) | Functions v4, HTTP trigger | 7071 |
+| API Gateway | [`gateway/`](gateway) | Kong 3.7 DB-less (APIM no alvo) | 8080 |
+
+Documentação arc42 completa: [`docs/entrega3/Arquitetura-Veterano-Entrega3.pdf`](docs/entrega3/Arquitetura-Veterano-Entrega3.pdf)
+(fonte em [`docs/entrega3/ARC42.md`](docs/entrega3/ARC42.md), contratos em
+[`docs/entrega3/API-CONTRACTS.md`](docs/entrega3/API-CONTRACTS.md)).
+
+```bash
+cp .env.example .env
+docker compose up --build -d     # 11 contêineres
+npm run smoke                    # agregação, CRUD, 403 e reputação via gateway
+npm run test:all                 # unitários + testes de arquitetura
+```
+
+| URL | O que é |
+|---|---|
+| http://localhost:3000 | microfrontend (shell) |
+| http://localhost:8080/api/aggregated-data?usuarioId=u1 | endpoint agregado via gateway |
+| http://localhost:4000/docs | Swagger do BFF |
+| http://localhost:4001/docs | Swagger do Serviço de Mentores |
+| http://localhost:4002/docs | Swagger do Serviço de Sessões |
+| http://localhost:8001/status | Admin API do Kong |
+
+Imagens Docker Hub (`DOCKERHUB_USER=... npm run publish:dockerhub`): `veterano-bff`,
+`veterano-mentores`, `veterano-sessoes`, `veterano-function`, `veterano-shell`,
+`veterano-mfe-descoberta`, `veterano-mfe-agenda`.
+
 ## Documentação de arquitetura
 
 ### Completa (versão 2.0)

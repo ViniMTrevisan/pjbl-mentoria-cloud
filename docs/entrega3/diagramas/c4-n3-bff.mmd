@@ -1,0 +1,29 @@
+flowchart LR
+    classDef comp fill:#85bbf0,stroke:#5a93ce,color:#16233a
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
+    classDef app fill:#d9f24a,stroke:#16233a,color:#16233a
+
+    Browser["<b>Navegador</b><br/>shell + remotes"]:::ext
+    Kong["<b>Kong Gateway</b><br/>CORS, rate limit,<br/>X-Gateway"]:::ext
+
+    subgraph BFF["BFF Web (Node 22 + Express)"]
+        direction TB
+        Routes["<b>HTTP — rotas</b><br/>http/routes.ts<br/>/aggregated-data, proxies"]
+        UseCase["<b>GetAggregatedData</b><br/>application/use-cases<br/>allSettled + timeout 3s"]:::app
+        Ports["<b>Portas</b><br/>MentoresPort · SessoesPort<br/>ReputacaoPort"]
+        Clients["<b>Clientes HTTP</b><br/>infrastructure/clients<br/>fetch + AbortSignal"]
+        Errors["<b>Error handler</b><br/>502/parcial, sem stack"]
+    end
+
+    Mentores["<b>Serviço de Mentores</b><br/>:4001"]:::ext
+    Sessoes["<b>Serviço de Sessões</b><br/>:4002"]:::ext
+    Function["<b>Azure Function</b><br/>:7071"]:::ext
+
+    Browser --> Kong --> Routes
+    Routes --> UseCase
+    Routes --> Errors
+    UseCase --> Ports
+    Ports -.-> Clients
+    Clients --> Mentores
+    Clients --> Sessoes
+    Clients --> Function

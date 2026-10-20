@@ -1,0 +1,54 @@
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef cont fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef banco fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    Aluno["<b>Aluno</b><br/>[Person]"]:::pessoa
+
+    subgraph Sistema["Veterano. [Software System]"]
+        direction TB
+        subgraph MFE["Microfrontends — React 18 + Vite Module Federation"]
+            direction LR
+            Shell["<b>Shell</b><br/>[Container: React SPA]<br/>Layout, rotas, usuário"]
+            MDesc["<b>MFE Descoberta</b><br/>[Container: React remote]<br/>Busca, perfil, solicitação"]
+            MAgenda["<b>MFE Agenda</b><br/>[Container: React remote]<br/>Sessões, ações, avaliação"]
+        end
+
+        GW["<b>API Gateway</b><br/>[Container: Kong / APIM]<br/>Rotas, CORS, rate limit"]
+        BFF["<b>BFF Web</b><br/>[Container: Node 22 + Express]<br/>Agrega e adapta por tela"]
+        Function["<b>Azure Function</b><br/>[Container: HTTP Trigger]<br/>Reputação + sink de eventos"]
+
+        subgraph CM["Serviço de Mentores"]
+            direction TB
+            SM["<b>Mentores</b><br/>[Container: Node + Express]<br/>Perfil, áreas, horários, notas"]
+            DM[("<b>BD Mentores</b><br/>[Container: MongoDB 7]")]:::banco
+        end
+
+        subgraph CS["Serviço de Sessões"]
+            direction TB
+            SS["<b>Sessões</b><br/>[Container: Node + Express]<br/>Máquina de estados + outbox"]
+            DS[("<b>BD Sessões</b><br/>[Container: SQL Server 2022]")]:::banco
+        end
+    end
+
+    Email["<b>ACS Email</b><br/>[Software System]"]:::externo
+
+    Aluno -->|"usa [HTTPS]"| Shell
+    Shell -->|"import remoto"| MDesc
+    Shell -->|"import remoto"| MAgenda
+    MDesc -->|"JSON [HTTPS]"| GW
+    MAgenda -->|"JSON [HTTPS]"| GW
+    GW -->|"/api/* [HTTP]"| BFF
+    BFF -->|"REST interno"| SM
+    BFF -->|"REST interno"| SS
+    BFF -->|"POST /api/reputacao"| Function
+    SS -->|"eventos do outbox"| Function
+    SM --> DM
+    SS --> DS
+    Function -.->|"alvo cloud: e-mail"| Email
+
+    style Sistema fill:#ffffff,stroke:#444444,stroke-dasharray:6 4,color:#444444
+    style MFE fill:#f6f8fb,stroke:#9aa7bd
+    style CM fill:#f6f8fb,stroke:#9aa7bd
+    style CS fill:#f6f8fb,stroke:#9aa7bd

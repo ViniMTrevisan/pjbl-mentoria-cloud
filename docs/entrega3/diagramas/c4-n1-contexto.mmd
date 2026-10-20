@@ -1,0 +1,17 @@
+flowchart TB
+    classDef pessoa fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef sistema fill:#b03a2e,stroke:#7a281e,color:#ffffff
+    classDef externo fill:#7f8c8d,stroke:#5d6a7b,color:#ffffff
+
+    Calouro["<b>Calouro (mentorado)</b><br/>Busca mentores, solicita<br/>e avalia sessões"]:::pessoa
+    Veterano["<b>Veterano (mentor)</b><br/>Define disponibilidade,<br/>aceita ou recusa sessões"]:::pessoa
+    Coord["<b>Coordenação</b><br/>Acompanha uso da plataforma"]:::pessoa
+
+    Plataforma(("<b>Veterano.</b><br/>[Software System]<br/>Conecta calouros a veteranos<br/>para sessões de mentoria")):::sistema
+
+    Email["<b>Sistema de e-mail</b><br/>[Software System]<br/>Avisos best effort"]:::externo
+
+    Calouro -->|"busca, solicita, avalia [HTTPS]"| Plataforma
+    Veterano -->|"publica horários, aceita/recusa [HTTPS]"| Plataforma
+    Coord -->|"consulta métricas [HTTPS]"| Plataforma
+    Plataforma -->|"envia notificações [HTTPS/API]"| Email

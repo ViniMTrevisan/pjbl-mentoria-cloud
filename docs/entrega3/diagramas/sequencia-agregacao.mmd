@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    participant U as Calouro (shell)
+    participant K as Kong
+    participant B as BFF
+    participant M as Mentores
+    participant S as Sessões
+    participant F as Function
+
+    U->>K: GET /api/aggregated-data?usuarioId=u1
+    K->>K: CORS, rate limit, X-Gateway
+    K->>B: GET /aggregated-data
+    par Agregação em paralelo
+        B->>M: GET /mentores
+        M-->>B: 200 {itens, notas}
+    and
+        B->>S: GET /sessoes?usuarioId=u1
+        S-->>B: 200 {itens}
+    end
+    B->>F: POST /api/reputacao (lote por mentor)
+    F-->>B: 200 {media, total, selo}
+    B-->>K: 200 JSON agregado (parcial=false)
+    K-->>U: 200 JSON agregado
+    Note over B,F: Se uma dependência falhar em 3 s,<br/>o BFF devolve parcial=true + falhas[]

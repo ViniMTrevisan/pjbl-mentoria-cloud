@@ -1,0 +1,27 @@
+flowchart LR
+    classDef prod fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef ev fill:#d9f24a,stroke:#16233a,color:#16233a
+    classDef sink fill:#e8f5e9,stroke:#3d7a45,color:#16233a
+    classDef target fill:#f6f8fb,stroke:#9aa7bd,color:#16233a
+
+    subgraph Local["Implementação local (demo)"]
+        direction TB
+        S["<b>Serviço de Sessões</b><br/>transação: SESSAO + OUTBOX"]:::prod
+        R["<b>OutboxRelay</b><br/>a cada 2 s, marca publicadoEm"]:::prod
+        E1["SessaoSolicitada<br/>SessaoAceita · Recusada<br/>Cancelada · Concluida"]:::ev
+        F["<b>Azure Function</b><br/>POST /api/eventos<br/>idempotente por id"]:::sink
+    end
+
+    subgraph Alvo["Alvo Azure"]
+        direction TB
+        SB["<b>Service Bus</b><br/>tópico veterano.eventos"]:::target
+        N["Notificações<br/>in-app + e-mail"]:::target
+        M["Mentores<br/>projeção de reputação"]:::target
+    end
+
+    S --> E1
+    E1 --> R
+    R -->|"POST"| F
+    E1 -.->|"em nuvem"| SB
+    SB -.-> N
+    SB -.-> M
