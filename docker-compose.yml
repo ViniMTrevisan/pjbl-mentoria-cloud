@@ -1,0 +1,254 @@
+services:
+  # ---------------------------------------------------------------- dados ---
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Dev!Passw0rd2026}
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/1433' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    restart: unless-stopped
+    command:
+      [
+        "azurite",
+        "--blobHost",
+        "0.0.0.0",
+        "--queueHost",
+        "0.0.0.0",
+        "--tableHost",
+        "0.0.0.0",
+        "--location",
+        "/data",
+      ]
+    volumes:
+      - azurite-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('net').connect(10000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # ------------------------------------------------------------ serviços ---
+  mentores-service:
+    build:
+      context: ./mentores-service
+    restart: unless-stopped
+    environment:
+      PORT: "4001"
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: pjbl_mentoria
+      SEED_ON_START: "true"
+      CORS_ORIGIN: "*"
+    ports:
+      - "4001:4001"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  sessoes-service:
+    build:
+      context: ./sessoes-service
+    restart: unless-stopped
+    environment:
+      PORT: "4002"
+      SQL_SERVER: sql
+      SQL_PORT: "1433"
+      SQL_DATABASE: pjbl_mentoria
+      SQL_USER: sa
+      SQL_PASSWORD: ${MSSQL_SA_PASSWORD:-Dev!Passw0rd2026}
+      SEED_ON_START: "true"
+      EVENT_SINK_URL: http://azure-function:80
+      CORS_ORIGIN: "*"
+    ports:
+      - "4002:4002"
+    depends_on:
+      sql:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4002/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  azure-function:
+    build:
+      context: ./azure-function
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      FUNCTIONS_WORKER_RUNTIME: node
+      AzureWebJobsStorage: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+      WEBSITE_TIME_ZONE: America/Sao_Paulo
+    ports:
+      - "7071:80"
+    depends_on:
+      azurite:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  bff:
+    build:
+      context: ./bff
+    restart: unless-stopped
+    environment:
+      PORT: "4000"
+      MENTORES_URL: http://mentores-service:4001
+      SESSOES_URL: http://sessoes-service:4002
+      FUNCTION_URL: http://azure-function:80
+      HTTP_TIMEOUT_MS: "3000"
+      CORS_ORIGIN: "*"
+    ports:
+      - "4000:4000"
+    depends_on:
+      mentores-service:
+        condition: service_healthy
+      sessoes-service:
+        condition: service_healthy
+      azure-function:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # -------------------------------------------------------------- borda ----
+  kong:
+    image: kong:3.7
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_LOG_LEVEL: notice
+    ports:
+      - "8080:8000"
+      - "8001:8001"
+    volumes:
+      - ./gateway/kong.yml:/kong/declarative/kong.yml:ro
+    depends_on:
+      bff:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  # ------------------------------------------------- microfrontends --------
+  mfe-descoberta:
+    build:
+      context: ./microfrontend/mfe-descoberta
+      args:
+        VITE_GATEWAY_URL: http://localhost:8080/api
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+
+  mfe-agenda:
+    build:
+      context: ./microfrontend/mfe-agenda
+      args:
+        VITE_GATEWAY_URL: http://localhost:8080/api
+    restart: unless-stopped
+    ports:
+      - "3002:80"
+
+  shell:
+    build:
+      context: ./microfrontend/shell
+      args:
+        VITE_GATEWAY_URL: http://localhost:8080/api
+        VITE_MFE_DESCOBERTA_URL: http://localhost:3001/assets/remoteEntry.js
+        VITE_MFE_AGENDA_URL: http://localhost:3002/assets/remoteEntry.js
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - mfe-descoberta
+      - mfe-agenda
+
+volumes:
+  mongo-data:
+  sql-data:
+  azurite-data:

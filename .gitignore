@@ -1,8 +1,25 @@
+# Dependências e artefatos de build
 node_modules/
 dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+local.settings.json
+azure-recursos.env
+
+# Pacotes e temporários
 *.zip
 .DS_Store
-.env
-.env.local
-api/local.settings.json
-azure-recursos.env
+*.log
+.tmp/
+.azure/
+__pycache__/
+
+# Ferramentas
+.vscode/
+.idea/

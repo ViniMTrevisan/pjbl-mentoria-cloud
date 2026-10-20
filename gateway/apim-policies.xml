@@ -1,0 +1,52 @@
+<policies>
+  <!-- Esboço das políticas do Azure API Management equivalentes ao Kong local.
+       Em nuvem a identidade vem do Entra External ID; localmente é o header X-Usuario-Id. -->
+  <inbound>
+    <base />
+    <cors allow-credentials="false">
+      <allowed-origins>
+        <origin>https://shell.veterano.app</origin>
+        <origin>https://mfe-descoberta.veterano.app</origin>
+        <origin>https://mfe-agenda.veterano.app</origin>
+        <origin>http://localhost:3000</origin>
+      </allowed-origins>
+      <allowed-methods>
+        <method>GET</method>
+        <method>POST</method>
+        <method>PUT</method>
+        <method>PATCH</method>
+        <method>DELETE</method>
+        <method>OPTIONS</method>
+      </allowed-methods>
+      <allowed-headers>
+        <header>Authorization</header>
+        <header>Content-Type</header>
+        <header>X-Usuario-Id</header>
+      </allowed-headers>
+    </cors>
+    <validate-jwt header-name="Authorization" failed-validation-httpcode="401"
+                  require-scheme="Bearer" output-token-variable-name="jwt">
+      <openid-config url="https://login.microsoftonline.com/{tenant}/v2.0/.well-known/openid-configuration" />
+      <audiences>
+        <audience>api://veterano</audience>
+      </audiences>
+    </validate-jwt>
+    <set-header name="X-Usuario-Id" exists-action="override">
+      <value>@(((Jwt)context.Variables["jwt"]).Claims["sub"].First())</value>
+    </set-header>
+    <rate-limit-by-key calls="120" renewal-period="60"
+                       counter-key="@(context.Request.Headers.GetValueOrDefault("X-Usuario-Id","ip"))" />
+    <set-header name="X-Gateway" exists-action="override">
+      <value>apim</value>
+    </set-header>
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>

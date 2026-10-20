@@ -1,0 +1,16 @@
+{
+  "name": "veterano-pjbl",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Veterano. — plataforma de mentoria entre calouros e veteranos. Entrega 3: microfrontends, BFF, microsserviços, Azure Function e API Gateway.",
+  "scripts": {
+    "install:all": "npm --prefix mentores-service install && npm --prefix sessoes-service install && npm --prefix bff install && npm --prefix azure-function install && npm --prefix microfrontend/shell install && npm --prefix microfrontend/mfe-descoberta install && npm --prefix microfrontend/mfe-agenda install",
+    "build:all": "npm --prefix mentores-service run build && npm --prefix sessoes-service run build && npm --prefix bff run build && npm --prefix azure-function run build && npm --prefix microfrontend/mfe-descoberta run build && npm --prefix microfrontend/mfe-agenda run build && npm --prefix microfrontend/shell run build",
+    "test:all": "npm --prefix mentores-service test && npm --prefix sessoes-service test && npm --prefix bff test && npm --prefix azure-function test && npm --prefix microfrontend/shell test",
+    "up": "docker compose up --build -d",
+    "down": "docker compose down",
+    "logs": "docker compose logs -f --tail=100",
+    "smoke": "bash scripts/smoke.sh",
+    "publish:dockerhub": "bash scripts/publish-dockerhub.sh"
+  }
+}
