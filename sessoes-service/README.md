@@ -143,7 +143,7 @@ Com `SEED_ON_START=true` e a tabela vazia, insere 4 sessões: `SOLICITADA` (u1/u
 | `SQL_PASSWORD` | — | Senha (obrigatória quando `SQL_SERVER` existe) |
 | `SQL_ENCRYPT` | `false` | TLS; SQL Server 2022 local aceita `false` |
 | `PORT` | `4002` | Porta HTTP |
-| `EVENT_SINK_URL` | `http://azure-function:7071` | Base do sink de eventos |
+| `EVENT_SINK_URL` | `http://azure-function:80` no compose / `http://localhost:7071` fora | Base do sink de eventos |
 | `SEED_ON_START` | `true` | Popula a tabela vazia no boot |
 | `CORS_ORIGIN` | `*` | Origem(ens) permitida(s) |
 

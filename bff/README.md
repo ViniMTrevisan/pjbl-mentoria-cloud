@@ -73,7 +73,7 @@ npm start
 | `PORT` | `4000` | Porta do BFF |
 | `MENTORES_URL` | `http://mentores-service:4001` | Serviço de Mentores |
 | `SESSOES_URL` | `http://sessoes-service:4002` | Serviço de Sessões |
-| `FUNCTION_URL` | `http://azure-function:7071` | Azure Function |
+| `FUNCTION_URL` | `http://azure-function:80` no compose / `http://localhost:7071` fora | Azure Function |
 | `CORS_ORIGIN` | `*` | Origem(ens) permitida(s), separadas por vírgula |
 | `HTTP_TIMEOUT_MS` | `3000` | Orçamento por dependência |
 | `HEALTH_TIMEOUT_MS` | `1000` | Orçamento do `/health` |
