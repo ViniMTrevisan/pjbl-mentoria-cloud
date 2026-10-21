@@ -1,11 +1,39 @@
 # Deploy Azure — roteiro da Entrega 3
 
-Este roteiro publica a mesma arquitetura do `docker compose` em recursos Azure. Ele **não foi
-executado** nesta entrega (depende da assinatura e das credenciais do grupo); é o caminho
-reproduzível para gerar as URLs públicas exigidas no vídeo.
+**Status: executado em 20/10/2026** na assinatura *Azure for Students* (região `centralus`),
+resource group `rg-veterano-entrega3`.
 
-Pré-requisitos: Azure CLI logado (`az login`), Docker logado no Docker Hub
-(`docker login`), MongoDB Atlas M0 criado e `gh` autenticado.
+| Recurso | Nome | URL |
+|---|---|---|
+| Shell | `swa-veterano-shell-ce3bfe` | https://proud-sky-03f0d2710.6.azurestaticapps.net |
+| MFE Descoberta | `swa-veterano-descoberta-ce3bfe` | https://jolly-mushroom-0ab769910.1.azurestaticapps.net |
+| MFE Agenda | `swa-veterano-agenda-ce3bfe` | https://ashy-pond-00cc75510.3.azurestaticapps.net |
+| API Gateway (Kong) | `kong` (Container App) | https://kong.whiterock-0aaa2038.centralus.azurecontainerapps.io/api |
+| BFF | `bff` (Container App) | https://bff.whiterock-0aaa2038.centralus.azurecontainerapps.io |
+| Mentores | `mentores-service` (Container App) | https://mentores-service.whiterock-0aaa2038.centralus.azurecontainerapps.io |
+| Sessões | `sessoes-service` (Container App) | https://sessoes-service.whiterock-0aaa2038.centralus.azurecontainerapps.io |
+| Function | `func-veterano-ce3bfe` | https://func-veterano-ce3bfe.azurewebsites.net |
+| MongoDB gerenciado | `cosmos-veterano-ce3bfe` (Mongo API 3.6, free tier) | — |
+| Azure SQL | `sql-veterano-ce3bfe/pjbl_mentoria` (Basic) | — |
+| Registry | `acrveteranoce3bfe.azurecr.io` (Basic) | — |
+
+Desvios conscientes em relação ao roteiro original:
+
+1. **Kong em Container App em vez de APIM Consumption**: o APIM exigiria e-mail de publisher e
+   provisionamento lento; o Kong mantém o mesmo contrato (`/api`, CORS, rate limit) e já roda
+   localmente. As políticas equivalentes de APIM seguem em `gateway/apim-policies.xml`.
+2. **Serviços com ingress externo**: o ambiente Container Apps criado é do tipo *express*, que
+   não resolve nome curto entre apps (`name resolution failed`). BFF e Kong consomem as URLs
+   públicas dos serviços; está registrado como dívida de segurança.
+3. **Cosmos DB Mongo API 3.6** em vez de Atlas M0: a conta só aceita `serverVersion 3.6`, então o
+   Serviço de Mentores fixou o driver `mongodb` em 4.17 (compatível com wire version 6). O
+   compose local continua com MongoDB 7 e driver novo via `npm` (o lockfile é o mesmo do build
+   local; em nuvem vale a versão publicada).
+4. **Azure SQL Basic** em vez de serverless: mais estável no crédito de estudante.
+
+## Reprodução (do zero)
+
+Pré-requisitos: Azure CLI logado (`az login`), Docker logado no ACR (`az acr login`), `swa` CLI.
 
 ```bash
 RG=rg-veterano-entrega3
@@ -97,34 +125,53 @@ VITE_MFE_AGENDA_URL=https://<swa-mfe-agenda>.azurestaticapps.net/assets/remoteEn
 swa deploy microfrontend/shell/dist --deployment-token <token> --env production
 ```
 
-Repita para os dois remotes, apontando `VITE_GATEWAY_URL` para o APIM.
+Repita para os dois remotes, apontando `VITE_GATEWAY_URL` para o gateway.
 
-## 6. API Gateway (APIM Consumption)
-
-```bash
-az apim create -n apim-veterano -g $RG -l $LOC --sku-name Consumption \
-  --publisher-email aluno@pucpr.br --publisher-name Veterano
-```
-
-Importe a API do BFF pelo OpenAPI (`http://<bff>/openapi.json`), aplique
-`gateway/apim-policies.xml` e configure a origem CORS para os três Static Web Apps.
-Enquanto a identidade real não entra, mantenha o header `X-Usuario-Id` liberado no CORS.
-
-## 7. MongoDB Atlas
-
-1. Criar cluster M0 (free) na região mais próxima.
-2. Criar usuário de banco e liberar acesso de rede dos Container Apps (ou `0.0.0.0/0` na demo).
-3. Guardar a connection string em `MONGODB_URI` e rodar o seed:
+## 6. API Gateway (Kong em Container App)
 
 ```bash
-MONGODB_URI="mongodb+srv://..." MONGODB_DB=pjbl_mentoria npm --prefix mentores-service run seed
+# build da imagem com gateway/kong.cloud.yml (upstream = BFF público)
+az acr build -r acrveteranoce3bfe -t veterano-kong:v1 gateway
+
+az containerapp create -n kong -g $RG --environment cae-veterano \
+  --image acrveteranoce3bfe.azurecr.io/veterano-kong:v1 \
+  --target-port 8000 --ingress external \
+  --registry-server acrveteranoce3bfe.azurecr.io \
+  --registry-username acrveteranoce3bfe --registry-password "$ACR_PASSWORD" \
+  --min-replicas 1 --max-replicas 1
 ```
+
+Alternativa APIM (não usada nesta execução): `az apim create --sku-name Consumption`, importar
+o OpenAPI do BFF e aplicar `gateway/apim-policies.xml`. O contrato público é o mesmo:
+`https://<gateway>/api/*`.
+
+## 7. MongoDB gerenciado (Cosmos DB Mongo API)
+
+A conta Atlas M0 não estava disponível para automação; usamos Cosmos DB com API Mongo, free
+tier:
+
+```bash
+az provider register -n Microsoft.DocumentDB --wait
+az cosmosdb create -n cosmos-veterano-ce3bfe -g $RG --kind MongoDB \
+  --capabilities EnableMongo --enable-free-tier true \
+  --locations regionName=$LOC failoverPriority=0 --default-consistency-level Session
+
+URI=$(az cosmosdb keys list -n cosmos-veterano-ce3bfe -g $RG \
+  --type connection-strings --query 'connectionStrings[0].connectionString' -o tsv)
+```
+
+A conta expõe `serverVersion 3.6` (wire version 6), por isso `mentores-service` usa
+`mongodb@4.17.2`. O seed roda automaticamente no primeiro boot (`SEED_ON_START=true`) contra o
+banco `pjbl_mentoria`.
+
+Para usar Atlas em vez disso, crie o cluster M0, rode `npm --prefix mentores-service run seed`
+com `MONGODB_URI` e atualize o segredo `cosmos-uri` do Container App.
 
 ## 8. Checklist do vídeo
 
-- [ ] shell público abrindo com os dois remotes
-- [ ] busca, solicitação, aceite, conclusão e avaliação funcionando
-- [ ] `/api/aggregated-data` respondendo pelo APIM
-- [ ] Swagger do BFF e dos dois serviços acessíveis
-- [ ] Admin do APIM ou portal mostrando as políticas
-- [ ] reputação atualizada no card do mentor
+- [x] shell público abrindo com os dois remotes
+- [x] busca, solicitação, aceite, conclusão e avaliação funcionando
+- [x] `/api/aggregated-data` respondendo pelo Kong
+- [x] Swagger do BFF e dos dois serviços acessíveis
+- [x] gateway público mostrando rate limit e CORS
+- [x] reputação atualizada no card do mentor

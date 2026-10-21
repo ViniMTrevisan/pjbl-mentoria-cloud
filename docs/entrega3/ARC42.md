@@ -254,17 +254,32 @@ BFF enriquece a lista em uma chamada por mentor.
 
 Publicação: `DOCKERHUB_USER=vinitrevisan npm run publish:dockerhub`.
 
-## 7.3 Mapeamento para Azure (alvo)
+## 7.3 Implantação publicada (Azure)
 
-| Local | Azure |
+Executada em 20/10/2026, resource group `rg-veterano-entrega3`, região `centralus`.
+
+| Local | Azure publicado |
 |---|---|
-| shell + remotes (nginx) | 3 Static Web Apps |
-| Kong | API Management Consumption com `validate-jwt`, `rate-limit-by-key`, `cors` |
-| BFF e serviços | Container Apps (imagens do Docker Hub) |
-| Azure Function | Function App Flex Consumption |
-| MongoDB | MongoDB Atlas M0 |
-| SQL Server 2022 | Azure SQL Database serverless |
-| outbox → Function | Service Bus Standard, tópico `veterano.eventos` |
+| shell + remotes (nginx) | 3 Static Web Apps (Free) |
+| Kong | Container App `kong` com `gateway/kong.cloud.yml` (APIM documentado como alternativa) |
+| BFF e serviços | 4 Container Apps (BFF, Mentores, Sessões, Kong) com imagens no ACR |
+| Azure Function | Function App Linux Consumption, Node 22 |
+| MongoDB | Cosmos DB Mongo API (free tier) |
+| SQL Server 2022 | Azure SQL Database Basic |
+| outbox → Function | HTTP direto; Service Bus é o alvo de produção |
+
+| URL | O quê |
+|---|---|
+| https://proud-sky-03f0d2710.6.azurestaticapps.net | shell |
+| https://jolly-mushroom-0ab769910.1.azurestaticapps.net | MFE Descoberta |
+| https://ashy-pond-00cc75510.3.azurestaticapps.net | MFE Agenda |
+| https://kong.whiterock-0aaa2038.centralus.azurecontainerapps.io/api | gateway |
+| https://bff.whiterock-0aaa2038.centralus.azurecontainerapps.io/docs | Swagger do BFF |
+| https://func-veterano-ce3bfe.azurewebsites.net/api/health | Function |
+
+Desvios registrados: o ambiente Container Apps é *express* e não resolve nome curto entre
+apps; por isso os serviços têm ingress externo e o BFF usa as URLs públicas. O Cosmos Mongo
+expõe wire version 6, então o driver do Serviço de Mentores foi fixado em `mongodb@4.17.2`.
 
 # 8. Conceitos transversais
 
@@ -284,12 +299,17 @@ Bus com `sessionId = sessaoId` para preservar a ordem dos eventos da mesma sess�
 | Azure SQL | `SESSAO`, `OUTBOX_EVENTO` | status + `rowversion`; outbox na mesma transação |
 | Function | buffer em memória | apenas demonstração; alvo é Service Bus + Table Storage |
 
+No ambiente publicado o MongoDB é o Cosmos DB Mongo API (wire version 6), o que exige o driver
+`mongodb@4.17.2`; localmente roda MongoDB 7. O schema SQL é criado no boot com retry e o
+`CREATE DATABASE` só acontece quando o catálogo ainda não existe.
+
 Referências entre serviços são identificadores, nunca chaves estrangeiras.
 
 ## 8.3 Segurança
 
 - Gateway é a única porta de entrada do navegador.
-- Serviços internos não são expostos ao navegador no desenho alvo (apenas o BFF os alcança).
+- Serviços internos deveriam ser fechados; no ambiente Azure atual eles têm ingress externo por
+  limitação do ambiente *express* (dívida registrada na seção 11).
 - Header `X-Usuario-Id` simula identidade; **não é autenticação** e está registrado como dívida.
 - Segredos em `.env`, fora do repositório; `.env.example` versionado.
 - Erros 500 não devolvem mensagem do driver nem stack.
@@ -378,6 +398,8 @@ consumidor precisa ser idempotente.
 | Sink de eventos em memória | eventos não sobrevivem a restart | outbox garante reenvio; alvo é Service Bus |
 | Sem e-mail real (RF8) | notificação apenas registrada | Interface de e-mail prevista; alvo ACS |
 | Cold start em cadeia | primeira requisição lenta em nuvem | imagens leves e, no alvo, instância mínima no BFF |
+| Ambiente Container Apps *express* sem DNS curto | BFF e Kong não resolvem `mentores-service`; serviços ficaram públicos | usar ambiente com workload profiles/VNet ou ingress interno com FQDN; registrar no vídeo |
+| Cosmos DB Mongo API 3.6 | driver moderno incompatível | driver `mongodb@4.17.2`; Atlas M0 no alvo |
 | Banco SQL em emulador | diferenças em relação ao Azure SQL | T-SQL padrão e migração por DDL simples |
 | Duplicação do cliente HTTP nos MFEs | manutenção em três lugares | pacote compartilhado é evolução prevista |
 | Sem CI/CD nesta entrega | publicação manual | scripts `publish:dockerhub` e `smoke` versionados |
@@ -411,6 +433,8 @@ consumidor precisa ser idempotente.
 | API Gateway (configuração) | https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/tree/entrega-3-microservices/gateway |
 | Docker Hub | https://hub.docker.com/u/vinitrevisan |
 | Vídeo no YouTube | https://youtu.be/SUBSTITUIR-PELO-ID-DO-VIDEO |
+| Ambiente Azure (shell) | https://proud-sky-03f0d2710.6.azurestaticapps.net |
+| API Gateway público | https://kong.whiterock-0aaa2038.centralus.azurecontainerapps.io/api/aggregated-data?usuarioId=u1 |
 
 # Anexo B — Swagger e endpoints
 
@@ -468,6 +492,14 @@ Capturas feitas na aplicação real em Docker, em 20/10/2026.
 ### C.5 API Gateway e Azure Function
 
 ![Kong em execução, rota `/api`, rate limit e health atravessando o gateway; cálculo de reputação da Function.](prints/07-gateway-e-function.png){width=100%}
+
+### C.6 Ambiente publicado na Azure
+
+![Dashboard no shell público, consumindo o gateway na Azure.](prints/09-azure-dashboard.png){width=100%}
+
+![MFE Descoberta carregado de outro Static Web App.](prints/09b-azure-descoberta.png){width=100%}
+
+![MFE Agenda com sessões reais vindas do Azure SQL.](prints/09c-azure-agenda.png){width=100%}
 
 # Anexo D — Como rodar e testar
 

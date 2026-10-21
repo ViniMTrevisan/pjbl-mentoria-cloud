@@ -19,7 +19,26 @@ mock hospedada em **Azure Functions**.
 
 ## Entrega 3 — arquitetura distribuída
 
-Branch [`entrega-3-microservices`](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/tree/entrega-3-microservices).
+Branch [`entrega-3-microservices`](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/tree/entrega-3-microservices)
+(também já integrada na `main`).
+
+### Ambiente publicado na Azure
+
+| O quê | URL |
+|---|---|
+| Shell (microfrontend) | https://proud-sky-03f0d2710.6.azurestaticapps.net |
+| MFE Descoberta | https://jolly-mushroom-0ab769910.1.azurestaticapps.net |
+| MFE Agenda | https://ashy-pond-00cc75510.3.azurestaticapps.net |
+| API Gateway (Kong) | https://kong.whiterock-0aaa2038.centralus.azurecontainerapps.io/api |
+| BFF + Swagger | https://bff.whiterock-0aaa2038.centralus.azurecontainerapps.io/docs |
+| Swagger Mentores | https://mentores-service.whiterock-0aaa2038.centralus.azurecontainerapps.io/docs |
+| Swagger Sessões | https://sessoes-service.whiterock-0aaa2038.centralus.azurecontainerapps.io/docs |
+| Azure Function | https://func-veterano-ce3bfe.azurewebsites.net/api/health |
+
+Resource group `rg-veterano-entrega3` (`centralus`): Container Apps (BFF, 2 serviços, Kong),
+Azure SQL Basic, Cosmos DB Mongo API (free tier), Function App e 3 Static Web Apps.
+Detalhes e desvios em [`docs/entrega3/DEPLOY-AZURE.md`](docs/entrega3/DEPLOY-AZURE.md).
+
 
 A entrega 3 substitui o front + Functions únicos por uma arquitetura distribuída completa,
 executável com um `docker compose up`:

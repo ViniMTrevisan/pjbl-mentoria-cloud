@@ -14,8 +14,8 @@ export function mssqlConfig(config: SqlRepositoryConfig): sql.config {
       enableArithAbort: true,
     },
     pool: { max: 10, min: 0, idleTimeoutMillis: 30_000 },
-    connectionTimeout: 5_000,
-    requestTimeout: 10_000,
+    connectionTimeout: 15_000,
+    requestTimeout: 60_000,
   };
 }
 
@@ -24,24 +24,39 @@ function esperar(ms: number): Promise<void> {
 }
 
 /**
- * O login falha se o catálogo inicial ainda não existe, então conectamos ao
- * master e criamos o banco antes de abrir o pool da aplicação.
+ * Azure SQL recusa o login quando o catálogo inicial não existe. Primeiro
+ * tentamos abrir o banco alvo; só se ele não existir conectamos ao master para
+ * criá-lo. Evita repetir `CREATE DATABASE` (operação lenta) em todo boot.
  */
 export async function garantirBanco(config: SqlRepositoryConfig): Promise<void> {
+  const alvo = mssqlConfig(config);
+  try {
+    const teste = await new sql.ConnectionPool({ ...alvo, connectionTimeout: 15_000 }).connect();
+    await teste.close();
+    return;
+  } catch {
+    // banco ainda não existe (ou login sem catálogo): cai no caminho de criação
+  }
+
   if (!/^[A-Za-z0-9_]+$/.test(config.database)) {
     throw new Error(`Nome de banco invalido: ${config.database}`);
   }
-  const pool = await conectarComRetry(
+
+  const master = await conectarComRetry(
     mssqlConfig({ ...config, database: 'master' }),
-    10,
+    5,
     2_000,
   );
   try {
-    await pool
+    const existente = await master
       .request()
-      .query(`IF DB_ID(N'${config.database}') IS NULL CREATE DATABASE [${config.database}]`);
+      .input('nome', sql.NVarChar(128), config.database)
+      .query('SELECT database_id FROM sys.databases WHERE name = @nome');
+    if (existente.recordset.length === 0) {
+      await master.request().query(`CREATE DATABASE [${config.database}]`);
+    }
   } finally {
-    await pool.close();
+    await master.close();
   }
 }
 

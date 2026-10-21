@@ -40,14 +40,15 @@ Conferência item a item contra o enunciado do PJBL.
 | Print frontend | `prints/01` a `03b` |
 | Print API Gateway | `prints/07-gateway-e-function.png` |
 | Print Function | incluído em `prints/07-gateway-e-function.png` |
+| Print Azure | `prints/09-azure-dashboard.png` a `09c-azure-agenda.png` |
 
 ## Pendências que dependem de credenciais do grupo
 
 | Pendência | Comando / onde |
 |---|---|
 | Push das imagens | `DOCKERHUB_USER=... npm run publish:dockerhub` |
-| Deploy Azure (URLs públicas do vídeo) | `docs/entrega3/DEPLOY-AZURE.md` |
-| Gravação do vídeo e link no ARC42 | Anexo A, substituir `SUBSTITUIR-PELO-ID-DO-VIDEO` |
+| ~~Deploy Azure~~ **feito** em `rg-veterano-entrega3` | URLs em `README.md` e `docs/entrega3/DEPLOY-AZURE.md` |
+| Gravação do vídeo e link no ARC42 | Anexo A, substituir `SUBSTITUIR-PELO-ID-DO-VIDEO` (ambiente Azure já no ar) |
 | Repositórios separados (opcional) | o monorepo mantém um diretório por projeto; separar em 5 repos é apenas `git subtree split` |
 
 ## Comandos de verificação
