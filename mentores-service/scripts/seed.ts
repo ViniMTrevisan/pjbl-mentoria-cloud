@@ -1,6 +1,6 @@
-import { loadConfig } from '../src/config';
-import { MongoMentorRepository } from '../src/infrastructure/mongo/MongoMentorRepository';
-import { clonarMentoresSeed } from '../src/infrastructure/seed/mentoresSeed';
+import { loadConfig } from '../src/shared/config';
+import { MongoMentorRepository } from '../src/features/mentores/infrastructure/MongoMentorRepository';
+import { clonarMentoresSeed } from '../src/features/mentores/infrastructure/mentoresSeed';
 
 /** Seed idempotente: upsert por id (usa o mesmo conteudo do seed automatico). */
 async function main(): Promise<void> {

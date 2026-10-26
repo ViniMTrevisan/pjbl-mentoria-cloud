@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { Sessao } from '../src/domain/sessao';
-import { DomainError } from '../src/domain/errors';
-import { changeStatus } from '../src/features/changeStatus';
-import { createSessao } from '../src/features/createSessao';
-import { getSessao } from '../src/features/getSessao';
-import { listSessoes } from '../src/features/listSessoes';
-import { relayOutbox } from '../src/features/relayOutbox';
-import { InMemorySessaoRepository } from '../src/infrastructure/memory/InMemorySessaoRepository';
-import type { SessaoRepository } from '../src/ports/SessaoRepository';
+import type { Sessao } from '../src/features/sessoes/domain/sessao';
+import { DomainError } from '../src/features/sessoes/domain/errors';
+import { changeStatus } from '../src/features/sessoes/application/changeStatus';
+import { createSessao } from '../src/features/sessoes/application/createSessao';
+import { getSessao } from '../src/features/sessoes/application/getSessao';
+import { listSessoes } from '../src/features/sessoes/application/listSessoes';
+import { relayOutbox } from '../src/features/outbox/application/relayOutbox';
+import { InMemorySessaoRepository } from '../src/features/sessoes/infrastructure/InMemorySessaoRepository';
+import type { SessaoRepository } from '../src/features/sessoes/application/SessaoRepository';
 
 const AGORA = '2026-10-20T12:00:00.000Z';
 const FUTURO = '2026-10-22T17:00:00.000Z';

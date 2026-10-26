@@ -81,29 +81,41 @@ npm start
 ## Testes
 
 ```bash
-npm test        # vitest + dependency-cruiser
+npm test        # vitest (agregação e arquitetura)
 npm run test:watch
-npm run arch    # só as regras de arquitetura
+npm run test:arch  # só as regras de arquitetura (ArchUnitTS)
 ```
 
 Casos cobertos em `test/getAggregatedData.test.ts`: caminho feliz, falha parcial do serviço de
 sessões, listas vazias, timeout, Function de reputação fora, mentores fora, sink de eventos fora,
 limite de concorrência e corte de data do agrupamento.
 
-`dependency-cruiser` falha o build se `domain/` ou `application/` importarem Express ou
-infraestrutura.
+O ArchUnitTS (`test/architecture.test.ts`) falha o build se `domain/` ou `application/`
+importarem Express ou infraestrutura, ou se um slice invadir as camadas internas de outro.
 
 ## Estrutura
 
 ```
 src/
-  domain/types.ts              DTOs do contrato, sem lógica
-  application/ports/           portas de saída (Mentores, Sessões, Reputação)
-  application/use-cases/       getAggregatedData (agregação e degradação)
-  infrastructure/clients/      HTTP com fetch, timeout e X-Usuario-Id
-  infrastructure/config.ts     env validado com Zod
-  http/                        rotas, proxy, erros, OpenAPI, composição
-  server.ts                    bootstrap e shutdown
+  features/                        vertical slices (um por recurso exposto)
+    agregacao/                     slice com domínio e caso de uso de verdade
+      domain/agregado.ts           DTOs do agregado, sem lógica
+      application/ports/           portas de saída (Mentores, Sessões, Reputação)
+      application/getAggregatedData.ts
+      infrastructure/              clients HTTP das três dependências
+      presentation/agregacaoRoutes.ts
+    mentores/presentation/         proxy do contrato de mentores
+    sessoes/presentation/          proxy do contrato de sessões
+    eventos/presentation/          proxy do sink de eventos
+    saude/presentation/            /health agregado das dependências
+  shared/
+    application/                   portas e contratos de I/O (ServicoRemoto)
+    http/                          proxy, erros, OpenAPI, identidade
+    infrastructure/                HttpClient + ServicoProxy
+    config.ts                      env validado com Zod
+    errors.ts                      ErroDependencia
+  app.ts                           composition root (adaptadores + rotas)
+  server.ts                        bootstrap e shutdown
 ```
 
 ## Docker

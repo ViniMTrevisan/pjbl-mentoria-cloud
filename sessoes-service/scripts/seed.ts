@@ -1,6 +1,6 @@
-import { loadConfig } from '../src/config';
-import { SqlSessaoRepository } from '../src/infrastructure/sql/SqlSessaoRepository';
-import { clonarSessoesSeed } from '../src/infrastructure/seed/sessoesSeed';
+import { loadConfig } from '../src/shared/config';
+import { SqlSessaoRepository } from '../src/features/sessoes/infrastructure/SqlSessaoRepository';
+import { clonarSessoesSeed } from '../src/features/sessoes/infrastructure/sessoesSeed';
 
 /** Seed idempotente: insere apenas sessoes cujo id ainda nao existe. */
 async function main(): Promise<void> {

@@ -1,0 +1,16 @@
+
+> azure-function-reputacao@3.0.0 test
+> vitest run
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 /Users/vinitrevisan/Documents/pucpr/arq-cloud/pjbl-mentoria/azure-function
+
+ ✓ test/reputacao.test.ts (9 tests) 2ms
+ ✓ test/architecture.test.ts (12 tests) 254ms
+
+ Test Files  2 passed (2)
+      Tests  21 passed (21)
+   Start at  19:23:57
+   Duration  743ms (transform 35ms, setup 0ms, collect 244ms, tests 256ms, environment 0ms, prepare 141ms)
+

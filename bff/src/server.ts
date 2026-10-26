@@ -1,5 +1,5 @@
-import { carregarConfig } from './infrastructure/config';
-import { criarApp } from './http/app';
+import { carregarConfig } from './shared/config';
+import { criarApp } from './app';
 
 const config = carregarConfig();
 const app = criarApp(config);

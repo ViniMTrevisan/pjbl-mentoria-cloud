@@ -16,7 +16,7 @@ Conferência item a item contra o enunciado do PJBL.
 | Clean Architecture | domain/ports/features/infrastructure/http | testes `test:arch` |
 | Vertical Slice | uma fatia por caso de uso | `features/*.ts` |
 | Testes unitários | Vitest em domínio e casos de uso | `npm run test:all` |
-| Testes de arquitetura | dependency-cruiser | `test:arch` em cada serviço |
+| Testes de arquitetura | ArchUnitTS | `test:arch` em cada serviço |
 | README por projeto | README em cada pasta + raiz | `*/README.md` |
 
 ## Documentação

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { Mentor } from '../src/domain/mentor';
-import { DomainError } from '../src/domain/errors';
-import { validarMentor, filtrarMentores, toResumo } from '../src/domain/validation';
-import { novoMentor, aplicarAlteracoes, camposAlterados } from '../src/domain/mentorFactory';
-import { adicionarAvaliacao } from '../src/domain/avaliacoes';
+import type { Mentor } from '../src/features/mentores/domain/mentor';
+import { DomainError } from '../src/features/mentores/domain/errors';
+import { validarMentor, filtrarMentores, toResumo } from '../src/features/mentores/domain/validation';
+import { novoMentor, aplicarAlteracoes, camposAlterados } from '../src/features/mentores/domain/mentorFactory';
+import { adicionarAvaliacao } from '../src/features/avaliacoes/domain/avaliacoes';
 
 const AGORA = '2026-10-20T12:00:00.000Z';
 

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { DomainError } from '../src/domain/errors';
-import { addAvaliacao } from '../src/features/addAvaliacao';
-import { createMentor } from '../src/features/createMentor';
-import { deleteMentor } from '../src/features/deleteMentor';
-import { getMentor } from '../src/features/getMentor';
-import { listMentores } from '../src/features/listMentores';
-import { updateMentor } from '../src/features/updateMentor';
-import { InMemoryMentorRepository } from '../src/infrastructure/memory/InMemoryMentorRepository';
+import { DomainError } from '../src/features/mentores/domain/errors';
+import { addAvaliacao } from '../src/features/avaliacoes/application/addAvaliacao';
+import { createMentor } from '../src/features/mentores/application/createMentor';
+import { deleteMentor } from '../src/features/mentores/application/deleteMentor';
+import { getMentor } from '../src/features/mentores/application/getMentor';
+import { listMentores } from '../src/features/mentores/application/listMentores';
+import { updateMentor } from '../src/features/mentores/application/updateMentor';
+import { InMemoryMentorRepository } from '../src/features/mentores/infrastructure/InMemoryMentorRepository';
 
 const AGORA = '2026-10-20T12:00:00.000Z';
 

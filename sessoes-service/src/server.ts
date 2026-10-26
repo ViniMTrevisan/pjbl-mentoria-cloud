@@ -1,9 +1,9 @@
-import { loadConfig } from './config';
-import { createApp } from './http/app';
-import { relayOutbox } from './features/relayOutbox';
-import { InMemorySessaoRepository } from './infrastructure/memory/InMemorySessaoRepository';
-import { SqlSessaoRepository } from './infrastructure/sql/SqlSessaoRepository';
-import { clonarSessoesSeed } from './infrastructure/seed/sessoesSeed';
+import { loadConfig } from './shared/config';
+import { createApp } from './app';
+import { relayOutbox } from './features/outbox/application/relayOutbox';
+import { InMemorySessaoRepository } from './features/sessoes/infrastructure/InMemorySessaoRepository';
+import { SqlSessaoRepository } from './features/sessoes/infrastructure/SqlSessaoRepository';
+import { clonarSessoesSeed } from './features/sessoes/infrastructure/sessoesSeed';
 
 const INTERVALO_RELAY_MS = 2_000;
 

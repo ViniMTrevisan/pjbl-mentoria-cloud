@@ -1,0 +1,18 @@
+
+> sessoes-service@1.0.0 test
+> vitest run
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.8 /Users/vinitrevisan/Documents/pucpr/arq-cloud/pjbl-mentoria/sessoes-service
+
+ ✓ test/domain.test.ts (16 tests) 4ms
+ ✓ test/usecases.test.ts (11 tests) 13ms
+ ✓ test/architecture.test.ts (8 tests) 356ms
+   ✓ arquitetura: vertical slice + clean architecture > domain não depende de application, infrastructure nem presentation 351ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  19:23:54
+   Duration  992ms (transform 84ms, setup 0ms, collect 467ms, tests 373ms, environment 0ms, prepare 214ms)
+

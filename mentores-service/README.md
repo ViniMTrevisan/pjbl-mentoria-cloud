@@ -16,45 +16,50 @@ uso e a infraestrutura é escolhida no composition root (`src/server.ts`).
 ```text
 mentores-service/
 ├── src/
-│   ├── domain/                 # regras puras (sem imports externos)
-│   │   ├── mentor.ts           # tipos Mentor, MentorResumo, Area, Disponibilidade...
-│   │   ├── errors.ts           # DomainError (422/404/409) + helpers
-│   │   ├── validation.ts       # validarMentor, filtrarMentores, toResumo
-│   │   ├── mentorFactory.ts    # novoMentor, aplicarAlteracoes, camposAlterados
-│   │   ├── avaliacoes.ts       # adicionarAvaliacao (duplicidade = 409)
-│   │   └── texto.ts            # normalização de busca e geração de ids
-│   ├── ports/
-│   │   └── MentorRepository.ts # contrato de persistência
-│   ├── features/               # um caso de uso por arquivo (domain + ports)
-│   │   ├── createMentor.ts
-│   │   ├── listMentores.ts
-│   │   ├── getMentor.ts
-│   │   ├── updateMentor.ts
-│   │   ├── deleteMentor.ts
-│   │   └── addAvaliacao.ts
-│   ├── infrastructure/
-│   │   ├── mongo/MongoMentorRepository.ts
-│   │   ├── memory/InMemoryMentorRepository.ts
-│   │   └── seed/mentoresSeed.ts
-│   ├── http/
-│   │   ├── app.ts              # express + cors + swagger
-│   │   ├── openapi.ts          # contrato OpenAPI em TS
-│   │   ├── errorHandler.ts     # 400/404/409/422/500 sem vazar driver
-│   │   └── routes/mentoresRoutes.ts
-│   ├── config.ts               # leitura de env
-│   └── server.ts               # composition root (Mongo x memória)
-├── scripts/seed.ts             # seed idempotente (upsert por id)
-├── test/                       # vitest: domínio e casos de uso
-├── .dependency-cruiser.cjs     # regras de fronteira
-└── Dockerfile                  # multi-stage node:22-alpine, non-root
+│   ├── features/                    # vertical slices (uma capacidade por pasta)
+│   │   ├── mentores/                # fatia do agregado de mentores
+│   │   │   ├── domain/              # regras puras, sem imports externos
+│   │   │   │   ├── mentor.ts        # tipos Mentor, MentorResumo, Area...
+│   │   │   │   ├── errors.ts        # erros do slice (422/404/409)
+│   │   │   │   ├── validation.ts    # validarMentor, filtrarMentores, toResumo
+│   │   │   │   └── mentorFactory.ts # novoMentor, aplicarAlteracoes
+│   │   │   ├── application/         # casos de uso + porta de saída
+│   │   │   │   ├── MentorRepository.ts
+│   │   │   │   ├── createMentor.ts
+│   │   │   │   ├── listMentores.ts
+│   │   │   │   ├── getMentor.ts
+│   │   │   │   ├── updateMentor.ts
+│   │   │   │   └── deleteMentor.ts
+│   │   │   ├── infrastructure/      # adaptadores (Mongo, memória, seed)
+│   │   │   │   ├── MongoMentorRepository.ts
+│   │   │   │   ├── InMemoryMentorRepository.ts
+│   │   │   │   └── mentoresSeed.ts
+│   │   │   └── presentation/mentoresRoutes.ts
+│   │   └── avaliacoes/              # fatia de avaliação de mentor
+│   │       ├── domain/avaliacoes.ts # adicionarAvaliacao (duplicidade = 409)
+│   │       ├── application/addAvaliacao.ts
+│   │       └── presentation/avaliacoesRoutes.ts
+│   ├── shared/                      # kernel compartilhado (sem conhecer slices)
+│   │   ├── domain/DomainError.ts    # erro base do domínio
+│   │   ├── domain/texto.ts          # normalização de busca e ids
+│   │   ├── http/                    # errorHandler, openapi, /health
+│   │   └── config.ts                # leitura de env
+│   ├── app.ts                       # composition root (Express + slices)
+│   └── server.ts                    # bootstrap (Mongo x memória)
+├── scripts/seed.ts                  # seed idempotente (upsert por id)
+├── test/                            # vitest: domínio, casos de uso e arquitetura
+├── vitest.config.ts                 # globals (exigido pelo ArchUnitTS)
+└── Dockerfile                       # multi-stage node:22-alpine, non-root
 ```
 
-Regras verificadas por `depcruise`:
+Regras verificadas pelo ArchUnitTS (`test/architecture.test.ts`):
 
-- `domain` não importa nada fora de `domain`;
-- `features` não importa `infrastructure`, `http` nem drivers;
-- `ports` não importa `infrastructure`;
-- `infrastructure` não importa `http`.
+- `domain` não depende de `application`, `infrastructure` nem `presentation`;
+- `application` não depende de `infrastructure` nem de `presentation`;
+- `presentation` não depende de `infrastructure` (usa as portas da aplicação);
+- um slice não acessa `infrastructure`/`presentation` de outro slice;
+- `shared` não conhece nenhum slice e `domain` não importa frameworks;
+- não existem dependências circulares em `src`.
 
 ## Endpoints
 
@@ -130,8 +135,8 @@ MONGODB_URI="mongodb://localhost:27017" npm run seed
 ## Testes
 
 ```bash
-npm test         # vitest run + dependency-cruiser
-npm run test:arch
+npm test          # vitest run (domínio, casos de uso e arquitetura)
+npm run test:arch # só as regras de arquitetura (ArchUnitTS)
 ```
 
 Cobrem validação de domínio, criação/atualização, filtros, duplicidade de avaliação e os
