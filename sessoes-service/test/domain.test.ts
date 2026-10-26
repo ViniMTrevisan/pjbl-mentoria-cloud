@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { Sessao } from '../src/domain/sessao';
-import { DomainError } from '../src/domain/errors';
-import { aplicarAcao } from '../src/domain/stateMachine';
-import { eventoDeSessao, paraPendente } from '../src/domain/events';
+import type { Sessao } from '../src/features/sessoes/domain/sessao';
+import { DomainError } from '../src/features/sessoes/domain/errors';
+import { aplicarAcao } from '../src/features/sessoes/domain/stateMachine';
+import { eventoDeSessao, paraPendente } from '../src/features/sessoes/domain/events';
 import {
   normalizarFiltroStatus,
   parseStatus,
   validarCriacao,
-} from '../src/domain/validation';
+} from '../src/features/sessoes/domain/validation';
 
 const AGORA = '2026-10-20T12:00:00.000Z';
 const FUTURO = '2026-10-22T17:00:00.000Z';

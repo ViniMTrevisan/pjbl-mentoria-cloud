@@ -16,47 +16,52 @@ orquestram repositório e outbox, ambos atrás de portas.
 ```text
 sessoes-service/
 ├── src/
-│   ├── domain/                 # regras puras (sem imports externos)
-│   │   ├── sessao.ts           # Sessao, status, ações, eventos
-│   │   ├── errors.ts           # DomainError (422/403/404/409)
-│   │   ├── validation.ts       # validarCriacao, filtros de status
-│   │   ├── stateMachine.ts     # aceitar/recusar/cancelar/concluir
-│   │   ├── events.ts           # CloudEvents-like + linha do outbox
-│   │   └── texto.ts            # ids e utilitários
-│   ├── ports/
-│   │   └── SessaoRepository.ts # SessaoRepository + OutboxRepository
-│   ├── features/
-│   │   ├── createSessao.ts
-│   │   ├── listSessoes.ts
-│   │   ├── getSessao.ts
-│   │   ├── changeStatus.ts
-│   │   └── relayOutbox.ts
-│   ├── infrastructure/
-│   │   ├── sql/
-│   │   │   ├── SqlSessaoRepository.ts
-│   │   │   ├── connection.ts   # retry 10x com backoff de 2s
-│   │   │   └── schema.ts       # DDL idempotente (SESSAO + OUTBOX_EVENTO)
-│   │   ├── memory/InMemorySessaoRepository.ts
-│   │   └── seed/sessoesSeed.ts
-│   ├── http/
-│   │   ├── app.ts
-│   │   ├── openapi.ts
-│   │   ├── errorHandler.ts
-│   │   └── routes/sessoesRoutes.ts
-│   ├── config.ts
-│   └── server.ts               # composition root + relay a cada 2s
-├── scripts/seed.ts             # seed idempotente por id
-├── test/                       # vitest: domínio, casos de uso e relay
-├── .dependency-cruiser.cjs
-└── Dockerfile                  # multi-stage node:22-alpine, non-root
+│   ├── features/                    # vertical slices
+│   │   ├── sessoes/                 # agregado e máquina de estados
+│   │   │   ├── domain/              # regras puras, sem imports externos
+│   │   │   │   ├── sessao.ts        # Sessao, status, ações, eventos
+│   │   │   │   ├── errors.ts        # erros do slice (422/403/404/409)
+│   │   │   │   ├── validation.ts    # validarCriacao, filtros de status
+│   │   │   │   ├── stateMachine.ts  # aceitar/recusar/cancelar/concluir
+│   │   │   │   ├── events.ts        # CloudEvents-like + linha do outbox
+│   │   │   │   └── texto.ts         # ids e utilitários
+│   │   │   ├── application/         # casos de uso + porta de saída
+│   │   │   │   ├── SessaoRepository.ts
+│   │   │   │   ├── createSessao.ts
+│   │   │   │   ├── listSessoes.ts
+│   │   │   │   ├── getSessao.ts
+│   │   │   │   └── changeStatus.ts
+│   │   │   ├── infrastructure/      # adaptadores SQL (Azure SQL) e memória
+│   │   │   │   ├── SqlSessaoRepository.ts
+│   │   │   │   ├── connection.ts    # retry 10x com backoff de 2s
+│   │   │   │   ├── schema.ts        # DDL idempotente (SESSAO + OUTBOX_EVENTO)
+│   │   │   │   ├── InMemorySessaoRepository.ts
+│   │   │   │   └── sessoesSeed.ts
+│   │   │   └── presentation/sessoesRoutes.ts
+│   │   └── outbox/                  # fatia de publicação de eventos
+│   │       └── application/
+│   │           ├── OutboxRepository.ts
+│   │           └── relayOutbox.ts
+│   ├── shared/                      # kernel compartilhado (sem conhecer slices)
+│   │   ├── domain/DomainError.ts    # erro base do domínio
+│   │   ├── http/                    # errorHandler, openapi, /health
+│   │   └── config.ts                # leitura de env
+│   ├── app.ts                       # composition root (Express + slices)
+│   └── server.ts                    # bootstrap + relay a cada 2s
+├── scripts/seed.ts                  # seed idempotente por id
+├── test/                            # vitest: domínio, casos de uso, relay e arquitetura
+├── vitest.config.ts                 # globals (exigido pelo ArchUnitTS)
+└── Dockerfile                       # multi-stage node:22-alpine, non-root
 ```
 
-Regras verificadas por `depcruise`:
+Regras verificadas pelo ArchUnitTS (`test/architecture.test.ts`):
 
-- `domain` não importa nada fora de `domain`;
-- `features` não importa `infrastructure`, `http` nem drivers;
-- `ports` não importa `infrastructure`;
-- `infrastructure` não importa `http`.
+- `domain` não depende de `application`, `infrastructure` nem `presentation`;
+- `application` não depende de `infrastructure` nem de `presentation`;
+- `presentation` não depende de `infrastructure` (usa as portas da aplicação);
+- um slice não acessa `infrastructure`/`presentation` de outro slice;
+- `shared` não conhece nenhum slice e `domain` não importa frameworks;
+- não existem dependências circulares em `src`.
 
 ## Endpoints
 
@@ -150,8 +155,8 @@ Com `SEED_ON_START=true` e a tabela vazia, insere 4 sessões: `SOLICITADA` (u1/u
 ## Testes
 
 ```bash
-npm test         # vitest run + dependency-cruiser
-npm run test:arch
+npm test          # vitest run (domínio, casos de uso, relay e arquitetura)
+npm run test:arch # só as regras de arquitetura (ArchUnitTS)
 ```
 
 Cobrem validação de criação, máquina de estados (incluindo `403` e `409`), casos de uso com

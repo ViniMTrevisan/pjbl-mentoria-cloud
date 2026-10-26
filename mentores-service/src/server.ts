@@ -1,9 +1,9 @@
-import { loadConfig } from './config';
-import { createApp } from './http/app';
-import type { MentorRepository } from './ports/MentorRepository';
-import { InMemoryMentorRepository } from './infrastructure/memory/InMemoryMentorRepository';
-import { MongoMentorRepository } from './infrastructure/mongo/MongoMentorRepository';
-import { clonarMentoresSeed } from './infrastructure/seed/mentoresSeed';
+import { loadConfig } from './shared/config';
+import { createApp } from './app';
+import type { MentorRepository } from './features/mentores/application/MentorRepository';
+import { InMemoryMentorRepository } from './features/mentores/infrastructure/InMemoryMentorRepository';
+import { MongoMentorRepository } from './features/mentores/infrastructure/MongoMentorRepository';
+import { clonarMentoresSeed } from './features/mentores/infrastructure/mentoresSeed';
 
 async function prepararMongo(
   repo: MongoMentorRepository,

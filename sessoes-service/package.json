@@ -8,8 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "vitest run && depcruise src --config .dependency-cruiser.cjs",
-    "test:arch": "depcruise src --config .dependency-cruiser.cjs",
+    "test": "vitest run",
+    "test:arch": "vitest run test/architecture.test.ts",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "@types/mssql": "12.3.0",
     "@types/node": "22.10.2",
     "@types/swagger-ui-express": "4.1.7",
-    "dependency-cruiser": "18.7.0",
+    "archunit": "^2.5.4",
     "tsx": "4.19.2",
     "typescript": "5.6.3",
     "vitest": "2.1.8"

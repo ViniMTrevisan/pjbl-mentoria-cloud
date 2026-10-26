@@ -5,15 +5,15 @@ import type {
   MentorResumo,
   Reputacao,
   Sessao,
-} from '../src/domain/types';
-import type { MentoresPort } from '../src/application/ports/MentoresPort';
-import type { SessoesPort } from '../src/application/ports/SessoesPort';
-import type { ReputacaoPort } from '../src/application/ports/ReputacaoPort';
+} from '../src/features/agregacao/domain/agregado';
+import type { MentoresPort } from '../src/features/agregacao/application/ports/MentoresPort';
+import type { SessoesPort } from '../src/features/agregacao/application/ports/SessoesPort';
+import type { ReputacaoPort } from '../src/features/agregacao/application/ports/ReputacaoPort';
 import {
   getAggregatedData,
   separarSessoes,
   type AgregacaoDeps,
-} from '../src/application/use-cases/getAggregatedData';
+} from '../src/features/agregacao/application/getAggregatedData';
 
 const AGORA = new Date('2026-10-20T18:00:00.000Z');
 

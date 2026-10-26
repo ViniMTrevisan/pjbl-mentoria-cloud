@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcularReputacao, ReputacaoInvalidaError, seloPara } from "../src/domain/reputacao";
+import { calcularReputacao, ReputacaoInvalidaError, seloPara } from "../src/features/reputacao/domain/reputacao";
 
 describe("calcularReputacao", () => {
   it("sem notas devolve media null e semAvaliacoes", () => {
