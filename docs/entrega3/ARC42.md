@@ -192,8 +192,10 @@ mentores-service/src/            sessoes-service/src/              bff/src/
                                  └── http/
 ```
 
-O teste de arquitetura (`npm run test:arch`) falha se `domain` importar infraestrutura,
-se `features` importar Express/driver ou se `ports` importar `infrastructure`.
+O teste de arquitetura (`npm run test:arch`, ArchUnitTS) falha se `domain` importar
+`application`/`infrastructure`/`presentation` ou framework, se `application` importar
+infraestrutura/apresentação, se `presentation` importar adaptador concreto, se um slice invadir as
+camadas internas de outro, ou se houver ciclo em `src`.
 
 # 6. Visão de runtime
 
@@ -343,7 +345,7 @@ Rotas pertencem ao shell; remotes recebem apenas o necessário por props e leem 
 |---|---|---|
 | Unitário de domínio | `*/test/*.test.ts` | Vitest |
 | Unitário de caso de uso | idem, com repositório fake | Vitest |
-| Arquitetura | `*/test:arch` | dependency-cruiser |
+| Arquitetura | `*/test:arch` | ArchUnitTS |
 | Smoke de integração | `scripts/smoke.sh` | curl no gateway |
 | Manual | roteiro da seção 12 | navegador |
 

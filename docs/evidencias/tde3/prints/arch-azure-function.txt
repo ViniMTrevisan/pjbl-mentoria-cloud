@@ -1,0 +1,26 @@
+
+> azure-function-reputacao@3.0.0 test:arch
+> vitest run test/architecture.test.ts --reporter=verbose
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 /Users/vinitrevisan/Documents/pucpr/arq-cloud/pjbl-mentoria/azure-function
+
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > domain não depende de application, infrastructure nem presentation
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > application não depende de infrastructure nem de presentation
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > presentation não depende de infrastructure (usa as portas da aplicação)
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice reputacao não acessa infrastructure/presentation do slice eventos
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice reputacao não acessa infrastructure/presentation do slice saude
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice eventos não acessa infrastructure/presentation do slice reputacao
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice eventos não acessa infrastructure/presentation do slice saude
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice saude não acessa infrastructure/presentation do slice reputacao
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice saude não acessa infrastructure/presentation do slice eventos
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > o núcleo compartilhado não conhece nenhum slice
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > o domínio não importa frameworks (Express, Zod, driver de banco)
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > não existem dependências circulares em src
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  19:24:14
+   Duration  691ms (transform 16ms, setup 0ms, collect 183ms, tests 250ms, environment 0ms, prepare 63ms)
+

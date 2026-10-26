@@ -1,0 +1,22 @@
+
+> sessoes-service@1.0.0 test:arch
+> vitest run test/architecture.test.ts --reporter=verbose
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.8 /Users/vinitrevisan/Documents/pucpr/arq-cloud/pjbl-mentoria/sessoes-service
+
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > domain não depende de application, infrastructure nem presentation 311ms
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > application não depende de infrastructure nem de presentation
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > presentation não depende de infrastructure (usa as portas da aplicação)
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice sessoes não acessa infrastructure/presentation do slice outbox
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > slice outbox não acessa infrastructure/presentation do slice sessoes
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > o núcleo compartilhado não conhece nenhum slice
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > o domínio não importa frameworks (Express, Zod, driver de banco)
+ ✓ test/architecture.test.ts > arquitetura: vertical slice + clean architecture > não existem dependências circulares em src
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  19:24:03
+   Duration  839ms (transform 16ms, setup 0ms, collect 265ms, tests 315ms, environment 0ms, prepare 64ms)
+

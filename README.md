@@ -121,6 +121,31 @@ Entrega de **Vertical Slice, Clean Architecture e SOLID** aplicada ao backend:
 
 Para regenerar o PDF: `python3 -m pip install reportlab` e `python3 docs/build-tde2-pdf.py`.
 
+## TDE 3 - vertical slice + clean architecture nos backends
+
+Entrega de **Vertical Slice + Clean Architecture** aplicada aos quatro projetos backend (BFF, mentores-service,
+sessoes-service e azure-function), com **testes unitários de arquitetura** usando **ArchUnitTS**.
+
+- [Documento da entrega (DOCX)](docs/evidencias/tde3/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.docx)
+- [Documento da entrega (PDF)](docs/evidencias/tde3/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.pdf)
+- [Prints da execução dos testes](docs/evidencias/tde3/prints) (gerados por `docs/evidencias/tde3/render_terminal.py`)
+- Testes de arquitetura: [bff](bff/test/architecture.test.ts), [mentores-service](mentores-service/test/architecture.test.ts), [sessoes-service](sessoes-service/test/architecture.test.ts), [azure-function](azure-function/test/architecture.test.ts)
+- [Pull request da entrega](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/pull/1)
+
+Estrutura aplicada em todos os backends:
+
+```text
+src/features/<slice>/domain/          regras puras, sem framework
+src/features/<slice>/application/     casos de uso + portas
+src/features/<slice>/infrastructure/  adaptadores (Mongo, SQL, HTTP, memória)
+src/features/<slice>/presentation/    rotas/handlers
+src/shared/                           kernel (DomainError, config, contratos, http)
+src/app.ts                            composition root
+```
+
+`npm run test:arch` roda as 54 regras de arquitetura (direção das dependências, isolamento entre slices,
+domínio sem frameworks e ausência de ciclos). `npm test` roda domínio, casos de uso e arquitetura juntos.
+
 ## Grupo
 
 Bento Barp · Guilherme Reis · Guilherme Selenko · Vinicius Trevisan — ver [GRUPO.md](GRUPO.md).
