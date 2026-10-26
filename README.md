@@ -126,8 +126,8 @@ Para regenerar o PDF: `python3 -m pip install reportlab` e `python3 docs/build-t
 Entrega de **Vertical Slice + Clean Architecture** aplicada aos quatro projetos backend (BFF, mentores-service,
 sessoes-service e azure-function), com **testes unitários de arquitetura** usando **ArchUnitTS**.
 
-- [Documento da entrega (DOCX)](docs/evidencias/tde3/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.docx)
-- [Documento da entrega (PDF)](docs/evidencias/tde3/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.pdf)
+- [Documento da entrega (DOCX)](output/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.docx)
+- [Documento da entrega (PDF)](output/pdf/TDE3-Vertical-Slice-Clean-Architecture-ArchUnitTS.pdf)
 - [Prints da execução dos testes](docs/evidencias/tde3/prints) (gerados por `docs/evidencias/tde3/render_terminal.py`)
 - Testes de arquitetura: [bff](bff/test/architecture.test.ts), [mentores-service](mentores-service/test/architecture.test.ts), [sessoes-service](sessoes-service/test/architecture.test.ts), [azure-function](azure-function/test/architecture.test.ts)
 - [Pull request da entrega](https://github.com/ViniMTrevisan/pjbl-mentoria-cloud/pull/1)
